@@ -1,0 +1,25 @@
+{
+    "name": "Acme",
+    "dailyClose": { "tz": "America/New_York", "time": "17:00" },
+    "modules": { "affiliates": false, "kyc": false, "multiBrand": false },
+    "products": [
+        {
+            "id": "50k",
+            "name": "50k one-step",
+            "phases": [
+                {
+                    "name": "eval",
+                    "kind": "eval",
+                    "balance": 50000,
+                    "fee": 99,
+                    "ruleset": {
+                        "profitTarget": 3000,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 4
+                    }
+                }
+            ]
+        }
+    ]
+}

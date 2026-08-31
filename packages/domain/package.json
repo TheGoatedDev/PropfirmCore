@@ -1,0 +1,19 @@
+{
+    "name": "@propfirmcore/domain",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit -p tsconfig.json"
+    },
+    "dependencies": {
+        "@propfirmcore/config": "workspace:*",
+        "zod": "4.5.4"
+    },
+    "devDependencies": {
+        "typescript": "7.0.2"
+    }
+}
