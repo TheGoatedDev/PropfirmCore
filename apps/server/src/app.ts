@@ -21,10 +21,9 @@ import {
     fillToRow,
     snapshots,
 } from "./db.ts";
+import { errorSchema, httpDesc } from "./http-desc.ts";
 import { requireApiKey } from "./ingest-key.ts";
 import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
-
-const errorSchema = z.object({ error: z.string() });
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 
@@ -72,11 +71,11 @@ export function createApp(deps: AppDeps) {
             tags: ["trader"],
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The signed-in user.",
                     content: { "application/json": { schema: meSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: {
                         "application/json": { schema: errorSchema },
                     },
@@ -120,19 +119,19 @@ export function createApp(deps: AppDeps) {
             },
             responses: {
                 201: {
-                    description: "created",
+                    description: "The trading account was created.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 400: {
-                    description: "bad request",
+                    description: httpDesc.badRequest,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 409: {
-                    description: "exists",
+                    description: httpDesc.exists,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -168,15 +167,15 @@ export function createApp(deps: AppDeps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The trading account.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -208,19 +207,20 @@ export function createApp(deps: AppDeps) {
             },
             responses: {
                 200: {
-                    description: "ok",
+                    description:
+                        "The account after applying the equity snapshot.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 400: {
-                    description: "bad request",
+                    description: httpDesc.badRequest,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -283,19 +283,19 @@ export function createApp(deps: AppDeps) {
             },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The account after applying the fills.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 400: {
-                    description: "bad request",
+                    description: httpDesc.badRequest,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },

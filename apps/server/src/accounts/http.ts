@@ -11,9 +11,9 @@ import {
     fills,
     snapshots,
 } from "../db.ts";
+import { errorSchema, httpDesc } from "../http-desc.ts";
 import { roleHasPermission } from "../permissions.ts";
 
-const errorSchema = z.object({ error: z.string() });
 const idParam = z.object({ id: z.string().min(1) });
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
@@ -38,13 +38,13 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             tags: ["trader"],
             responses: {
                 200: {
-                    description: "ok",
+                    description: "Challenge products this firm sells.",
                     content: {
                         "application/json": { schema: z.array(z.unknown()) },
                     },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -65,13 +65,13 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             tags: ["trader"],
             responses: {
                 200: {
-                    description: "ok",
+                    description: "Trading accounts you can see.",
                     content: {
                         "application/json": { schema: z.array(accountSchema) },
                     },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -100,19 +100,19 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The trading account.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -145,21 +145,21 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "Fills on this account.",
                     content: {
                         "application/json": { schema: z.array(z.unknown()) },
                     },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -195,21 +195,21 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "Equity snapshots on this account.",
                     content: {
                         "application/json": { schema: z.array(z.unknown()) },
                     },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -245,19 +245,19 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The account is now failed.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -296,19 +296,19 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The account is now passed.",
                     content: { "application/json": { schema: accountSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },

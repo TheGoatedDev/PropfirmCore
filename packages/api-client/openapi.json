@@ -233,7 +233,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The signed-in user.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -259,14 +259,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -297,7 +298,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Checkout started. Follow redirectUrl if set; free products return an account immediately.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -372,14 +373,15 @@
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "The request was invalid. Check the body and parameters.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -390,14 +392,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -428,7 +431,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Payment marked paid and a trading account opened.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -497,14 +500,15 @@
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "The request was invalid. Check the body and parameters.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -515,14 +519,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -533,14 +538,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -571,7 +577,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The payment.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -629,14 +635,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -647,14 +654,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -665,14 +673,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -692,7 +701,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Challenge products this firm sells.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -705,14 +714,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -732,7 +742,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Trading accounts you can see.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -810,14 +820,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -848,7 +859,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The trading account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -923,14 +934,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -941,14 +953,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -959,14 +972,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -997,7 +1011,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Fills on this account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1010,14 +1024,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1028,14 +1043,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1046,14 +1062,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1084,7 +1101,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "Equity snapshots on this account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1097,14 +1114,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1115,14 +1133,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1133,14 +1152,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1171,7 +1191,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The account is now failed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1246,14 +1266,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1264,14 +1285,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1282,14 +1304,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1320,7 +1343,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The account is now passed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1395,14 +1418,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1413,14 +1437,15 @@
                         }
                     },
                     "403": {
-                        "description": "forbidden",
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1431,14 +1456,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1492,7 +1518,7 @@
                 },
                 "responses": {
                     "201": {
-                        "description": "created",
+                        "description": "The trading account was created.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1567,14 +1593,15 @@
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "The request was invalid. Check the body and parameters.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1585,14 +1612,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1603,14 +1631,15 @@
                         }
                     },
                     "409": {
-                        "description": "exists",
+                        "description": "A resource with this id already exists.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1646,7 +1675,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The trading account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1721,14 +1750,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1739,14 +1769,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1864,7 +1895,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The account after applying the equity snapshot.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1939,14 +1970,15 @@
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "The request was invalid. Check the body and parameters.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1957,14 +1989,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -1975,14 +2008,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -2103,7 +2137,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "ok",
+                        "description": "The account after applying the fills.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2178,14 +2212,15 @@
                         }
                     },
                     "400": {
-                        "description": "bad request",
+                        "description": "The request was invalid. Check the body and parameters.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -2196,14 +2231,15 @@
                         }
                     },
                     "401": {
-                        "description": "unauthorized",
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [
@@ -2214,14 +2250,15 @@
                         }
                     },
                     "404": {
-                        "description": "not found",
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
                                         "error": {
-                                            "type": "string"
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
                                         }
                                     },
                                     "required": [

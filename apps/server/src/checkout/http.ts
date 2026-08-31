@@ -4,11 +4,10 @@ import { eq } from "drizzle-orm";
 import type { Auth } from "../auth.ts";
 import type { Db } from "../db.ts";
 import { payments } from "../db.ts";
+import { errorSchema, httpDesc } from "../http-desc.ts";
 import { roleHasPermission } from "../permissions.ts";
 import { getAdapter } from "./adapters.ts";
 import { completePayment, startCheckout } from "./service.ts";
-
-const errorSchema = z.object({ error: z.string() });
 
 const paymentSchema = z.object({
     id: z.string(),
@@ -37,7 +36,8 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
-                    description: "ok",
+                    description:
+                        "Checkout started. Follow redirectUrl if set; free products return an account immediately.",
                     content: {
                         "application/json": {
                             schema: z.object({
@@ -49,11 +49,11 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
                     },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 400: {
-                    description: "bad request",
+                    description: httpDesc.badRequest,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -90,7 +90,8 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
-                    description: "ok",
+                    description:
+                        "Payment marked paid and a trading account opened.",
                     content: {
                         "application/json": {
                             schema: z.object({
@@ -101,15 +102,15 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
                     },
                 },
                 400: {
-                    description: "bad request",
+                    description: httpDesc.badRequest,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },
@@ -154,19 +155,19 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
-                    description: "ok",
+                    description: "The payment.",
                     content: { "application/json": { schema: paymentSchema } },
                 },
                 401: {
-                    description: "unauthorized",
+                    description: httpDesc.unauthorized,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 403: {
-                    description: "forbidden",
+                    description: httpDesc.forbidden,
                     content: { "application/json": { schema: errorSchema } },
                 },
                 404: {
-                    description: "not found",
+                    description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
             },

@@ -20,7 +20,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The signed-in user. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -33,13 +33,14 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -74,7 +75,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Checkout started. Follow redirectUrl if set; free products return an account immediately. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -98,24 +99,26 @@ export interface paths {
                         };
                     };
                 };
-                /** @description bad request */
+                /** @description The request was invalid. Check the body and parameters. */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -148,7 +151,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Payment marked paid and a trading account opened. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -171,35 +174,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description bad request */
+                /** @description The request was invalid. Check the body and parameters. */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -230,7 +236,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The payment. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -250,35 +256,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -309,7 +318,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Challenge products this firm sells. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -318,13 +327,14 @@ export interface paths {
                         "application/json": unknown[];
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -355,7 +365,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Trading accounts you can see. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -378,13 +388,14 @@ export interface paths {
                         }[];
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -417,7 +428,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The trading account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -440,35 +451,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -501,7 +515,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Fills on this account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -510,35 +524,38 @@ export interface paths {
                         "application/json": unknown[];
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -571,7 +588,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description Equity snapshots on this account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -580,35 +597,38 @@ export interface paths {
                         "application/json": unknown[];
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -643,7 +663,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The account is now failed. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -666,35 +686,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -727,7 +750,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The account is now passed. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -750,35 +773,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description forbidden */
+                /** @description You do not have permission to do this. */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -817,7 +843,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description created */
+                /** @description The trading account was created. */
                 201: {
                     headers: {
                         [name: string]: unknown;
@@ -840,35 +866,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description bad request */
+                /** @description The request was invalid. Check the body and parameters. */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description exists */
+                /** @description A resource with this id already exists. */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -899,7 +928,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description ok */
+                /** @description The trading account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -922,24 +951,26 @@ export interface paths {
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -993,7 +1024,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description ok */
+                /** @description The account after applying the equity snapshot. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1016,35 +1047,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description bad request */
+                /** @description The request was invalid. Check the body and parameters. */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
@@ -1097,7 +1131,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description ok */
+                /** @description The account after applying the fills. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1120,35 +1154,38 @@ export interface paths {
                         };
                     };
                 };
-                /** @description bad request */
+                /** @description The request was invalid. Check the body and parameters. */
                 400: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description unauthorized */
+                /** @description You are not signed in, or the API key is missing or wrong. */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
                 };
-                /** @description not found */
+                /** @description Nothing exists at this id. */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
+                            /** @description What went wrong, in plain language. */
                             error: string;
                         };
                     };
