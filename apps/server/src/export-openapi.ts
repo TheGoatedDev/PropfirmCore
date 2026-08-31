@@ -1,8 +1,8 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { loadFirmConfig } from "@propfirmcore/config";
-import { createApp } from "./app.ts";
-import { createAuth } from "./auth.ts";
-import type { Db } from "./db.ts";
+import { createAuth } from "./auth/auth.ts";
+import type { Db } from "./db/db.ts";
+import { createApp } from "./http/app.ts";
 
 const firm = loadFirmConfig(
     readFileSync(

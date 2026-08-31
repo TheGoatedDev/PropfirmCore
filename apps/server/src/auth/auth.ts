@@ -1,8 +1,8 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { betterAuth } from "better-auth";
 import { admin, bearer, openAPI } from "better-auth/plugins";
+import type { Db } from "../db/db.ts";
 import * as authSchema from "./auth-schema.ts";
-import type { Db } from "./db.ts";
 import { ac, admin as adminRole, trader } from "./permissions.ts";
 
 export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {

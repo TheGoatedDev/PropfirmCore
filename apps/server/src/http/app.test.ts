@@ -1,9 +1,9 @@
 import { readFileSync } from "node:fs";
 import { loadFirmConfig } from "@propfirmcore/config";
 import { describe, expect, it } from "vitest";
+import type { Auth } from "../auth/auth.ts";
+import type { Db } from "../db/db.ts";
 import { type AppDeps, createApp } from "./app.ts";
-import type { Auth } from "./auth.ts";
-import type { Db } from "./db.ts";
 
 const auth = {
     handler: () => new Response("not found", { status: 404 }),
@@ -17,7 +17,7 @@ const auth = {
 
 const firm = loadFirmConfig(
     readFileSync(
-        new URL("../../../firm.example.json", import.meta.url),
+        new URL("../../../../firm.example.json", import.meta.url),
         "utf8",
     ),
 );

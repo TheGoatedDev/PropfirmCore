@@ -6,7 +6,8 @@ import {
     tradingAccountSchema,
 } from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
-import type { Auth } from "../auth.ts";
+import type { Auth } from "../auth/auth.ts";
+import { roleHasPermission } from "../auth/permissions.ts";
 import {
     type Db,
     fills,
@@ -14,10 +15,9 @@ import {
     tradingAccountFromRow,
     tradingAccounts,
     tradingAccountToRow,
-} from "../db.ts";
-import { errorSchema, httpDesc } from "../http-desc.ts";
-import { tags } from "../openapi.ts";
-import { roleHasPermission } from "../permissions.ts";
+} from "../db/db.ts";
+import { errorSchema, httpDesc } from "../http/http-desc.ts";
+import { tags } from "../http/openapi.ts";
 
 const idParam = z.object({ id: z.string().min(1) });
 

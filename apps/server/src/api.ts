@@ -1,9 +1,9 @@
 import { serve } from "@hono/node-server";
-import { createApp } from "./app.ts";
-import { createAuth } from "./auth.ts";
-import { bootstrapAdmin } from "./bootstrap-admin.ts";
-import { createDb, migrate } from "./db.ts";
-import { defaultFirmPath, loadFirmFromPath } from "./firm.ts";
+import { createAuth } from "./auth/auth.ts";
+import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
+import { createDb, migrate } from "./db/db.ts";
+import { createApp } from "./http/app.ts";
+import { defaultFirmPath, loadFirmFromPath } from "./http/firm.ts";
 
 const databaseUrl = process.env.DATABASE_URL;
 const apiKey = process.env.INGEST_API_KEY;

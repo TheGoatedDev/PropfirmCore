@@ -17,7 +17,7 @@ No: `trader`, `accounts`, `firmAdmin`, `FirmAdmin`, `firm admin`
 
 Hyphenated groups: spaces around `-` (`Authentication - Admin`).
 
-Put tag names in `tags` in `apps/server/src/openapi.ts`. Do not hardcode a different spelling on a route.
+Put tag names in `tags` in `apps/server/src/http/openapi.ts`. Do not hardcode a different spelling on a route.
 
 Every tag needs a description (full sentence) in `tagMeta`.
 

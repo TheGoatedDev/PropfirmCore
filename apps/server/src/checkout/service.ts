@@ -7,7 +7,7 @@ import {
     tradingAccountFromRow,
     tradingAccounts,
     tradingAccountToRow,
-} from "../db.ts";
+} from "../db/db.ts";
 import { getAdapter } from "./adapters.ts";
 
 export function productFee(firm: FirmConfig, productId: string): number | null {

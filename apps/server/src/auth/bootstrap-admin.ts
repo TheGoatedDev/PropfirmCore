@@ -1,7 +1,7 @@
 import { eq } from "drizzle-orm";
+import type { Db } from "../db/db.ts";
 import type { Auth } from "./auth.ts";
 import { user } from "./auth-schema.ts";
-import type { Db } from "./db.ts";
 
 export async function bootstrapAdmin(
     db: Db,

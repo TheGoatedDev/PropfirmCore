@@ -22,8 +22,8 @@ import {
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate as migrateDb } from "drizzle-orm/postgres-js/migrator";
 import postgres from "postgres";
-import * as authSchema from "./auth-schema.ts";
-import { user } from "./auth-schema.ts";
+import * as authSchema from "../auth/auth-schema.ts";
+import { user } from "../auth/auth-schema.ts";
 
 export const paymentStatuses = [
     "pending",
@@ -125,7 +125,7 @@ export async function migrate(db: Db): Promise<void> {
     await migrateDb(db, {
         migrationsFolder: join(
             dirname(fileURLToPath(import.meta.url)),
-            "../drizzle",
+            "../../drizzle",
         ),
     });
 }

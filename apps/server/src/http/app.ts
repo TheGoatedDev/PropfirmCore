@@ -10,8 +10,8 @@ import {
 } from "@propfirmcore/domain";
 import { eq, inArray } from "drizzle-orm";
 import { cors } from "hono/cors";
-import type { Auth } from "./auth.ts";
-import { mountCheckout } from "./checkout/http.ts";
+import type { Auth } from "../auth/auth.ts";
+import { mountCheckout } from "../checkout/http.ts";
 import {
     type Db,
     fills,
@@ -20,11 +20,11 @@ import {
     tradingAccountFromRow,
     tradingAccounts,
     tradingAccountToRow,
-} from "./db.ts";
+} from "../db/db.ts";
+import { mountTradingAccounts } from "../trading-accounts/http.ts";
 import { errorSchema, httpDesc } from "./http-desc.ts";
 import { requireApiKey } from "./ingest-key.ts";
 import { openApiInfo, tags, withAuthOpenAPI } from "./openapi.ts";
-import { mountTradingAccounts } from "./trading-accounts/http.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 
