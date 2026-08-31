@@ -22,7 +22,7 @@ import { api, authPost } from "./api.ts";
 
 type Me = { id: string; email: string; role: string };
 type Product = { id: string; name: string; phases: { fee: number }[] };
-type Account = {
+type TradingAccount = {
     id: string;
     productId: string;
     status: string;
@@ -87,8 +87,8 @@ export function App() {
 
     if (!ready) return <p className="p-6">Loading</p>;
 
-    const accountId = path.startsWith("/accounts/")
-        ? path.slice("/accounts/".length)
+    const accountId = path.startsWith("/trading-accounts/")
+        ? path.slice("/trading-accounts/".length)
         : null;
 
     return (
@@ -234,13 +234,13 @@ function AuthForm({
 
 function Home({ onError }: { onError: (msg: string | null) => void }) {
     const [products, setProducts] = useState<Product[]>([]);
-    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [accounts, setAccounts] = useState<TradingAccount[]>([]);
     const [paymentId, setPaymentId] = useState<string | null>(null);
 
     const load = useCallback(async () => {
         const [p, a] = await Promise.all([
             api.GET("/products"),
-            api.GET("/accounts"),
+            api.GET("/trading-accounts"),
         ]);
         setProducts((p.data as Product[] | undefined) ?? []);
         setAccounts(a.data ?? []);
@@ -282,7 +282,7 @@ function Home({ onError }: { onError: (msg: string | null) => void }) {
                 </div>
             </section>
             <section>
-                <h2 className="mb-3 text-lg font-medium">Accounts</h2>
+                <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -297,7 +297,7 @@ function Home({ onError }: { onError: (msg: string | null) => void }) {
                             <TableRow
                                 key={a.id}
                                 className="cursor-pointer"
-                                onClick={() => go(`/accounts/${a.id}`)}
+                                onClick={() => go(`/trading-accounts/${a.id}`)}
                             >
                                 <TableCell>{a.id}</TableCell>
                                 <TableCell>{a.productId}</TableCell>
@@ -321,7 +321,7 @@ function AccountDetail({
     id: string;
     onError: (msg: string | null) => void;
 }) {
-    const [account, setAccount] = useState<Account | null>(null);
+    const [account, setAccount] = useState<TradingAccount | null>(null);
     const [fills, setFills] = useState<Fill[]>([]);
     const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
 
@@ -329,9 +329,11 @@ function AccountDetail({
         void (async () => {
             onError(null);
             const [a, f, s] = await Promise.all([
-                api.GET("/accounts/{id}", { params: { path: { id } } }),
-                api.GET("/accounts/{id}/fills", { params: { path: { id } } }),
-                api.GET("/accounts/{id}/snapshots", {
+                api.GET("/trading-accounts/{id}", { params: { path: { id } } }),
+                api.GET("/trading-accounts/{id}/fills", {
+                    params: { path: { id } },
+                }),
+                api.GET("/trading-accounts/{id}/snapshots", {
                     params: { path: { id } },
                 }),
             ]);

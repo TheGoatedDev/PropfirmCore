@@ -30,7 +30,7 @@ test("trader buys, admin completes", async ({ browser }) => {
     await admin.getByLabel("Password").fill("changeme");
     await admin.getByRole("button", { name: "Sign in" }).click();
     await expect(
-        admin.getByRole("heading", { name: "Accounts" }),
+        admin.getByRole("heading", { name: "Trading accounts" }),
     ).toBeVisible();
     await admin.getByLabel("Payment ID").fill(paymentId ?? "");
     await admin.getByRole("button", { name: "Complete" }).click();

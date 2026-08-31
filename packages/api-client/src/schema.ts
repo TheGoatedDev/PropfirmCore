@@ -75,7 +75,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Checkout started. Follow redirectUrl if set; free products return an account immediately. */
+                /** @description Checkout started. Follow redirectUrl if set; free products return a trading account immediately. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -92,9 +92,9 @@ export interface paths {
                                 providerRef: string | null;
                                 /** @enum {string} */
                                 status: "pending" | "paid" | "failed" | "canceled";
-                                accountId: string | null;
+                                tradingAccountId: string | null;
                             } | null;
-                            account?: unknown;
+                            tradingAccount?: unknown;
                             redirectUrl: string | null;
                         };
                     };
@@ -168,9 +168,9 @@ export interface paths {
                                 providerRef: string | null;
                                 /** @enum {string} */
                                 status: "pending" | "paid" | "failed" | "canceled";
-                                accountId: string | null;
+                                tradingAccountId: string | null;
                             };
-                            account?: unknown;
+                            tradingAccount?: unknown;
                         };
                     };
                 };
@@ -252,7 +252,7 @@ export interface paths {
                             providerRef: string | null;
                             /** @enum {string} */
                             status: "pending" | "paid" | "failed" | "canceled";
-                            accountId: string | null;
+                            tradingAccountId: string | null;
                         };
                     };
                 };
@@ -349,7 +349,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts": {
+    "/trading-accounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -410,7 +410,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts/{id}": {
+    "/trading-accounts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -497,7 +497,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts/{id}/fills": {
+    "/trading-accounts/{id}/fills": {
         parameters: {
             query?: never;
             header?: never;
@@ -515,7 +515,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Fills on this account. */
+                /** @description Fills on this trading account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -570,7 +570,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts/{id}/snapshots": {
+    "/trading-accounts/{id}/snapshots": {
         parameters: {
             query?: never;
             header?: never;
@@ -588,7 +588,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Equity snapshots on this account. */
+                /** @description Equity snapshots on this trading account. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -643,7 +643,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts/{id}/fail": {
+    "/trading-accounts/{id}/fail": {
         parameters: {
             query?: never;
             header?: never;
@@ -663,7 +663,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description The account is now failed. */
+                /** @description The trading account is now failed. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -730,7 +730,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/accounts/{id}/pass": {
+    "/trading-accounts/{id}/pass": {
         parameters: {
             query?: never;
             header?: never;
@@ -750,7 +750,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description The account is now passed. */
+                /** @description The trading account is now passed. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -817,7 +817,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ingest/accounts": {
+    "/ingest/trading-accounts": {
         parameters: {
             query?: never;
             header?: never;
@@ -910,7 +910,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ingest/accounts/{id}": {
+    "/ingest/trading-accounts/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -985,7 +985,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ingest/accounts/{id}/snapshot": {
+    "/ingest/trading-accounts/{id}/snapshot": {
         parameters: {
             query?: never;
             header?: never;
@@ -1024,7 +1024,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description The account after applying the equity snapshot. */
+                /** @description The trading account after applying the equity snapshot. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1091,7 +1091,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ingest/accounts/{id}/fills": {
+    "/ingest/trading-accounts/{id}/fills": {
         parameters: {
             query?: never;
             header?: never;
@@ -1131,7 +1131,7 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description The account after applying the fills. */
+                /** @description The trading account after applying the fills. */
                 200: {
                     headers: {
                         [name: string]: unknown;

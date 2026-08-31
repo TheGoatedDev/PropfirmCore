@@ -1,10 +1,10 @@
 import type { Ruleset } from "@propfirmcore/config";
-import type { Account } from "./schemas.ts";
+import type { TradingAccount } from "./schemas.ts";
 
 export type RuleResult = "pass" | "fail" | "continue";
 
 export type RuleContext = {
-    account: Account;
+    tradingAccount: TradingAccount;
     ruleset: Ruleset;
 };
 
@@ -15,32 +15,35 @@ export type Rule = {
 
 export const profitTarget: Rule = {
     id: "profitTarget",
-    evaluate: ({ account, ruleset }) =>
-        account.equity - account.startBalance >= ruleset.profitTarget
+    evaluate: ({ tradingAccount, ruleset }) =>
+        tradingAccount.equity - tradingAccount.startBalance >=
+        ruleset.profitTarget
             ? "pass"
             : "continue",
 };
 
 export const maxDrawdown: Rule = {
     id: "maxDrawdown",
-    evaluate: ({ account, ruleset }) =>
-        account.startBalance - account.equity >= ruleset.maxDrawdown
+    evaluate: ({ tradingAccount, ruleset }) =>
+        tradingAccount.startBalance - tradingAccount.equity >=
+        ruleset.maxDrawdown
             ? "fail"
             : "pass",
 };
 
 export const dailyDrawdown: Rule = {
     id: "dailyDrawdown",
-    evaluate: ({ account, ruleset }) =>
-        account.dailyStartEquity - account.equity >= ruleset.dailyDrawdown
+    evaluate: ({ tradingAccount, ruleset }) =>
+        tradingAccount.dailyStartEquity - tradingAccount.equity >=
+        ruleset.dailyDrawdown
             ? "fail"
             : "pass",
 };
 
 export const minTradingDays: Rule = {
     id: "minTradingDays",
-    evaluate: ({ account, ruleset }) =>
-        account.tradingDays.length >= ruleset.minTradingDays
+    evaluate: ({ tradingAccount, ruleset }) =>
+        tradingAccount.tradingDays.length >= ruleset.minTradingDays
             ? "pass"
             : "continue",
 };

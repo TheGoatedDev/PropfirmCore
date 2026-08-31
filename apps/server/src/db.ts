@@ -1,15 +1,15 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
-    type Account,
-    accountSchema,
-    accountStatuses,
     assetClasses,
     type Fill,
     fillSchema,
     fillSides,
     type Position,
     type Snapshot,
+    type TradingAccount,
+    tradingAccountSchema,
+    tradingAccountStatuses,
 } from "@propfirmcore/domain";
 import {
     doublePrecision,
@@ -34,17 +34,20 @@ export const paymentStatuses = [
 
 type Same<A, B> = [A, B] extends [B, A] ? true : { expected: A; got: B };
 
-export const accountStatusEnum = pgEnum("account_status", accountStatuses);
+export const tradingAccountStatusEnum = pgEnum(
+    "trading_account_status",
+    tradingAccountStatuses,
+);
 export const assetClassEnum = pgEnum("asset_class", assetClasses);
 export const fillSideEnum = pgEnum("fill_side", fillSides);
 export const paymentStatusEnum = pgEnum("payment_status", paymentStatuses);
 
-export const accounts = pgTable("accounts", {
+export const tradingAccounts = pgTable("trading_accounts", {
     id: text("id").primaryKey(),
     userId: text("user_id"),
     productId: text("product_id").notNull(),
     phaseIndex: integer("phase_index").notNull(),
-    status: accountStatusEnum("status").notNull(),
+    status: tradingAccountStatusEnum("status").notNull(),
     startBalance: doublePrecision("start_balance").notNull(),
     equity: doublePrecision("equity").notNull(),
     balance: doublePrecision("balance").notNull(),
@@ -56,9 +59,9 @@ export const accounts = pgTable("accounts", {
 
 export const snapshots = pgTable("snapshots", {
     externalId: text("external_id").primaryKey(),
-    accountId: text("account_id")
+    tradingAccountId: text("trading_account_id")
         .notNull()
-        .references(() => accounts.id),
+        .references(() => tradingAccounts.id),
     equity: doublePrecision("equity").notNull(),
     balance: doublePrecision("balance").notNull(),
     ts: text("ts").notNull(),
@@ -67,9 +70,9 @@ export const snapshots = pgTable("snapshots", {
 
 export const fills = pgTable("fills", {
     externalId: text("external_id").primaryKey(),
-    accountId: text("account_id")
+    tradingAccountId: text("trading_account_id")
         .notNull()
-        .references(() => accounts.id),
+        .references(() => tradingAccounts.id),
     positionId: text("position_id").notNull(),
     symbol: text("symbol").notNull(),
     class: assetClassEnum("class").notNull(),
@@ -93,20 +96,25 @@ export const payments = pgTable("payments", {
     provider: text("provider").notNull(),
     providerRef: text("provider_ref"),
     status: paymentStatusEnum("status").notNull(),
-    accountId: text("account_id").references(() => accounts.id),
+    tradingAccountId: text("trading_account_id").references(
+        () => tradingAccounts.id,
+    ),
 });
 
-true satisfies Same<typeof accounts.$inferSelect, Account>;
-true satisfies Same<typeof fills.$inferSelect, Fill & { accountId: string }>;
+true satisfies Same<typeof tradingAccounts.$inferSelect, TradingAccount>;
+true satisfies Same<
+    typeof fills.$inferSelect,
+    Fill & { tradingAccountId: string }
+>;
 true satisfies Same<
     typeof snapshots.$inferSelect,
-    Snapshot & { accountId: string }
+    Snapshot & { tradingAccountId: string }
 >;
 
 export function createDb(url: string) {
     const sql = postgres(url);
     const db = drizzle(sql, {
-        schema: { ...authSchema, accounts, fills, snapshots, payments },
+        schema: { ...authSchema, tradingAccounts, fills, snapshots, payments },
     });
     return { db, sql };
 }
@@ -122,17 +130,21 @@ export async function migrate(db: Db): Promise<void> {
     });
 }
 
-export function accountFromRow(row: typeof accounts.$inferSelect): Account {
-    return accountSchema.parse(row);
+export function tradingAccountFromRow(
+    row: typeof tradingAccounts.$inferSelect,
+): TradingAccount {
+    return tradingAccountSchema.parse(row);
 }
 
-export function accountToRow(account: Account): typeof accounts.$inferInsert {
-    return accountSchema.parse(account);
+export function tradingAccountToRow(
+    account: TradingAccount,
+): typeof tradingAccounts.$inferInsert {
+    return tradingAccountSchema.parse(account);
 }
 
 export function fillToRow(
-    accountId: string,
+    tradingAccountId: string,
     fill: Fill,
 ): typeof fills.$inferInsert {
-    return { accountId, ...fillSchema.parse(fill) };
+    return { tradingAccountId, ...fillSchema.parse(fill) };
 }

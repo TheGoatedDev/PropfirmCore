@@ -1,15 +1,19 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import type { FirmConfig } from "@propfirmcore/config";
-import { accountSchema, forceFail, forcePass } from "@propfirmcore/domain";
+import {
+    forceFail,
+    forcePass,
+    tradingAccountSchema,
+} from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
 import type { Auth } from "../auth.ts";
 import {
-    accountFromRow,
-    accounts,
-    accountToRow,
     type Db,
     fills,
     snapshots,
+    tradingAccountFromRow,
+    tradingAccounts,
+    tradingAccountToRow,
 } from "../db.ts";
 import { errorSchema, httpDesc } from "../http-desc.ts";
 import { tags } from "../openapi.ts";
@@ -28,10 +32,10 @@ function canRead(
     account: { userId: string | null },
 ) {
     if (account.userId === who.id) return true;
-    return roleHasPermission(who.role, "account", "read");
+    return roleHasPermission(who.role, "tradingAccount", "read");
 }
 
-export function mountAccounts(app: OpenAPIHono, deps: Deps) {
+export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "get",
@@ -62,13 +66,15 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "get",
-            path: "/accounts",
-            tags: [tags.accounts],
+            path: "/trading-accounts",
+            tags: [tags.tradingAccounts],
             responses: {
                 200: {
                     description: "Trading accounts you can see.",
                     content: {
-                        "application/json": { schema: z.array(accountSchema) },
+                        "application/json": {
+                            schema: z.array(tradingAccountSchema),
+                        },
                     },
                 },
                 401: {
@@ -83,26 +89,28 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const who = actor(session.user);
-            const rows = roleHasPermission(who.role, "account", "list")
-                ? await deps.db.select().from(accounts)
+            const rows = roleHasPermission(who.role, "tradingAccount", "list")
+                ? await deps.db.select().from(tradingAccounts)
                 : await deps.db
                       .select()
-                      .from(accounts)
-                      .where(eq(accounts.userId, who.id));
-            return c.json(rows.map(accountFromRow), 200);
+                      .from(tradingAccounts)
+                      .where(eq(tradingAccounts.userId, who.id));
+            return c.json(rows.map(tradingAccountFromRow), 200);
         },
     );
 
     app.openapi(
         createRoute({
             method: "get",
-            path: "/accounts/{id}",
-            tags: [tags.accounts],
+            path: "/trading-accounts/{id}",
+            tags: [tags.tradingAccounts],
             request: { params: idParam },
             responses: {
                 200: {
                     description: "The trading account.",
-                    content: { "application/json": { schema: accountSchema } },
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 401: {
                     description: httpDesc.unauthorized,
@@ -126,11 +134,11 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = accountFromRow(rows[0]);
+            const account = tradingAccountFromRow(rows[0]);
             if (!canRead(actor(session.user), account)) {
                 return c.json({ error: "forbidden" }, 403);
             }
@@ -141,12 +149,12 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "get",
-            path: "/accounts/{id}/fills",
-            tags: [tags.accounts],
+            path: "/trading-accounts/{id}/fills",
+            tags: [tags.tradingAccounts],
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "Fills on this account.",
+                    description: "Fills on this trading account.",
                     content: {
                         "application/json": { schema: z.array(z.unknown()) },
                     },
@@ -173,17 +181,17 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            if (!canRead(actor(session.user), accountFromRow(rows[0]))) {
+            if (!canRead(actor(session.user), tradingAccountFromRow(rows[0]))) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const data = await deps.db
                 .select()
                 .from(fills)
-                .where(eq(fills.accountId, id));
+                .where(eq(fills.tradingAccountId, id));
             return c.json(data, 200);
         },
     );
@@ -191,12 +199,12 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "get",
-            path: "/accounts/{id}/snapshots",
-            tags: [tags.accounts],
+            path: "/trading-accounts/{id}/snapshots",
+            tags: [tags.tradingAccounts],
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "Equity snapshots on this account.",
+                    description: "Equity snapshots on this trading account.",
                     content: {
                         "application/json": { schema: z.array(z.unknown()) },
                     },
@@ -223,17 +231,17 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            if (!canRead(actor(session.user), accountFromRow(rows[0]))) {
+            if (!canRead(actor(session.user), tradingAccountFromRow(rows[0]))) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const data = await deps.db
                 .select()
                 .from(snapshots)
-                .where(eq(snapshots.accountId, id));
+                .where(eq(snapshots.tradingAccountId, id));
             return c.json(data, 200);
         },
     );
@@ -241,13 +249,15 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "post",
-            path: "/accounts/{id}/fail",
-            tags: [tags.accounts],
+            path: "/trading-accounts/{id}/fail",
+            tags: [tags.tradingAccounts],
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "The account is now failed.",
-                    content: { "application/json": { schema: accountSchema } },
+                    description: "The trading account is now failed.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 401: {
                     description: httpDesc.unauthorized,
@@ -269,22 +279,26 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             if (
-                !roleHasPermission(actor(session.user).role, "account", "fail")
+                !roleHasPermission(
+                    actor(session.user).role,
+                    "tradingAccount",
+                    "fail",
+                )
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = forceFail(accountFromRow(rows[0]));
+            const account = forceFail(tradingAccountFromRow(rows[0]));
             await deps.db
-                .update(accounts)
-                .set(accountToRow(account))
-                .where(eq(accounts.id, id));
+                .update(tradingAccounts)
+                .set(tradingAccountToRow(account))
+                .where(eq(tradingAccounts.id, id));
             return c.json(account, 200);
         },
     );
@@ -292,13 +306,15 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "post",
-            path: "/accounts/{id}/pass",
-            tags: [tags.accounts],
+            path: "/trading-accounts/{id}/pass",
+            tags: [tags.tradingAccounts],
             request: { params: idParam },
             responses: {
                 200: {
-                    description: "The account is now passed.",
-                    content: { "application/json": { schema: accountSchema } },
+                    description: "The trading account is now passed.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 401: {
                     description: httpDesc.unauthorized,
@@ -320,22 +336,26 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             if (
-                !roleHasPermission(actor(session.user).role, "account", "pass")
+                !roleHasPermission(
+                    actor(session.user).role,
+                    "tradingAccount",
+                    "pass",
+                )
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = forcePass(accountFromRow(rows[0]));
+            const account = forcePass(tradingAccountFromRow(rows[0]));
             await deps.db
-                .update(accounts)
-                .set(accountToRow(account))
-                .where(eq(accounts.id, id));
+                .update(tradingAccounts)
+                .set(tradingAccountToRow(account))
+                .where(eq(tradingAccounts.id, id));
             return c.json(account, 200);
         },
     );

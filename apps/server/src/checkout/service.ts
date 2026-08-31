@@ -1,12 +1,12 @@
 import type { FirmConfig } from "@propfirmcore/config";
-import { openAccount } from "@propfirmcore/domain";
+import { openTradingAccount } from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
 import {
-    accountFromRow,
-    accounts,
-    accountToRow,
     type Db,
     payments,
+    tradingAccountFromRow,
+    tradingAccounts,
+    tradingAccountToRow,
 } from "../db.ts";
 import { getAdapter } from "./adapters.ts";
 
@@ -28,16 +28,16 @@ export async function completePayment(
         .limit(1);
     const payment = rows[0];
     if (!payment) return { ok: false as const, error: "not found" };
-    if (payment.status === "paid" && payment.accountId) {
+    if (payment.status === "paid" && payment.tradingAccountId) {
         const acc = await db
             .select()
-            .from(accounts)
-            .where(eq(accounts.id, payment.accountId))
+            .from(tradingAccounts)
+            .where(eq(tradingAccounts.id, payment.tradingAccountId))
             .limit(1);
         return {
             ok: true as const,
             payment,
-            account: acc[0] ? accountFromRow(acc[0]) : null,
+            tradingAccount: acc[0] ? tradingAccountFromRow(acc[0]) : null,
         };
     }
     if (payment.status !== "pending") {
@@ -45,7 +45,7 @@ export async function completePayment(
     }
     const product = firm.products.find((p) => p.id === payment.productId);
     if (!product) return { ok: false as const, error: "unknown product" };
-    const account = openAccount(
+    const account = openTradingAccount(
         crypto.randomUUID(),
         product,
         firm.dailyClose,
@@ -53,16 +53,20 @@ export async function completePayment(
         payment.userId,
     );
     await db.transaction(async (tx) => {
-        await tx.insert(accounts).values(accountToRow(account));
+        await tx.insert(tradingAccounts).values(tradingAccountToRow(account));
         await tx
             .update(payments)
-            .set({ status: "paid", accountId: account.id })
+            .set({ status: "paid", tradingAccountId: account.id })
             .where(eq(payments.id, paymentId));
     });
     return {
         ok: true as const,
-        payment: { ...payment, status: "paid" as const, accountId: account.id },
-        account,
+        payment: {
+            ...payment,
+            status: "paid" as const,
+            tradingAccountId: account.id,
+        },
+        tradingAccount: account,
     };
 }
 
@@ -112,7 +116,7 @@ export async function startCheckout(
     return {
         ok: true as const,
         payment: rows[0],
-        account: null,
+        tradingAccount: null,
         redirectUrl: session.redirectUrl,
     };
 }

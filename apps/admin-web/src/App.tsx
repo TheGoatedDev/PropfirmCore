@@ -21,7 +21,7 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { api, authPost } from "./api.ts";
 
 type Me = { id: string; email: string; role: string };
-type Account = {
+type TradingAccount = {
     id: string;
     userId: string | null;
     productId: string;
@@ -149,10 +149,10 @@ function SignIn({
 }
 
 function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
-    const [accounts, setAccounts] = useState<Account[]>([]);
+    const [accounts, setAccounts] = useState<TradingAccount[]>([]);
 
     const load = useCallback(async () => {
-        const { data } = await api.GET("/accounts");
+        const { data } = await api.GET("/trading-accounts");
         setAccounts(data ?? []);
     }, []);
 
@@ -177,7 +177,9 @@ function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
     async function force(id: string, action: "pass" | "fail") {
         onError(null);
         const path =
-            action === "pass" ? "/accounts/{id}/pass" : "/accounts/{id}/fail";
+            action === "pass"
+                ? "/trading-accounts/{id}/pass"
+                : "/trading-accounts/{id}/fail";
         const { error } = await api.POST(path, { params: { path: { id } } });
         if (error) {
             onError(
@@ -204,7 +206,7 @@ function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
                 </form>
             </section>
             <section>
-                <h2 className="mb-3 text-lg font-medium">Accounts</h2>
+                <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>
                 <Table>
                     <TableHeader>
                         <TableRow>

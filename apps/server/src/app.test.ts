@@ -39,12 +39,12 @@ describe("api", () => {
     });
 
     it("ingest without key is 401", async () => {
-        const res = await app().request("/ingest/accounts/a1");
+        const res = await app().request("/ingest/trading-accounts/a1");
         expect(res.status).toBe(401);
     });
 
     it("ingest bearer is not enough", async () => {
-        const res = await app().request("/ingest/accounts/a1", {
+        const res = await app().request("/ingest/trading-accounts/a1", {
             headers: { authorization: "Bearer secret" },
         });
         expect(res.status).toBe(401);
@@ -71,8 +71,8 @@ describe("api", () => {
         expect(res.status).toBe(401);
     });
 
-    it("accounts without session is 401", async () => {
-        const res = await app().request("/accounts");
+    it("trading accounts without session is 401", async () => {
+        const res = await app().request("/trading-accounts");
         expect(res.status).toBe(401);
     });
 
@@ -84,9 +84,11 @@ describe("api", () => {
             servers?: { url: string }[];
         };
         expect(spec.servers?.[0]?.url).toBe("http://localhost:3000");
-        expect(spec.paths["/ingest/accounts/{id}/snapshot"]).toBeTruthy();
-        expect(spec.paths["/ingest/accounts/{id}/fills"]).toBeTruthy();
-        expect(spec.paths["/accounts"]).toBeTruthy();
+        expect(
+            spec.paths["/ingest/trading-accounts/{id}/snapshot"],
+        ).toBeTruthy();
+        expect(spec.paths["/ingest/trading-accounts/{id}/fills"]).toBeTruthy();
+        expect(spec.paths["/trading-accounts"]).toBeTruthy();
         expect(spec.paths["/products"]).toBeTruthy();
         expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();
     });

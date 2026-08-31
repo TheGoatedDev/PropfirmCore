@@ -8,9 +8,9 @@ describe("createApiClient", () => {
         expect(typeof client.GET).toBe("function");
     });
 
-    it("knows accounts", () => {
-        const path = "/accounts" satisfies keyof paths;
-        expect(path).toBe("/accounts");
+    it("knows trading accounts", () => {
+        const path = "/trading-accounts" satisfies keyof paths;
+        expect(path).toBe("/trading-accounts");
     });
 
     it("knows better-auth sign-in", () => {

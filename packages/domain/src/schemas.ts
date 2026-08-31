@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 export const assetClasses = ["fx", "futures", "crypto", "equity"] as const;
-export const accountStatuses = [
+export const tradingAccountStatuses = [
     "active",
     "passed",
     "failed",
@@ -10,7 +10,7 @@ export const accountStatuses = [
 export const fillSides = ["buy", "sell"] as const;
 
 export const assetClassSchema = z.enum(assetClasses);
-export const accountStatusSchema = z.enum(accountStatuses);
+export const tradingAccountStatusSchema = z.enum(tradingAccountStatuses);
 
 export const sessionSchema = z.object({
     open: z.string().min(1),
@@ -62,12 +62,12 @@ export const snapshotSchema = z.object({
     positions: z.array(positionSchema),
 });
 
-export const accountSchema = z.object({
+export const tradingAccountSchema = z.object({
     id: z.string().min(1),
     userId: z.string().min(1).nullable(),
     productId: z.string().min(1),
     phaseIndex: z.number().int(),
-    status: accountStatusSchema,
+    status: tradingAccountStatusSchema,
     startBalance: z.number(),
     equity: z.number(),
     balance: z.number(),
@@ -78,10 +78,10 @@ export const accountSchema = z.object({
 });
 
 export type AssetClass = z.infer<typeof assetClassSchema>;
-export type AccountStatus = z.infer<typeof accountStatusSchema>;
+export type TradingAccountStatus = z.infer<typeof tradingAccountStatusSchema>;
 export type Session = z.infer<typeof sessionSchema>;
 export type Instrument = z.infer<typeof instrumentSchema>;
 export type Position = z.infer<typeof positionSchema>;
 export type Fill = z.infer<typeof fillSchema>;
 export type Snapshot = z.infer<typeof snapshotSchema>;
-export type Account = z.infer<typeof accountSchema>;
+export type TradingAccount = z.infer<typeof tradingAccountSchema>;

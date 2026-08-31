@@ -1,30 +1,30 @@
 import { createRoute, OpenAPIHono, z } from "@hono/zod-openapi";
 import type { FirmConfig } from "@propfirmcore/config";
 import {
-    accountSchema,
     applyFills,
     applySnapshot,
     fillSchema,
-    openAccount,
+    openTradingAccount,
     snapshotSchema,
+    tradingAccountSchema,
 } from "@propfirmcore/domain";
 import { eq, inArray } from "drizzle-orm";
 import { cors } from "hono/cors";
-import { mountAccounts } from "./accounts/http.ts";
 import type { Auth } from "./auth.ts";
 import { mountCheckout } from "./checkout/http.ts";
 import {
-    accountFromRow,
-    accounts,
-    accountToRow,
     type Db,
     fills,
     fillToRow,
     snapshots,
+    tradingAccountFromRow,
+    tradingAccounts,
+    tradingAccountToRow,
 } from "./db.ts";
 import { errorSchema, httpDesc } from "./http-desc.ts";
 import { requireApiKey } from "./ingest-key.ts";
 import { openApiInfo, tags, withAuthOpenAPI } from "./openapi.ts";
+import { mountTradingAccounts } from "./trading-accounts/http.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 
@@ -110,14 +110,14 @@ export function createApp(deps: AppDeps) {
     );
 
     mountCheckout(app, deps);
-    mountAccounts(app, deps);
+    mountTradingAccounts(app, deps);
 
     app.use("/ingest/*", requireApiKey(deps.apiKey));
 
     app.openapi(
         createRoute({
             method: "post",
-            path: "/ingest/accounts",
+            path: "/ingest/trading-accounts",
             tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
@@ -129,7 +129,9 @@ export function createApp(deps: AppDeps) {
             responses: {
                 201: {
                     description: "The trading account was created.",
-                    content: { "application/json": { schema: accountSchema } },
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 400: {
                     description: httpDesc.badRequest,
@@ -151,18 +153,20 @@ export function createApp(deps: AppDeps) {
             if (!product) return c.json({ error: "unknown product" }, 400);
             const existing = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, body.id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, body.id))
                 .limit(1);
             if (existing[0]) return c.json({ error: "exists" }, 409);
-            const account = openAccount(
+            const account = openTradingAccount(
                 body.id,
                 product,
                 deps.firm.dailyClose,
                 new Date().toISOString(),
                 body.userId ?? null,
             );
-            await deps.db.insert(accounts).values(accountToRow(account));
+            await deps.db
+                .insert(tradingAccounts)
+                .values(tradingAccountToRow(account));
             return c.json(account, 201);
         },
     );
@@ -170,14 +174,16 @@ export function createApp(deps: AppDeps) {
     app.openapi(
         createRoute({
             method: "get",
-            path: "/ingest/accounts/{id}",
+            path: "/ingest/trading-accounts/{id}",
             tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: { params: idParam },
             responses: {
                 200: {
                     description: "The trading account.",
-                    content: { "application/json": { schema: accountSchema } },
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 401: {
                     description: httpDesc.unauthorized,
@@ -193,18 +199,18 @@ export function createApp(deps: AppDeps) {
             const { id } = c.req.valid("param");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            return c.json(accountFromRow(rows[0]), 200);
+            return c.json(tradingAccountFromRow(rows[0]), 200);
         },
     );
 
     app.openapi(
         createRoute({
             method: "post",
-            path: "/ingest/accounts/{id}/snapshot",
+            path: "/ingest/trading-accounts/{id}/snapshot",
             tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
@@ -217,8 +223,10 @@ export function createApp(deps: AppDeps) {
             responses: {
                 200: {
                     description:
-                        "The account after applying the equity snapshot.",
-                    content: { "application/json": { schema: accountSchema } },
+                        "The trading account after applying the equity snapshot.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 400: {
                     description: httpDesc.badRequest,
@@ -239,8 +247,8 @@ export function createApp(deps: AppDeps) {
             const body = c.req.valid("json");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
             const seen = await deps.db
@@ -248,7 +256,7 @@ export function createApp(deps: AppDeps) {
                 .from(snapshots)
                 .where(eq(snapshots.externalId, body.externalId))
                 .limit(1);
-            let account = accountFromRow(rows[0]);
+            let account = tradingAccountFromRow(rows[0]);
             if (!seen[0]) {
                 const product = productOrNull(deps.firm, account.productId);
                 if (!product) return c.json({ error: "unknown product" }, 400);
@@ -261,16 +269,16 @@ export function createApp(deps: AppDeps) {
                 await deps.db.transaction(async (tx) => {
                     await tx.insert(snapshots).values({
                         externalId: body.externalId,
-                        accountId: id,
+                        tradingAccountId: id,
                         equity: body.equity,
                         balance: body.balance,
                         ts: body.ts,
                         positions: body.positions,
                     });
                     await tx
-                        .update(accounts)
-                        .set(accountToRow(account))
-                        .where(eq(accounts.id, id));
+                        .update(tradingAccounts)
+                        .set(tradingAccountToRow(account))
+                        .where(eq(tradingAccounts.id, id));
                 });
             }
             return c.json(account, 200);
@@ -280,7 +288,7 @@ export function createApp(deps: AppDeps) {
     app.openapi(
         createRoute({
             method: "post",
-            path: "/ingest/accounts/{id}/fills",
+            path: "/ingest/trading-accounts/{id}/fills",
             tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
@@ -292,8 +300,11 @@ export function createApp(deps: AppDeps) {
             },
             responses: {
                 200: {
-                    description: "The account after applying the fills.",
-                    content: { "application/json": { schema: accountSchema } },
+                    description:
+                        "The trading account after applying the fills.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
                 },
                 400: {
                     description: httpDesc.badRequest,
@@ -314,8 +325,8 @@ export function createApp(deps: AppDeps) {
             const body = c.req.valid("json");
             const rows = await deps.db
                 .select()
-                .from(accounts)
-                .where(eq(accounts.id, id))
+                .from(tradingAccounts)
+                .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
             const ids = body.fills.map((f) => f.externalId);
@@ -325,7 +336,7 @@ export function createApp(deps: AppDeps) {
                 .where(inArray(fills.externalId, ids));
             const seen = new Set(existing.map((r) => r.id));
             const newFills = body.fills.filter((f) => !seen.has(f.externalId));
-            let account = accountFromRow(rows[0]);
+            let account = tradingAccountFromRow(rows[0]);
             if (newFills.length > 0) {
                 const product = productOrNull(deps.firm, account.productId);
                 if (!product) return c.json({ error: "unknown product" }, 400);
@@ -341,9 +352,9 @@ export function createApp(deps: AppDeps) {
                         .insert(fills)
                         .values(newFills.map((f) => fillToRow(id, f)));
                     await tx
-                        .update(accounts)
-                        .set(accountToRow(account))
-                        .where(eq(accounts.id, id));
+                        .update(tradingAccounts)
+                        .set(tradingAccountToRow(account))
+                        .where(eq(tradingAccounts.id, id));
                 });
             }
             return c.json(account, 200);

@@ -304,7 +304,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Checkout started. Follow redirectUrl if set; free products return an account immediately.",
+                        "description": "Checkout started. Follow redirectUrl if set; free products return a trading account immediately.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -345,7 +345,7 @@
                                                         "canceled"
                                                     ]
                                                 },
-                                                "accountId": {
+                                                "tradingAccountId": {
                                                     "type": "string",
                                                     "nullable": true
                                                 }
@@ -359,10 +359,10 @@
                                                 "provider",
                                                 "providerRef",
                                                 "status",
-                                                "accountId"
+                                                "tradingAccountId"
                                             ]
                                         },
-                                        "account": {
+                                        "tradingAccount": {
                                             "nullable": true
                                         },
                                         "redirectUrl": {
@@ -477,7 +477,7 @@
                                                         "canceled"
                                                     ]
                                                 },
-                                                "accountId": {
+                                                "tradingAccountId": {
                                                     "type": "string",
                                                     "nullable": true
                                                 }
@@ -491,10 +491,10 @@
                                                 "provider",
                                                 "providerRef",
                                                 "status",
-                                                "accountId"
+                                                "tradingAccountId"
                                             ]
                                         },
-                                        "account": {
+                                        "tradingAccount": {
                                             "nullable": true
                                         }
                                     },
@@ -620,7 +620,7 @@
                                                 "canceled"
                                             ]
                                         },
-                                        "accountId": {
+                                        "tradingAccountId": {
                                             "type": "string",
                                             "nullable": true
                                         }
@@ -634,7 +634,7 @@
                                         "provider",
                                         "providerRef",
                                         "status",
-                                        "accountId"
+                                        "tradingAccountId"
                                     ]
                                 }
                             }
@@ -741,10 +741,10 @@
                 }
             }
         },
-        "/accounts": {
+        "/trading-accounts": {
             "get": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "responses": {
                     "200": {
@@ -847,10 +847,10 @@
                 }
             }
         },
-        "/accounts/{id}": {
+        "/trading-accounts/{id}": {
             "get": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "parameters": [
                     {
@@ -999,10 +999,10 @@
                 }
             }
         },
-        "/accounts/{id}/fills": {
+        "/trading-accounts/{id}/fills": {
             "get": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "parameters": [
                     {
@@ -1017,7 +1017,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Fills on this account.",
+                        "description": "Fills on this trading account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1089,10 +1089,10 @@
                 }
             }
         },
-        "/accounts/{id}/snapshots": {
+        "/trading-accounts/{id}/snapshots": {
             "get": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "parameters": [
                     {
@@ -1107,7 +1107,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Equity snapshots on this account.",
+                        "description": "Equity snapshots on this trading account.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1179,10 +1179,10 @@
                 }
             }
         },
-        "/accounts/{id}/fail": {
+        "/trading-accounts/{id}/fail": {
             "post": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "parameters": [
                     {
@@ -1197,7 +1197,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The account is now failed.",
+                        "description": "The trading account is now failed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1331,10 +1331,10 @@
                 }
             }
         },
-        "/accounts/{id}/pass": {
+        "/trading-accounts/{id}/pass": {
             "post": {
                 "tags": [
-                    "Accounts"
+                    "Trading Accounts"
                 ],
                 "parameters": [
                     {
@@ -1349,7 +1349,7 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "The account is now passed.",
+                        "description": "The trading account is now passed.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1483,7 +1483,7 @@
                 }
             }
         },
-        "/ingest/accounts": {
+        "/ingest/trading-accounts": {
             "post": {
                 "tags": [
                     "Ingest"
@@ -1658,7 +1658,7 @@
                 }
             }
         },
-        "/ingest/accounts/{id}": {
+        "/ingest/trading-accounts/{id}": {
             "get": {
                 "tags": [
                     "Ingest"
@@ -1796,7 +1796,7 @@
                 }
             }
         },
-        "/ingest/accounts/{id}/snapshot": {
+        "/ingest/trading-accounts/{id}/snapshot": {
             "post": {
                 "tags": [
                     "Ingest"
@@ -1901,7 +1901,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The account after applying the equity snapshot.",
+                        "description": "The trading account after applying the equity snapshot.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2035,7 +2035,7 @@
                 }
             }
         },
-        "/ingest/accounts/{id}/fills": {
+        "/ingest/trading-accounts/{id}/fills": {
             "post": {
                 "tags": [
                     "Ingest"
@@ -2143,7 +2143,7 @@
                 },
                 "responses": {
                     "200": {
-                        "description": "The account after applying the fills.",
+                        "description": "The trading account after applying the fills.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -9914,7 +9914,7 @@
             "description": "Checkout payments: status and admin complete."
         },
         {
-            "name": "Accounts",
+            "name": "Trading Accounts",
             "description": "Trading accounts: session access and force pass or fail."
         },
         {

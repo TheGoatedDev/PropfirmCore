@@ -19,7 +19,7 @@ const paymentSchema = z.object({
     provider: z.string(),
     providerRef: z.string().nullable(),
     status: z.enum(["pending", "paid", "failed", "canceled"]),
-    accountId: z.string().nullable(),
+    tradingAccountId: z.string().nullable(),
 });
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
@@ -38,12 +38,12 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             responses: {
                 200: {
                     description:
-                        "Checkout started. Follow redirectUrl if set; free products return an account immediately.",
+                        "Checkout started. Follow redirectUrl if set; free products return a trading account immediately.",
                     content: {
                         "application/json": {
                             schema: z.object({
                                 payment: paymentSchema.nullable(),
-                                account: z.unknown().nullable(),
+                                tradingAccount: z.unknown().nullable(),
                                 redirectUrl: z.string().nullable(),
                             }),
                         },
@@ -75,7 +75,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             return c.json(
                 {
                     payment: result.payment ?? null,
-                    account: result.account ?? null,
+                    tradingAccount: result.tradingAccount ?? null,
                     redirectUrl: result.redirectUrl ?? null,
                 },
                 200,
@@ -97,7 +97,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
                         "application/json": {
                             schema: z.object({
                                 payment: paymentSchema,
-                                account: z.unknown().nullable(),
+                                tradingAccount: z.unknown().nullable(),
                             }),
                         },
                     },
@@ -142,7 +142,10 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             );
             if (!result.ok) return c.json({ error: result.error }, 400);
             return c.json(
-                { payment: result.payment, account: result.account },
+                {
+                    payment: result.payment,
+                    tradingAccount: result.tradingAccount,
+                },
                 200,
             );
         },

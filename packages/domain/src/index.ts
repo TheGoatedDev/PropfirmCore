@@ -13,7 +13,7 @@ export {
     applySnapshot,
     forceFail,
     forcePass,
-    openAccount,
+    openTradingAccount,
     settle,
 } from "./engine.ts";
 export type { Rule, RuleContext, RuleResult } from "./rules.ts";
@@ -25,19 +25,16 @@ export {
     profitTarget,
 } from "./rules.ts";
 export type {
-    Account,
-    AccountStatus,
     AssetClass,
     Fill,
     Instrument,
     Position,
     Session,
     Snapshot,
+    TradingAccount,
+    TradingAccountStatus,
 } from "./schemas.ts";
 export {
-    accountSchema,
-    accountStatuses,
-    accountStatusSchema,
     assetClasses,
     assetClassSchema,
     fillSchema,
@@ -47,4 +44,7 @@ export {
     positionSchema,
     sessionSchema,
     snapshotSchema,
+    tradingAccountSchema,
+    tradingAccountStatuses,
+    tradingAccountStatusSchema,
 } from "./schemas.ts";
