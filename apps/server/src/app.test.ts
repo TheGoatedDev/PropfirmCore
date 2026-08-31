@@ -7,7 +7,12 @@ import type { Db } from "./db.ts";
 
 const auth = {
     handler: () => new Response("not found", { status: 404 }),
-    api: { getSession: async () => null },
+    api: {
+        getSession: async () => null,
+        generateOpenAPISchema: async () => ({
+            paths: { "/sign-in/email": { post: {} } },
+        }),
+    },
 } as unknown as Auth;
 
 const firm = loadFirmConfig(
@@ -79,5 +84,6 @@ describe("api", () => {
         expect(spec.paths["/ingest/accounts/{id}/fills"]).toBeTruthy();
         expect(spec.paths["/accounts"]).toBeTruthy();
         expect(spec.paths["/products"]).toBeTruthy();
+        expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();
     });
 });

@@ -12,4 +12,9 @@ describe("createApiClient", () => {
         const path = "/accounts" satisfies keyof paths;
         expect(path).toBe("/accounts");
     });
+
+    it("knows better-auth sign-in", () => {
+        const path = "/auth/sign-in/email" satisfies keyof paths;
+        expect(path).toBe("/auth/sign-in/email");
+    });
 });

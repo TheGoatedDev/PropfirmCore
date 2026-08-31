@@ -22,6 +22,7 @@ import {
     snapshots,
 } from "./db.ts";
 import { requireApiKey } from "./ingest-key.ts";
+import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
 
 const errorSchema = z.object({ error: z.string() });
 
@@ -340,9 +341,9 @@ export function createApp(deps: AppDeps) {
         },
     );
 
-    app.doc("/openapi.json", {
-        openapi: "3.0.0",
-        info: { title: "PropfirmCore", version: "0.0.0" },
+    app.get("/openapi.json", async (c) => {
+        const spec = app.getOpenAPIDocument(openApiInfo);
+        return c.json(await withAuthOpenAPI(spec, deps.auth));
     });
 
     return app;
