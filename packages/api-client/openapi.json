@@ -416,7 +416,7 @@
         "/payments/{id}/complete": {
             "post": {
                 "tags": [
-                    "Firm admin"
+                    "Firm Admin"
                 ],
                 "parameters": [
                     {
@@ -1176,7 +1176,7 @@
         "/accounts/{id}/fail": {
             "post": {
                 "tags": [
-                    "Firm admin"
+                    "Firm Admin"
                 ],
                 "parameters": [
                     {
@@ -1328,7 +1328,7 @@
         "/accounts/{id}/pass": {
             "post": {
                 "tags": [
-                    "Firm admin"
+                    "Firm Admin"
                 ],
                 "parameters": [
                     {
@@ -1480,7 +1480,7 @@
         "/ingest/accounts": {
             "post": {
                 "tags": [
-                    "Market data ingest"
+                    "Market Data Ingest"
                 ],
                 "security": [
                     {
@@ -1655,7 +1655,7 @@
         "/ingest/accounts/{id}": {
             "get": {
                 "tags": [
-                    "Market data ingest"
+                    "Market Data Ingest"
                 ],
                 "security": [
                     {
@@ -1793,7 +1793,7 @@
         "/ingest/accounts/{id}/snapshot": {
             "post": {
                 "tags": [
-                    "Market data ingest"
+                    "Market Data Ingest"
                 ],
                 "security": [
                     {
@@ -2032,7 +2032,7 @@
         "/ingest/accounts/{id}/fills": {
             "post": {
                 "tags": [
-                    "Market data ingest"
+                    "Market Data Ingest"
                 ],
                 "security": [
                     {
@@ -9900,11 +9900,11 @@
             "description": "Products, accounts, checkout, and the signed-in user."
         },
         {
-            "name": "Firm admin",
+            "name": "Firm Admin",
             "description": "Complete payments and force pass or fail an account."
         },
         {
-            "name": "Market data ingest",
+            "name": "Market Data Ingest",
             "description": "Push fills and equity from a broker or bridge. Use X-Api-Key."
         },
         {

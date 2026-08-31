@@ -28,8 +28,8 @@ export const openApiInfo = {
 
 export const tags = {
     trader: "Trader",
-    admin: "Firm admin",
-    ingest: "Market data ingest",
+    admin: "Firm Admin",
+    ingest: "Market Data Ingest",
 } as const;
 
 const tagMeta: Record<string, string> = {
