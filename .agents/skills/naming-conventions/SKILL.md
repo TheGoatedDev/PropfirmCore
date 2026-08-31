@@ -11,7 +11,7 @@ Load this skill for any API / OpenAPI work in this repo.
 
 **Title Case.** Spaces stay. Each word starts with a capital.
 
-Yes: `Accounts`, `Products`, `Payments`, `Me`, `Authentication`, `Authentication - Admin`
+Yes: `Accounts`, `Products`, `Payments`, `Me`, `Ingest`, `Authentication`, `Authentication - Admin`
 
 No: `trader`, `accounts`, `firmAdmin`, `FirmAdmin`, `firm admin`
 

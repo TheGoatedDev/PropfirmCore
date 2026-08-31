@@ -1486,7 +1486,7 @@
         "/ingest/accounts": {
             "post": {
                 "tags": [
-                    "Accounts"
+                    "Ingest"
                 ],
                 "security": [
                     {
@@ -1661,7 +1661,7 @@
         "/ingest/accounts/{id}": {
             "get": {
                 "tags": [
-                    "Accounts"
+                    "Ingest"
                 ],
                 "security": [
                     {
@@ -1799,7 +1799,7 @@
         "/ingest/accounts/{id}/snapshot": {
             "post": {
                 "tags": [
-                    "Accounts"
+                    "Ingest"
                 ],
                 "security": [
                     {
@@ -2038,7 +2038,7 @@
         "/ingest/accounts/{id}/fills": {
             "post": {
                 "tags": [
-                    "Accounts"
+                    "Ingest"
                 ],
                 "security": [
                     {
@@ -9915,7 +9915,11 @@
         },
         {
             "name": "Accounts",
-            "description": "Trading accounts: session access, force pass or fail, and ingest."
+            "description": "Trading accounts: session access and force pass or fail."
+        },
+        {
+            "name": "Ingest",
+            "description": "Push fills and equity from a broker or bridge. Use X-Api-Key."
         },
         {
             "name": "Authentication",

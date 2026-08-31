@@ -32,6 +32,7 @@ export const tags = {
     products: "Products",
     accounts: "Accounts",
     payments: "Payments",
+    ingest: "Ingest",
 } as const;
 
 const tagMeta: Record<string, string> = {
@@ -40,9 +41,10 @@ const tagMeta: Record<string, string> = {
         "Better Auth admin plugin: users, roles, bans, impersonation.",
     [tags.me]: "The signed-in user.",
     [tags.products]: "Challenge products this firm sells, including checkout.",
-    [tags.accounts]:
-        "Trading accounts: session access, force pass or fail, and ingest.",
+    [tags.accounts]: "Trading accounts: session access and force pass or fail.",
     [tags.payments]: "Checkout payments: status and admin complete.",
+    [tags.ingest]:
+        "Push fills and equity from a broker or bridge. Use X-Api-Key.",
 };
 
 function authTag(path: string): string {
