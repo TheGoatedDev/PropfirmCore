@@ -2237,7 +2237,7 @@
         "/auth/sign-in/social": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Sign in with a social provider",
                 "operationId": "socialSignIn",
@@ -2536,7 +2536,7 @@
         "/auth/callback/{id}": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "security": [
                     {
@@ -2654,7 +2654,7 @@
             },
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "security": [
                     {
@@ -2807,7 +2807,7 @@
         "/auth/get-session": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Get the current session",
                 "operationId": "getSession",
@@ -2943,7 +2943,7 @@
             },
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Get the current session",
                 "operationId": "getSessionPost",
@@ -3091,7 +3091,7 @@
         "/auth/sign-out": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Sign out the current user",
                 "operationId": "signOut",
@@ -3251,7 +3251,7 @@
         "/auth/sign-up/email": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Sign up a user using email and password",
                 "operationId": "signUpWithEmailAndPassword",
@@ -3485,7 +3485,7 @@
         "/auth/sign-in/email": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Sign in with email and password",
                 "operationId": "signInEmail",
@@ -3666,7 +3666,7 @@
         "/auth/reset-password": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Reset the password for a user",
                 "operationId": "resetPassword",
@@ -3817,7 +3817,7 @@
         "/auth/verify-password": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Verify the current user's password",
                 "operationId": "verifyPassword",
@@ -3964,7 +3964,7 @@
         "/auth/verify-email": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Verify the email of the user",
                 "security": [
@@ -4119,7 +4119,7 @@
         "/auth/send-verification-email": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Send a verification email to the user",
                 "operationId": "sendVerificationEmail",
@@ -4273,7 +4273,7 @@
         "/auth/change-email": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "operationId": "changeEmail",
                 "security": [
@@ -4440,7 +4440,7 @@
         "/auth/change-password": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Change the password of the user",
                 "operationId": "changePassword",
@@ -4647,7 +4647,7 @@
         "/auth/update-session": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Update the current session",
                 "operationId": "updateSession",
@@ -4791,7 +4791,7 @@
         "/auth/update-user": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Update the current user",
                 "operationId": "updateUser",
@@ -4940,7 +4940,7 @@
         "/auth/delete-user": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Delete the user",
                 "operationId": "deleteUser",
@@ -5104,7 +5104,7 @@
         "/auth/request-password-reset": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Send a password reset email to the user",
                 "operationId": "requestPasswordReset",
@@ -5258,7 +5258,7 @@
         "/auth/reset-password/{token}": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Redirects the user to the callback URL with the token",
                 "operationId": "resetPasswordCallback",
@@ -5405,7 +5405,7 @@
         "/auth/list-sessions": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "List all active sessions for the user",
                 "operationId": "listUserSessions",
@@ -5531,7 +5531,7 @@
         "/auth/revoke-session": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Revoke a single session",
                 "security": [
@@ -5680,7 +5680,7 @@
         "/auth/revoke-sessions": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Revoke all sessions for the user",
                 "security": [
@@ -5821,7 +5821,7 @@
         "/auth/revoke-other-sessions": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Revoke all other sessions for the user except the current one",
                 "security": [
@@ -5962,7 +5962,7 @@
         "/auth/link-social": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Link a social account to the user",
                 "operationId": "linkSocialAccount",
@@ -6226,7 +6226,7 @@
         "/auth/list-accounts": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "List all accounts linked to the user",
                 "operationId": "listUserAccounts",
@@ -6393,7 +6393,7 @@
         "/auth/delete-user/callback": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Callback to complete user deletion with verification token",
                 "security": [
@@ -6549,7 +6549,7 @@
         "/auth/unlink-account": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Unlink an account",
                 "security": [
@@ -6695,7 +6695,7 @@
         "/auth/refresh-token": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Refresh the access token using a refresh token",
                 "security": [
@@ -6869,7 +6869,7 @@
         "/auth/get-access-token": {
             "post": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Get a valid access token, doing a refresh if needed",
                 "security": [
@@ -7036,7 +7036,7 @@
         "/auth/account-info": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Get the account info provided by the provider",
                 "security": [
@@ -7216,7 +7216,7 @@
         "/auth/ok": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Check if the API is working",
                 "security": [
@@ -7347,7 +7347,7 @@
         "/auth/error": {
             "get": {
                 "tags": [
-                    "Default"
+                    "Authentication"
                 ],
                 "description": "Displays an error page",
                 "security": [
@@ -7470,7 +7470,7 @@
         "/auth/admin/set-role": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Set the role of a user",
                 "operationId": "setUserRole",
@@ -7634,7 +7634,7 @@
         "/auth/admin/get-user": {
             "get": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Get an existing user",
                 "operationId": "getUser",
@@ -7771,7 +7771,7 @@
         "/auth/admin/create-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Create a new user",
                 "operationId": "createUser",
@@ -7948,7 +7948,7 @@
         "/auth/admin/update-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Update a user's details",
                 "operationId": "adminUpdateUser",
@@ -8102,7 +8102,7 @@
         "/auth/admin/list-users": {
             "get": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "List users",
                 "operationId": "listUsers",
@@ -8400,7 +8400,7 @@
         "/auth/admin/list-user-sessions": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "List user sessions",
                 "operationId": "adminListUserSessions",
@@ -8550,7 +8550,7 @@
         "/auth/admin/unban-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Unban a user",
                 "operationId": "unbanUser",
@@ -8697,7 +8697,7 @@
         "/auth/admin/ban-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Ban a user",
                 "operationId": "banUser",
@@ -8852,7 +8852,7 @@
         "/auth/admin/impersonate-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Impersonate a user",
                 "operationId": "impersonateUser",
@@ -9002,7 +9002,7 @@
         "/auth/admin/stop-impersonating": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "security": [
                     {
@@ -9113,7 +9113,7 @@
         "/auth/admin/revoke-user-session": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Revoke a user session",
                 "operationId": "revokeUserSession",
@@ -9260,7 +9260,7 @@
         "/auth/admin/revoke-user-sessions": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Revoke all user sessions",
                 "operationId": "revokeUserSessions",
@@ -9407,7 +9407,7 @@
         "/auth/admin/remove-user": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Delete a user and all their sessions and accounts. Cannot be undone.",
                 "operationId": "removeUser",
@@ -9554,7 +9554,7 @@
         "/auth/admin/set-user-password": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Set a user's password",
                 "operationId": "setUserPassword",
@@ -9708,7 +9708,7 @@
         "/auth/admin/has-permission": {
             "post": {
                 "tags": [
-                    "Admin"
+                    "Authentication - Admin"
                 ],
                 "description": "Check if the user has permission",
                 "security": [
@@ -9859,8 +9859,24 @@
     },
     "tags": [
         {
-            "name": "Default",
-            "description": "Default endpoints that are included with Better Auth by default. These endpoints are not part of any plugin."
+            "name": "trader",
+            "description": "Trader session routes: products, accounts, checkout."
+        },
+        {
+            "name": "admin",
+            "description": "Firm admin routes: complete payments, force pass/fail."
+        },
+        {
+            "name": "ingest",
+            "description": "Broker/bridge ingest. Authenticate with X-Api-Key."
+        },
+        {
+            "name": "Authentication",
+            "description": "Sign-up, sign-in, session, password, and linked accounts."
+        },
+        {
+            "name": "Authentication - Admin",
+            "description": "Better Auth admin plugin: users, roles, bans, impersonation."
         }
     ]
 }

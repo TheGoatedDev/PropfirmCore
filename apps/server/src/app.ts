@@ -343,7 +343,7 @@ export function createApp(deps: AppDeps) {
 
     app.get("/openapi.json", async (c) => {
         const spec = app.getOpenAPIDocument(openApiInfo);
-        return c.json(await withAuthOpenAPI(spec, deps.auth));
+        return c.json(await withAuthOpenAPI(spec as never, deps.auth as never));
     });
 
     return app;
