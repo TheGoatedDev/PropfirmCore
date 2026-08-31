@@ -33,3 +33,50 @@ jobs:
             - run: pnpm typecheck
             - run: pnpm test
             - run: pnpm deps:check
+
+    e2e:
+        runs-on: ubuntu-latest
+        services:
+            postgres:
+                image: postgres:17-alpine
+                env:
+                    POSTGRES_USER: propfirm
+                    POSTGRES_PASSWORD: propfirm
+                    POSTGRES_DB: propfirm
+                ports:
+                    - 5432:5432
+                options: >-
+                    --health-cmd "pg_isready -U propfirm"
+                    --health-interval 5s
+                    --health-timeout 3s
+                    --health-retries 10
+            redis:
+                image: redis:7-alpine
+                ports:
+                    - 6379:6379
+                options: >-
+                    --health-cmd "redis-cli ping"
+                    --health-interval 5s
+                    --health-timeout 3s
+                    --health-retries 10
+        env:
+            DATABASE_URL: postgres://propfirm:propfirm@localhost:5432/propfirm
+            REDIS_URL: redis://localhost:6379
+            INGEST_API_KEY: dev
+            BETTER_AUTH_SECRET: change-me-to-a-long-random-string
+            BETTER_AUTH_URL: http://localhost:3000
+            BOOTSTRAP_ADMIN_EMAIL: admin@example.com
+            BOOTSTRAP_ADMIN_PASSWORD: changeme
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+            - uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
+
+            - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+              with:
+                  node-version-file: .node-version
+                  cache: pnpm
+
+            - run: pnpm install --frozen-lockfile
+            - run: pnpm exec playwright install --with-deps chromium
+            - run: pnpm e2e

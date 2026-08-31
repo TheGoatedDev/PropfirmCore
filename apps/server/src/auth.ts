@@ -15,6 +15,12 @@ export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
             schema: authSchema,
         }),
         emailAndPassword: { enabled: true },
+        trustedOrigins: [
+            "http://localhost",
+            "http://localhost:3000",
+            "http://localhost:5173",
+            "http://localhost:5174",
+        ],
         plugins: [
             admin({
                 ac,

@@ -41,8 +41,8 @@ services:
             INGEST_API_KEY: dev
             FIRM_CONFIG_PATH: /app/firm.example.json
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
-            BETTER_AUTH_URL: http://localhost:3000
-            BOOTSTRAP_ADMIN_EMAIL: admin@localhost
+            BETTER_AUTH_URL: http://localhost
+            BOOTSTRAP_ADMIN_EMAIL: admin@example.com
             BOOTSTRAP_ADMIN_PASSWORD: changeme
         depends_on:
             postgres:
@@ -89,6 +89,9 @@ services:
             dockerfile: docker/web.Dockerfile
             args:
                 APP: admin-web
+                VITE_BASE: /admin/
+                DIST_DEST: /usr/share/nginx/html/admin
+                NGINX_CONF: nginx-admin.conf
         depends_on:
             - api
 

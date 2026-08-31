@@ -14,6 +14,8 @@
             "!.turbo",
             "!dist",
             "!coverage",
+            "!playwright-report",
+            "!test-results",
             "!packages/api-client/openapi.json",
             "!packages/api-client/src/schema.ts"
         ]
@@ -23,10 +25,27 @@
         "indentStyle": "space",
         "indentWidth": 4
     },
+    "css": {
+        "parser": {
+            "tailwindDirectives": true
+        }
+    },
     "linter": {
         "enabled": true,
         "rules": {
             "preset": "recommended"
         }
-    }
+    },
+    "overrides": [
+        {
+            "includes": ["packages/ui/src/components/**"],
+            "linter": {
+                "rules": {
+                    "a11y": {
+                        "noLabelWithoutControl": "off"
+                    }
+                }
+            }
+        }
+    ]
 }
