@@ -1,0 +1,2028 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "PropfirmCore",
+        "version": "0.0.0"
+    },
+    "components": {
+        "securitySchemes": {
+            "apiKey": {
+                "type": "apiKey",
+                "in": "header",
+                "name": "X-Api-Key"
+            }
+        },
+        "schemas": {},
+        "parameters": {}
+    },
+    "paths": {
+        "/me": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "role": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "email",
+                                        "role"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products/{id}/buy": {
+            "post": {
+                "tags": [
+                    "trader"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payment": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "userId": {
+                                                    "type": "string"
+                                                },
+                                                "productId": {
+                                                    "type": "string"
+                                                },
+                                                "amount": {
+                                                    "type": "number"
+                                                },
+                                                "currency": {
+                                                    "type": "string"
+                                                },
+                                                "provider": {
+                                                    "type": "string"
+                                                },
+                                                "providerRef": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "paid",
+                                                        "failed",
+                                                        "canceled"
+                                                    ]
+                                                },
+                                                "accountId": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "userId",
+                                                "productId",
+                                                "amount",
+                                                "currency",
+                                                "provider",
+                                                "providerRef",
+                                                "status",
+                                                "accountId"
+                                            ]
+                                        },
+                                        "account": {
+                                            "nullable": true
+                                        },
+                                        "redirectUrl": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "required": [
+                                        "payment",
+                                        "redirectUrl"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/{id}/complete": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "payment": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string"
+                                                },
+                                                "userId": {
+                                                    "type": "string"
+                                                },
+                                                "productId": {
+                                                    "type": "string"
+                                                },
+                                                "amount": {
+                                                    "type": "number"
+                                                },
+                                                "currency": {
+                                                    "type": "string"
+                                                },
+                                                "provider": {
+                                                    "type": "string"
+                                                },
+                                                "providerRef": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                },
+                                                "status": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "pending",
+                                                        "paid",
+                                                        "failed",
+                                                        "canceled"
+                                                    ]
+                                                },
+                                                "accountId": {
+                                                    "type": "string",
+                                                    "nullable": true
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "userId",
+                                                "productId",
+                                                "amount",
+                                                "currency",
+                                                "provider",
+                                                "providerRef",
+                                                "status",
+                                                "accountId"
+                                            ]
+                                        },
+                                        "account": {
+                                            "nullable": true
+                                        }
+                                    },
+                                    "required": [
+                                        "payment"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payments/{id}": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "userId": {
+                                            "type": "string"
+                                        },
+                                        "productId": {
+                                            "type": "string"
+                                        },
+                                        "amount": {
+                                            "type": "number"
+                                        },
+                                        "currency": {
+                                            "type": "string"
+                                        },
+                                        "provider": {
+                                            "type": "string"
+                                        },
+                                        "providerRef": {
+                                            "type": "string",
+                                            "nullable": true
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "paid",
+                                                "failed",
+                                                "canceled"
+                                            ]
+                                        },
+                                        "accountId": {
+                                            "type": "string",
+                                            "nullable": true
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "amount",
+                                        "currency",
+                                        "provider",
+                                        "providerRef",
+                                        "status",
+                                        "accountId"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/products": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "userId": {
+                                                "type": "string",
+                                                "nullable": true,
+                                                "minLength": 1
+                                            },
+                                            "productId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "phaseIndex": {
+                                                "type": "integer"
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "active",
+                                                    "passed",
+                                                    "failed",
+                                                    "funded"
+                                                ]
+                                            },
+                                            "startBalance": {
+                                                "type": "number"
+                                            },
+                                            "equity": {
+                                                "type": "number"
+                                            },
+                                            "balance": {
+                                                "type": "number"
+                                            },
+                                            "peakEquity": {
+                                                "type": "number"
+                                            },
+                                            "dailyStartEquity": {
+                                                "type": "number"
+                                            },
+                                            "tradingDayKey": {
+                                                "type": "string"
+                                            },
+                                            "tradingDays": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "productId",
+                                            "phaseIndex",
+                                            "status",
+                                            "startBalance",
+                                            "equity",
+                                            "balance",
+                                            "peakEquity",
+                                            "dailyStartEquity",
+                                            "tradingDayKey",
+                                            "tradingDays"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{id}": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{id}/fills": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{id}/snapshots": {
+            "get": {
+                "tags": [
+                    "trader"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "nullable": true
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{id}/fail": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/accounts/{id}/pass": {
+            "post": {
+                "tags": [
+                    "admin"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "forbidden",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ingest/accounts": {
+            "post": {
+                "tags": [
+                    "ingest"
+                ],
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "productId": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "userId": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "productId"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "created",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "exists",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ingest/accounts/{id}": {
+            "get": {
+                "tags": [
+                    "ingest"
+                ],
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ingest/accounts/{id}/snapshot": {
+            "post": {
+                "tags": [
+                    "ingest"
+                ],
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "externalId": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "equity": {
+                                        "type": "number"
+                                    },
+                                    "balance": {
+                                        "type": "number"
+                                    },
+                                    "ts": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "positions": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "symbol": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "class": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fx",
+                                                        "futures",
+                                                        "crypto",
+                                                        "equity"
+                                                    ]
+                                                },
+                                                "qty": {
+                                                    "type": "number"
+                                                },
+                                                "avgPrice": {
+                                                    "type": "number"
+                                                },
+                                                "openedAt": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "closedAt": {
+                                                    "type": "string",
+                                                    "nullable": true,
+                                                    "minLength": 1
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "symbol",
+                                                "class",
+                                                "qty",
+                                                "avgPrice",
+                                                "openedAt",
+                                                "closedAt"
+                                            ]
+                                        }
+                                    }
+                                },
+                                "required": [
+                                    "externalId",
+                                    "equity",
+                                    "balance",
+                                    "ts",
+                                    "positions"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ingest/accounts/{id}/fills": {
+            "post": {
+                "tags": [
+                    "ingest"
+                ],
+                "security": [
+                    {
+                        "apiKey": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "fills": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "externalId": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "positionId": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "symbol": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "class": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "fx",
+                                                        "futures",
+                                                        "crypto",
+                                                        "equity"
+                                                    ]
+                                                },
+                                                "qty": {
+                                                    "type": "number"
+                                                },
+                                                "price": {
+                                                    "type": "number"
+                                                },
+                                                "side": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "buy",
+                                                        "sell"
+                                                    ]
+                                                },
+                                                "ts": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "multiplier": {
+                                                    "type": "number"
+                                                },
+                                                "tickSize": {
+                                                    "type": "number"
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                }
+                                            },
+                                            "required": [
+                                                "externalId",
+                                                "positionId",
+                                                "symbol",
+                                                "class",
+                                                "qty",
+                                                "price",
+                                                "side",
+                                                "ts",
+                                                "multiplier",
+                                                "tickSize",
+                                                "currency"
+                                            ]
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "fills"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "funded"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "bad request",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "unauthorized",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

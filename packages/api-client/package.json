@@ -1,0 +1,19 @@
+{
+    "name": "@propfirmcore/api-client",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts"
+    },
+    "scripts": {
+        "generate": "node generate.mjs",
+        "typecheck": "tsc --noEmit -p tsconfig.json"
+    },
+    "dependencies": {
+        "openapi-fetch": "0.17.0"
+    },
+    "devDependencies": {
+        "typescript": "7.0.2"
+    }
+}

@@ -8,7 +8,8 @@
         "dev:worker": "tsx watch src/worker.ts",
         "start": "tsx src/api.ts",
         "start:worker": "tsx src/worker.ts",
-        "typecheck": "tsc --noEmit -p tsconfig.json"
+        "typecheck": "tsc --noEmit -p tsconfig.json",
+        "openapi": "tsx src/export-openapi.ts"
     },
     "dependencies": {
         "@better-auth/drizzle-adapter": "1.7.2",

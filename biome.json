@@ -13,7 +13,9 @@
             "!node_modules",
             "!.turbo",
             "!dist",
-            "!coverage"
+            "!coverage",
+            "!packages/api-client/openapi.json",
+            "!packages/api-client/src/schema.ts"
         ]
     },
     "formatter": {
