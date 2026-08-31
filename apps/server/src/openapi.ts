@@ -28,19 +28,21 @@ export const openApiInfo = {
 };
 
 export const tags = {
-    trader: "Trader",
-    admin: "Firm Admin",
-    ingest: "Market Data Ingest",
+    me: "Me",
+    products: "Products",
+    accounts: "Accounts",
+    payments: "Payments",
 } as const;
 
 const tagMeta: Record<string, string> = {
     Authentication: "Sign-up, sign-in, session, password, and linked accounts.",
     "Authentication - Admin":
         "Better Auth admin plugin: users, roles, bans, impersonation.",
-    [tags.trader]: "Products, accounts, checkout, and the signed-in user.",
-    [tags.admin]: "Complete payments and force pass or fail an account.",
-    [tags.ingest]:
-        "Push fills and equity from a broker or bridge. Use X-Api-Key.",
+    [tags.me]: "The signed-in user.",
+    [tags.products]: "Challenge products this firm sells, including checkout.",
+    [tags.accounts]:
+        "Trading accounts: session access, force pass or fail, and ingest.",
+    [tags.payments]: "Checkout payments: status and admin complete.",
 };
 
 function authTag(path: string): string {

@@ -6,7 +6,7 @@ describe("withAuthOpenAPI", () => {
         const spec = await withAuthOpenAPI(
             {
                 paths: {
-                    "/me": { get: { tags: ["Trader"] } },
+                    "/me": { get: { tags: ["Me"] } },
                 },
             },
             {
@@ -33,7 +33,7 @@ describe("withAuthOpenAPI", () => {
         expect(tags.map((t) => t.name).sort()).toEqual([
             "Authentication",
             "Authentication - Admin",
-            "Trader",
+            "Me",
         ]);
     });
 });

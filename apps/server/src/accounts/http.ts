@@ -36,7 +36,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/products",
-            tags: [tags.trader],
+            tags: [tags.products],
             responses: {
                 200: {
                     description: "Challenge products this firm sells.",
@@ -63,7 +63,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/accounts",
-            tags: [tags.trader],
+            tags: [tags.accounts],
             responses: {
                 200: {
                     description: "Trading accounts you can see.",
@@ -97,7 +97,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/accounts/{id}",
-            tags: [tags.trader],
+            tags: [tags.accounts],
             request: { params: idParam },
             responses: {
                 200: {
@@ -142,7 +142,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/accounts/{id}/fills",
-            tags: [tags.trader],
+            tags: [tags.accounts],
             request: { params: idParam },
             responses: {
                 200: {
@@ -192,7 +192,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/accounts/{id}/snapshots",
-            tags: [tags.trader],
+            tags: [tags.accounts],
             request: { params: idParam },
             responses: {
                 200: {
@@ -242,7 +242,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/accounts/{id}/fail",
-            tags: [tags.admin],
+            tags: [tags.accounts],
             request: { params: idParam },
             responses: {
                 200: {
@@ -293,7 +293,7 @@ export function mountAccounts(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/accounts/{id}/pass",
-            tags: [tags.admin],
+            tags: [tags.accounts],
             request: { params: idParam },
             responses: {
                 200: {

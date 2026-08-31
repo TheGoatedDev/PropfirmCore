@@ -11,9 +11,9 @@ Load this skill for any API / OpenAPI work in this repo.
 
 **Title Case.** Spaces stay. Each word starts with a capital.
 
-Yes: `Trader`, `Firm Admin`, `Market Data Ingest`, `Authentication`, `Authentication - Admin`
+Yes: `Accounts`, `Products`, `Payments`, `Me`, `Authentication`, `Authentication - Admin`
 
-No: `trader`, `firmAdmin`, `FirmAdmin`, `firm admin`
+No: `trader`, `accounts`, `firmAdmin`, `FirmAdmin`, `firm admin`
 
 Hyphenated groups: spaces around `-` (`Authentication - Admin`).
 

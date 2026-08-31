@@ -33,7 +33,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/products/{id}/buy",
-            tags: [tags.trader],
+            tags: [tags.products],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
@@ -87,7 +87,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/payments/{id}/complete",
-            tags: [tags.admin],
+            tags: [tags.payments],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
@@ -152,7 +152,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/payments/{id}",
-            tags: [tags.trader],
+            tags: [tags.payments],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {

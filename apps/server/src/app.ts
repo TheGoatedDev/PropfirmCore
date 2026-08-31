@@ -77,7 +77,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "get",
             path: "/me",
-            tags: [tags.trader],
+            tags: [tags.me],
             responses: {
                 200: {
                     description: "The signed-in user.",
@@ -118,7 +118,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts",
-            tags: [tags.ingest],
+            tags: [tags.accounts],
             security: [{ apiKey: [] }],
             request: {
                 body: {
@@ -171,7 +171,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "get",
             path: "/ingest/accounts/{id}",
-            tags: [tags.ingest],
+            tags: [tags.accounts],
             security: [{ apiKey: [] }],
             request: { params: idParam },
             responses: {
@@ -205,7 +205,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts/{id}/snapshot",
-            tags: [tags.ingest],
+            tags: [tags.accounts],
             security: [{ apiKey: [] }],
             request: {
                 params: idParam,
@@ -281,7 +281,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts/{id}/fills",
-            tags: [tags.ingest],
+            tags: [tags.accounts],
             security: [{ apiKey: [] }],
             request: {
                 params: idParam,

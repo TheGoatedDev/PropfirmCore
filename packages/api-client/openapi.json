@@ -235,7 +235,7 @@
         "/me": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Me"
                 ],
                 "responses": {
                     "200": {
@@ -289,7 +289,7 @@
         "/products/{id}/buy": {
             "post": {
                 "tags": [
-                    "Trader"
+                    "Products"
                 ],
                 "parameters": [
                     {
@@ -422,7 +422,7 @@
         "/payments/{id}/complete": {
             "post": {
                 "tags": [
-                    "Firm Admin"
+                    "Payments"
                 ],
                 "parameters": [
                     {
@@ -568,7 +568,7 @@
         "/payments/{id}": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Payments"
                 ],
                 "parameters": [
                     {
@@ -703,7 +703,7 @@
         "/products": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Products"
                 ],
                 "responses": {
                     "200": {
@@ -744,7 +744,7 @@
         "/accounts": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Accounts"
                 ],
                 "responses": {
                     "200": {
@@ -850,7 +850,7 @@
         "/accounts/{id}": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Accounts"
                 ],
                 "parameters": [
                     {
@@ -1002,7 +1002,7 @@
         "/accounts/{id}/fills": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Accounts"
                 ],
                 "parameters": [
                     {
@@ -1092,7 +1092,7 @@
         "/accounts/{id}/snapshots": {
             "get": {
                 "tags": [
-                    "Trader"
+                    "Accounts"
                 ],
                 "parameters": [
                     {
@@ -1182,7 +1182,7 @@
         "/accounts/{id}/fail": {
             "post": {
                 "tags": [
-                    "Firm Admin"
+                    "Accounts"
                 ],
                 "parameters": [
                     {
@@ -1334,7 +1334,7 @@
         "/accounts/{id}/pass": {
             "post": {
                 "tags": [
-                    "Firm Admin"
+                    "Accounts"
                 ],
                 "parameters": [
                     {
@@ -1486,7 +1486,7 @@
         "/ingest/accounts": {
             "post": {
                 "tags": [
-                    "Market Data Ingest"
+                    "Accounts"
                 ],
                 "security": [
                     {
@@ -1661,7 +1661,7 @@
         "/ingest/accounts/{id}": {
             "get": {
                 "tags": [
-                    "Market Data Ingest"
+                    "Accounts"
                 ],
                 "security": [
                     {
@@ -1799,7 +1799,7 @@
         "/ingest/accounts/{id}/snapshot": {
             "post": {
                 "tags": [
-                    "Market Data Ingest"
+                    "Accounts"
                 ],
                 "security": [
                     {
@@ -2038,7 +2038,7 @@
         "/ingest/accounts/{id}/fills": {
             "post": {
                 "tags": [
-                    "Market Data Ingest"
+                    "Accounts"
                 ],
                 "security": [
                     {
@@ -9902,16 +9902,20 @@
     },
     "tags": [
         {
-            "name": "Trader",
-            "description": "Products, accounts, checkout, and the signed-in user."
+            "name": "Me",
+            "description": "The signed-in user."
         },
         {
-            "name": "Firm Admin",
-            "description": "Complete payments and force pass or fail an account."
+            "name": "Products",
+            "description": "Challenge products this firm sells, including checkout."
         },
         {
-            "name": "Market Data Ingest",
-            "description": "Push fills and equity from a broker or bridge. Use X-Api-Key."
+            "name": "Payments",
+            "description": "Checkout payments: status and admin complete."
+        },
+        {
+            "name": "Accounts",
+            "description": "Trading accounts: session access, force pass or fail, and ingest."
         },
         {
             "name": "Authentication",
