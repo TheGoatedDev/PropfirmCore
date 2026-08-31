@@ -9,7 +9,8 @@
         "start": "tsx src/api.ts",
         "start:worker": "tsx src/worker.ts",
         "typecheck": "tsc --noEmit -p tsconfig.json",
-        "openapi": "tsx src/export-openapi.ts"
+        "openapi": "tsx src/export-openapi.ts",
+        "db:generate": "drizzle-kit generate"
     },
     "dependencies": {
         "@better-auth/drizzle-adapter": "1.7.2",
@@ -28,6 +29,7 @@
     },
     "devDependencies": {
         "@types/node": "24.10.0",
+        "drizzle-kit": "0.31.10",
         "typescript": "7.0.2"
     }
 }

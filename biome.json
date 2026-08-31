@@ -17,7 +17,8 @@
             "!playwright-report",
             "!test-results",
             "!packages/api-client/openapi.json",
-            "!packages/api-client/src/schema.ts"
+            "!packages/api-client/src/schema.ts",
+            "!apps/server/drizzle"
         ]
     },
     "formatter": {

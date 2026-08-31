@@ -12,8 +12,8 @@ if (!databaseUrl) throw new Error("DATABASE_URL required");
 if (!apiKey) throw new Error("INGEST_API_KEY required");
 if (!secret) throw new Error("BETTER_AUTH_SECRET required");
 
-const { db, sql } = createDb(databaseUrl);
-await migrate(sql);
+const { db } = createDb(databaseUrl);
+await migrate(db);
 
 const auth = createAuth(db, {
     secret,
