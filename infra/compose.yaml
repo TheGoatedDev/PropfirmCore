@@ -1,0 +1,96 @@
+name: propfirmcore
+
+services:
+    postgres:
+        image: postgres:17-alpine
+        environment:
+            POSTGRES_USER: propfirm
+            POSTGRES_PASSWORD: propfirm
+            POSTGRES_DB: propfirm
+        ports:
+            - "5432:5432"
+        volumes:
+            - pgdata:/var/lib/postgresql/data
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U propfirm"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+
+    redis:
+        image: redis:7-alpine
+        ports:
+            - "6379:6379"
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 5s
+            timeout: 3s
+            retries: 10
+
+    api:
+        profiles: ["app"]
+        build:
+            context: ..
+            dockerfile: docker/server.Dockerfile
+        ports:
+            - "3000:3000"
+        environment:
+            ROLE: api
+            DATABASE_URL: postgres://propfirm:propfirm@postgres:5432/propfirm
+            REDIS_URL: redis://redis:6379
+            INGEST_API_KEY: dev
+            FIRM_CONFIG_PATH: /app/firm.example.json
+            BETTER_AUTH_SECRET: change-me-to-a-long-random-string
+            BETTER_AUTH_URL: http://localhost:3000
+            BOOTSTRAP_ADMIN_EMAIL: admin@localhost
+            BOOTSTRAP_ADMIN_PASSWORD: changeme
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+
+    worker:
+        profiles: ["app"]
+        build:
+            context: ..
+            dockerfile: docker/server.Dockerfile
+        environment:
+            ROLE: worker
+            REDIS_URL: redis://redis:6379
+        depends_on:
+            redis:
+                condition: service_healthy
+
+    proxy:
+        profiles: ["app"]
+        image: caddy:2-alpine
+        ports:
+            - "80:80"
+        volumes:
+            - ./Caddyfile:/etc/caddy/Caddyfile:ro
+        depends_on:
+            - api
+
+    trader-web:
+        profiles: ["ui"]
+        build:
+            context: ..
+            dockerfile: docker/web.Dockerfile
+            args:
+                APP: trader-web
+        depends_on:
+            - api
+
+    admin-web:
+        profiles: ["ui"]
+        build:
+            context: ..
+            dockerfile: docker/web.Dockerfile
+            args:
+                APP: admin-web
+        depends_on:
+            - api
+
+volumes:
+    pgdata:
