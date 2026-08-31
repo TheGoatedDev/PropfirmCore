@@ -8,6 +8,7 @@
     },
     "scripts": {
         "generate": "node generate.mjs",
+        "dev": "npx --yes serve . -p 8081",
         "swagger": "npx --yes serve . -p 8081",
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
