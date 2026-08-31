@@ -26,13 +26,20 @@ export const openApiInfo = {
     info: { title: "PropfirmCore", version: "0.0.0" },
 };
 
+export const tags = {
+    trader: "Trader",
+    admin: "Firm admin",
+    ingest: "Market data ingest",
+} as const;
+
 const tagMeta: Record<string, string> = {
     Authentication: "Sign-up, sign-in, session, password, and linked accounts.",
     "Authentication - Admin":
         "Better Auth admin plugin: users, roles, bans, impersonation.",
-    trader: "Trader session routes: products, accounts, checkout.",
-    admin: "Firm admin routes: complete payments, force pass/fail.",
-    ingest: "Broker/bridge ingest. Authenticate with X-Api-Key.",
+    [tags.trader]: "Products, accounts, checkout, and the signed-in user.",
+    [tags.admin]: "Complete payments and force pass or fail an account.",
+    [tags.ingest]:
+        "Push fills and equity from a broker or bridge. Use X-Api-Key.",
 };
 
 function authTag(path: string): string {

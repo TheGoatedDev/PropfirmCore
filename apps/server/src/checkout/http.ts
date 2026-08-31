@@ -5,6 +5,7 @@ import type { Auth } from "../auth.ts";
 import type { Db } from "../db.ts";
 import { payments } from "../db.ts";
 import { errorSchema, httpDesc } from "../http-desc.ts";
+import { tags } from "../openapi.ts";
 import { roleHasPermission } from "../permissions.ts";
 import { getAdapter } from "./adapters.ts";
 import { completePayment, startCheckout } from "./service.ts";
@@ -32,7 +33,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/products/{id}/buy",
-            tags: ["trader"],
+            tags: [tags.trader],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
@@ -86,7 +87,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "post",
             path: "/payments/{id}/complete",
-            tags: ["admin"],
+            tags: [tags.admin],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {
@@ -151,7 +152,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
         createRoute({
             method: "get",
             path: "/payments/{id}",
-            tags: ["trader"],
+            tags: [tags.trader],
             request: { params: z.object({ id: z.string().min(1) }) },
             responses: {
                 200: {

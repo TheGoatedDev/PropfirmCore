@@ -23,7 +23,7 @@ import {
 } from "./db.ts";
 import { errorSchema, httpDesc } from "./http-desc.ts";
 import { requireApiKey } from "./ingest-key.ts";
-import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
+import { openApiInfo, tags, withAuthOpenAPI } from "./openapi.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 
@@ -68,7 +68,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "get",
             path: "/me",
-            tags: ["trader"],
+            tags: [tags.trader],
             responses: {
                 200: {
                     description: "The signed-in user.",
@@ -109,7 +109,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts",
-            tags: ["ingest"],
+            tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
                 body: {
@@ -162,7 +162,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "get",
             path: "/ingest/accounts/{id}",
-            tags: ["ingest"],
+            tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: { params: idParam },
             responses: {
@@ -196,7 +196,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts/{id}/snapshot",
-            tags: ["ingest"],
+            tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
                 params: idParam,
@@ -272,7 +272,7 @@ export function createApp(deps: AppDeps) {
         createRoute({
             method: "post",
             path: "/ingest/accounts/{id}/fills",
-            tags: ["ingest"],
+            tags: [tags.ingest],
             security: [{ apiKey: [] }],
             request: {
                 params: idParam,
