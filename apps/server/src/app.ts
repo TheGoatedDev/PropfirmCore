@@ -9,6 +9,7 @@ import {
     snapshotSchema,
 } from "@propfirmcore/domain";
 import { eq, inArray } from "drizzle-orm";
+import { mountAccounts } from "./accounts/http.ts";
 import type { Auth } from "./auth.ts";
 import { mountCheckout } from "./checkout/http.ts";
 import {
@@ -31,6 +32,7 @@ const idParam = z.object({ id: z.string().min(1) });
 const createBody = z.object({
     id: z.string().min(1),
     productId: z.string().min(1),
+    userId: z.string().min(1).nullable().optional(),
 });
 
 export type AppDeps = {
@@ -99,6 +101,7 @@ export function createApp(deps: AppDeps) {
     );
 
     mountCheckout(app, deps);
+    mountAccounts(app, deps);
 
     app.use("/ingest/*", requireApiKey(deps.apiKey));
 
@@ -148,6 +151,7 @@ export function createApp(deps: AppDeps) {
                 product,
                 deps.firm.dailyClose,
                 new Date().toISOString(),
+                body.userId ?? null,
             );
             await deps.db.insert(accounts).values(accountToRow(account));
             return c.json(account, 201);

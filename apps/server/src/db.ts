@@ -38,6 +38,7 @@ export const paymentStatusEnum = pgEnum("payment_status", paymentStatuses);
 
 export const accounts = pgTable("accounts", {
     id: text("id").primaryKey(),
+    userId: text("user_id"),
     productId: text("product_id").notNull(),
     phaseIndex: integer("phase_index").notNull(),
     status: accountStatusEnum("status").notNull(),
@@ -122,6 +123,7 @@ export async function migrate(sql: postgres.Sql): Promise<void> {
     await sql`
         create table if not exists accounts (
             id text primary key,
+            user_id text,
             product_id text not null,
             phase_index integer not null,
             status account_status not null,
@@ -233,6 +235,7 @@ export async function migrate(sql: postgres.Sql): Promise<void> {
             account_id text references accounts (id)
         )
     `;
+    await sql`alter table accounts add column if not exists user_id text`;
 }
 
 export function accountFromRow(row: typeof accounts.$inferSelect): Account {

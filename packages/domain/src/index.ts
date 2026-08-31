@@ -11,6 +11,8 @@ export { tradingDayKey } from "./calendar.ts";
 export {
     applyFills,
     applySnapshot,
+    forceFail,
+    forcePass,
     openAccount,
     settle,
 } from "./engine.ts";

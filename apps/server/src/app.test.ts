@@ -66,11 +66,18 @@ describe("api", () => {
         expect(res.status).toBe(401);
     });
 
+    it("accounts without session is 401", async () => {
+        const res = await app().request("/accounts");
+        expect(res.status).toBe(401);
+    });
+
     it("serves openapi", async () => {
         const res = await app().request("/openapi.json");
         expect(res.status).toBe(200);
         const spec = (await res.json()) as { paths: Record<string, unknown> };
         expect(spec.paths["/ingest/accounts/{id}/snapshot"]).toBeTruthy();
         expect(spec.paths["/ingest/accounts/{id}/fills"]).toBeTruthy();
+        expect(spec.paths["/accounts"]).toBeTruthy();
+        expect(spec.paths["/products"]).toBeTruthy();
     });
 });

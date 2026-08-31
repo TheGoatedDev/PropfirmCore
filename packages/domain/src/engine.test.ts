@@ -1,7 +1,13 @@
 import type { DailyClose, Product } from "@propfirmcore/config";
 import { describe, expect, it } from "vitest";
 import { tradingDayKey } from "./calendar.ts";
-import { applyFills, applySnapshot, openAccount } from "./engine.ts";
+import {
+    applyFills,
+    applySnapshot,
+    forceFail,
+    forcePass,
+    openAccount,
+} from "./engine.ts";
 import type { Fill, Snapshot } from "./schemas.ts";
 
 const dailyClose: DailyClose = { tz: "America/New_York", time: "17:00" };
@@ -98,6 +104,12 @@ describe("engine", () => {
         expect(a.status).toBe("active");
         expect(a.startBalance).toBe(50_000);
         expect(a.equity).toBe(50_000);
+        expect(a.userId).toBeNull();
+    });
+
+    it("keeps userId", () => {
+        const a = openAccount("a1", oneStep, dailyClose, t0, "u1");
+        expect(a.userId).toBe("u1");
     });
 
     it("fails on max drawdown", () => {
@@ -158,5 +170,12 @@ describe("engine", () => {
         );
         expect(day2.status).toBe("active");
         expect(day2.dailyStartEquity).toBe(49_500);
+    });
+
+    it("force fail and pass", () => {
+        const a = openAccount("a1", oneStep, dailyClose, t0, "u1");
+        expect(forceFail(a).status).toBe("failed");
+        expect(forcePass(a).status).toBe("passed");
+        expect(forceFail(a).userId).toBe("u1");
     });
 });

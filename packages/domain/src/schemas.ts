@@ -64,6 +64,7 @@ export const snapshotSchema = z.object({
 
 export const accountSchema = z.object({
     id: z.string().min(1),
+    userId: z.string().min(1).nullable(),
     productId: z.string().min(1),
     phaseIndex: z.number().int(),
     status: accountStatusSchema,

@@ -25,4 +25,12 @@ describe("roleHasPermission", () => {
     it("trader cannot complete payment", () => {
         expect(roleHasPermission("trader", "payment", "complete")).toBe(false);
     });
+
+    it("admin can list accounts", () => {
+        expect(roleHasPermission("admin", "account", "list")).toBe(true);
+    });
+
+    it("trader cannot list all accounts", () => {
+        expect(roleHasPermission("trader", "account", "list")).toBe(false);
+    });
 });

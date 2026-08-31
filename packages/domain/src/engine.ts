@@ -13,6 +13,7 @@ function resetToPhase(
     const key = tradingDayKey(now, dailyClose);
     return {
         id: account.id,
+        userId: account.userId,
         productId: account.productId,
         phaseIndex,
         status: phase.kind === "funded" ? "funded" : "active",
@@ -31,10 +32,12 @@ export function openAccount(
     product: Product,
     dailyClose: DailyClose,
     now: string,
+    userId: string | null = null,
 ): Account {
     return resetToPhase(
         {
             id,
+            userId,
             productId: product.id,
             phaseIndex: 0,
             status: "active",
@@ -78,6 +81,14 @@ export function settle(
             now,
         );
     }
+    return { ...account, status: "passed" };
+}
+
+export function forceFail(account: Account): Account {
+    return { ...account, status: "failed" };
+}
+
+export function forcePass(account: Account): Account {
     return { ...account, status: "passed" };
 }
 

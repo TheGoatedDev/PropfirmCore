@@ -50,6 +50,7 @@ export async function completePayment(
         product,
         firm.dailyClose,
         new Date().toISOString(),
+        payment.userId,
     );
     await db.transaction(async (tx) => {
         await tx.insert(accounts).values(accountToRow(account));
