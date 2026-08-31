@@ -1,3 +1,3 @@
 # Agents
 
-- API / OpenAPI work: load `.opencode/skills/naming-conventions/SKILL.md`.
+- API / OpenAPI work: load `.agents/skills/naming-conventions/SKILL.md`.
