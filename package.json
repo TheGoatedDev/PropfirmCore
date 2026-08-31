@@ -9,7 +9,7 @@
         "node": ">=24"
     },
     "scripts": {
-        "dev": "turbo run dev",
+        "dev": "docker compose -f infra/compose.yaml up -d --wait && turbo run dev",
         "build": "turbo run build",
         "typecheck": "turbo run typecheck",
         "test": "vitest run",

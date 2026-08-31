@@ -4,7 +4,7 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "tsx watch src/api.ts",
+        "dev": "tsx --env-file=../../.env.example watch src/api.ts",
         "dev:worker": "tsx watch src/worker.ts",
         "start": "tsx src/api.ts",
         "start:worker": "tsx src/worker.ts",

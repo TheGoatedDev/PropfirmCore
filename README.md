@@ -6,6 +6,7 @@ Node 24, pnpm 11. Exact versions only.
 
 ```sh
 pnpm install
+pnpm dev
 pnpm lint
 pnpm test
 pnpm typecheck
