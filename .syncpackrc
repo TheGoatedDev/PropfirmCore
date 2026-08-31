@@ -1,0 +1,24 @@
+{
+    "source": ["**/package.json", "!node_modules/**", "!.git/**", "!.turbo/**"],
+    "versionGroups": [
+        {
+            "label": "Use workspace protocol for local packages",
+            "dependencies": ["$LOCAL"],
+            "dependencyTypes": ["dev", "peer", "prod"],
+            "pinVersion": "workspace:*"
+        },
+        {
+            "label": "Use one version for each external dependency",
+            "dependencies": ["**"],
+            "dependencyTypes": ["dev", "peer", "prod"],
+            "preferVersion": "highestSemver"
+        }
+    ],
+    "semverGroups": [
+        {
+            "dependencyTypes": ["dev", "peer", "prod"],
+            "dependencies": ["**"],
+            "range": ""
+        }
+    ]
+}
