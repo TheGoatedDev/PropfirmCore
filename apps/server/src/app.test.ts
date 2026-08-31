@@ -79,7 +79,11 @@ describe("api", () => {
     it("serves openapi", async () => {
         const res = await app().request("/openapi.json");
         expect(res.status).toBe(200);
-        const spec = (await res.json()) as { paths: Record<string, unknown> };
+        const spec = (await res.json()) as {
+            paths: Record<string, unknown>;
+            servers?: { url: string }[];
+        };
+        expect(spec.servers?.[0]?.url).toBe("http://localhost:3000");
         expect(spec.paths["/ingest/accounts/{id}/snapshot"]).toBeTruthy();
         expect(spec.paths["/ingest/accounts/{id}/fills"]).toBeTruthy();
         expect(spec.paths["/accounts"]).toBeTruthy();

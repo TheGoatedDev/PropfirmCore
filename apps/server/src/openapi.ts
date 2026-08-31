@@ -24,6 +24,7 @@ const httpMethods = new Set([
 export const openApiInfo = {
     openapi: "3.0.0",
     info: { title: "PropfirmCore", version: "0.0.0" },
+    servers: [{ url: "http://localhost:3000", description: "Local" }],
 };
 
 export const tags = {

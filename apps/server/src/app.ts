@@ -9,6 +9,7 @@ import {
     snapshotSchema,
 } from "@propfirmcore/domain";
 import { eq, inArray } from "drizzle-orm";
+import { cors } from "hono/cors";
 import { mountAccounts } from "./accounts/http.ts";
 import type { Auth } from "./auth.ts";
 import { mountCheckout } from "./checkout/http.ts";
@@ -54,6 +55,14 @@ function productOrNull(firm: FirmConfig, productId: string) {
 
 export function createApp(deps: AppDeps) {
     const app = new OpenAPIHono();
+
+    app.use(
+        "*",
+        cors({
+            origin: "http://localhost:8081",
+            credentials: true,
+        }),
+    );
 
     app.openAPIRegistry.registerComponent("securitySchemes", "apiKey", {
         type: "apiKey",

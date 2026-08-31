@@ -20,6 +20,7 @@ export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
             "http://localhost:3000",
             "http://localhost:5173",
             "http://localhost:5174",
+            "http://localhost:8081",
         ],
         plugins: [
             admin({
