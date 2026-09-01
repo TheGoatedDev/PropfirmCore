@@ -62,6 +62,27 @@ export const snapshotSchema = z.object({
     positions: z.array(positionSchema),
 });
 
+export const payoutStatuses = [
+    "pending",
+    "approved",
+    "rejected",
+    "paid",
+] as const;
+export const payoutReasons = ["uncoverable", "admin"] as const;
+
+export const payoutStatusSchema = z.enum(payoutStatuses);
+export const payoutReasonSchema = z.enum(payoutReasons);
+
+export const payoutSchema = z.object({
+    id: z.string().min(1),
+    userId: z.string().min(1),
+    tradingAccountId: z.string().min(1),
+    amount: z.number().positive(),
+    currency: z.string().min(1),
+    status: payoutStatusSchema,
+    reason: payoutReasonSchema.nullable(),
+});
+
 export const tradingAccountSchema = z.object({
     id: z.string().min(1),
     userId: z.string().min(1).nullable(),
@@ -85,3 +106,6 @@ export type Position = z.infer<typeof positionSchema>;
 export type Fill = z.infer<typeof fillSchema>;
 export type Snapshot = z.infer<typeof snapshotSchema>;
 export type TradingAccount = z.infer<typeof tradingAccountSchema>;
+export type PayoutStatus = z.infer<typeof payoutStatusSchema>;
+export type PayoutReason = z.infer<typeof payoutReasonSchema>;
+export type Payout = z.infer<typeof payoutSchema>;

@@ -35,4 +35,12 @@ describe("roleHasPermission", () => {
             false,
         );
     });
+
+    it("admin can approve payout", () => {
+        expect(roleHasPermission("admin", "payout", "approve")).toBe(true);
+    });
+
+    it("trader cannot approve payout", () => {
+        expect(roleHasPermission("trader", "payout", "approve")).toBe(false);
+    });
 });

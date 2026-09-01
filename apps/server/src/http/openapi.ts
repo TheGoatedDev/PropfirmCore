@@ -32,6 +32,7 @@ export const tags = {
     products: "Products",
     tradingAccounts: "Trading Accounts",
     payments: "Payments",
+    payouts: "Payouts",
     ingest: "Ingest",
 } as const;
 
@@ -44,6 +45,8 @@ const tagMeta: Record<string, string> = {
     [tags.tradingAccounts]:
         "Trading accounts: session access and force pass or fail.",
     [tags.payments]: "Checkout payments: status and admin complete.",
+    [tags.payouts]:
+        "Payouts: trader request, admin approve or reject, mark paid.",
     [tags.ingest]:
         "Push fills and equity from a broker or bridge. Use X-Api-Key.",
 };

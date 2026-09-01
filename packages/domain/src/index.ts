@@ -1,10 +1,15 @@
 export type {
+    Bridge,
     Checkout,
     DailyClose,
     FirmConfig,
+    FirmPayout,
     Modules,
+    OnUncoverable,
+    PayoutMode,
     Phase,
     Product,
+    ProductPayout,
     Ruleset,
 } from "@propfirmcore/config";
 export { tradingDayKey } from "./calendar.ts";
@@ -16,6 +21,7 @@ export {
     openTradingAccount,
     settle,
 } from "./engine.ts";
+export { applyPayout, availablePayout, reservedAmount } from "./payout.ts";
 export type { Rule, RuleContext, RuleResult } from "./rules.ts";
 export {
     builtinRules,
@@ -28,6 +34,9 @@ export type {
     AssetClass,
     Fill,
     Instrument,
+    Payout,
+    PayoutReason,
+    PayoutStatus,
     Position,
     Session,
     Snapshot,
@@ -41,6 +50,11 @@ export {
     fillSideSchema,
     fillSides,
     instrumentSchema,
+    payoutReasonSchema,
+    payoutReasons,
+    payoutSchema,
+    payoutStatuses,
+    payoutStatusSchema,
     positionSchema,
     sessionSchema,
     snapshotSchema,

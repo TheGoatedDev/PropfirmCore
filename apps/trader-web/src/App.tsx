@@ -43,6 +43,12 @@ type Snapshot = {
     balance: number;
     ts: string;
 };
+type Payout = {
+    id: string;
+    amount: number;
+    status: string;
+    reason: string | null;
+};
 
 function pathNow() {
     return window.location.pathname;
@@ -324,30 +330,50 @@ function AccountDetail({
     const [account, setAccount] = useState<TradingAccount | null>(null);
     const [fills, setFills] = useState<Fill[]>([]);
     const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
+    const [payouts, setPayouts] = useState<Payout[]>([]);
+
+    const load = useCallback(async () => {
+        onError(null);
+        const [a, f, s, p] = await Promise.all([
+            api.GET("/trading-accounts/{id}", { params: { path: { id } } }),
+            api.GET("/trading-accounts/{id}/fills", {
+                params: { path: { id } },
+            }),
+            api.GET("/trading-accounts/{id}/snapshots", {
+                params: { path: { id } },
+            }),
+            api.GET("/trading-accounts/{id}/payouts", {
+                params: { path: { id } },
+            }),
+        ]);
+        if (a.error) {
+            onError("error" in a.error ? String(a.error.error) : "Not found");
+            return;
+        }
+        setAccount(a.data ?? null);
+        setFills((f.data as Fill[] | undefined) ?? []);
+        setSnapshots((s.data as Snapshot[] | undefined) ?? []);
+        setPayouts((p.data as Payout[] | undefined) ?? []);
+    }, [id, onError]);
 
     useEffect(() => {
-        void (async () => {
-            onError(null);
-            const [a, f, s] = await Promise.all([
-                api.GET("/trading-accounts/{id}", { params: { path: { id } } }),
-                api.GET("/trading-accounts/{id}/fills", {
-                    params: { path: { id } },
-                }),
-                api.GET("/trading-accounts/{id}/snapshots", {
-                    params: { path: { id } },
-                }),
-            ]);
-            if (a.error) {
-                onError(
-                    "error" in a.error ? String(a.error.error) : "Not found",
-                );
-                return;
-            }
-            setAccount(a.data ?? null);
-            setFills((f.data as Fill[] | undefined) ?? []);
-            setSnapshots((s.data as Snapshot[] | undefined) ?? []);
-        })();
-    }, [id, onError]);
+        void load();
+    }, [load]);
+
+    async function requestPayout(e: FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        onError(null);
+        const amount = Number(new FormData(e.currentTarget).get("amount"));
+        const { error } = await api.POST("/trading-accounts/{id}/payouts", {
+            params: { path: { id } },
+            body: { amount },
+        });
+        if (error) {
+            onError("error" in error ? String(error.error) : "Payout failed");
+            return;
+        }
+        await load();
+    }
 
     if (!account) return <p>Loading</p>;
 
@@ -366,6 +392,46 @@ function AccountDetail({
                     <p>Balance: {account.balance}</p>
                 </CardContent>
             </Card>
+            {account.status === "funded" ? (
+                <form
+                    className="flex items-end gap-3"
+                    onSubmit={(e) => void requestPayout(e)}
+                >
+                    <div className="space-y-1">
+                        <Label htmlFor="amount">Payout amount</Label>
+                        <Input
+                            id="amount"
+                            name="amount"
+                            type="number"
+                            min="0"
+                            step="any"
+                            required
+                        />
+                    </div>
+                    <Button type="submit">Request</Button>
+                </form>
+            ) : null}
+            <h3 className="font-medium">Payouts</h3>
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Amount</TableHead>
+                        <TableHead>Status</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {payouts.map((p) => (
+                        <TableRow key={p.id}>
+                            <TableCell>{p.id}</TableCell>
+                            <TableCell>{p.amount}</TableCell>
+                            <TableCell>
+                                <Badge>{p.status}</Badge>
+                            </TableCell>
+                        </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
             <h3 className="font-medium">Fills</h3>
             <Table>
                 <TableHeader>

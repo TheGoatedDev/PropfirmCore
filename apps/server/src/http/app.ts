@@ -21,6 +21,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
 import { errorSchema, httpDesc } from "./http-desc.ts";
 import { requireApiKey } from "./ingest-key.ts";
@@ -111,6 +112,7 @@ export function createApp(deps: AppDeps) {
 
     mountCheckout(app, deps);
     mountTradingAccounts(app, deps);
+    mountPayouts(app, deps);
 
     app.use("/ingest/*", requireApiKey(deps.apiKey));
 

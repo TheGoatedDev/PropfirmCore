@@ -5,7 +5,10 @@ import {
     type Fill,
     fillSchema,
     fillSides,
+    type Payout,
     type Position,
+    payoutReasons,
+    payoutStatuses,
     type Snapshot,
     type TradingAccount,
     tradingAccountSchema,
@@ -41,6 +44,8 @@ export const tradingAccountStatusEnum = pgEnum(
 export const assetClassEnum = pgEnum("asset_class", assetClasses);
 export const fillSideEnum = pgEnum("fill_side", fillSides);
 export const paymentStatusEnum = pgEnum("payment_status", paymentStatuses);
+export const payoutStatusEnum = pgEnum("payout_status", payoutStatuses);
+export const payoutReasonEnum = pgEnum("payout_reason", payoutReasons);
 
 export const tradingAccounts = pgTable("trading_accounts", {
     id: text("id").primaryKey(),
@@ -101,6 +106,20 @@ export const payments = pgTable("payments", {
     ),
 });
 
+export const payouts = pgTable("payouts", {
+    id: text("id").primaryKey(),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id),
+    tradingAccountId: text("trading_account_id")
+        .notNull()
+        .references(() => tradingAccounts.id),
+    amount: doublePrecision("amount").notNull(),
+    currency: text("currency").notNull(),
+    status: payoutStatusEnum("status").notNull(),
+    reason: payoutReasonEnum("reason"),
+});
+
 true satisfies Same<typeof tradingAccounts.$inferSelect, TradingAccount>;
 true satisfies Same<
     typeof fills.$inferSelect,
@@ -110,11 +129,19 @@ true satisfies Same<
     typeof snapshots.$inferSelect,
     Snapshot & { tradingAccountId: string }
 >;
+true satisfies Same<typeof payouts.$inferSelect, Payout>;
 
 export function createDb(url: string) {
     const sql = postgres(url);
     const db = drizzle(sql, {
-        schema: { ...authSchema, tradingAccounts, fills, snapshots, payments },
+        schema: {
+            ...authSchema,
+            tradingAccounts,
+            fills,
+            snapshots,
+            payments,
+            payouts,
+        },
     });
     return { db, sql };
 }

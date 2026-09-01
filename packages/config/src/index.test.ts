@@ -39,6 +39,36 @@ describe("parseFirmConfig", () => {
             provider: "manual",
             currency: "usd",
         });
+        expect(cfg.payout).toEqual({ onUncoverable: "failApprove" });
+        expect(cfg.bridge).toEqual({ provider: "loopback" });
+    });
+
+    it("rejects unimplemented payout mode", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                products: [
+                    {
+                        ...valid.products[0],
+                        payout: { mode: "freezeUntilPaid" },
+                    },
+                ],
+            }),
+        ).toThrow();
+    });
+
+    it("product onUncoverable overrides firm", () => {
+        const cfg = parseFirmConfig({
+            ...valid,
+            payout: { onUncoverable: "failApprove" },
+            products: [
+                {
+                    ...valid.products[0],
+                    payout: { split: 0.8, onUncoverable: "autoReject" },
+                },
+            ],
+        });
+        expect(cfg.products[0].payout?.onUncoverable).toBe("autoReject");
     });
 
     it("rejects bad close time", () => {

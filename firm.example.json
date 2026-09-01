@@ -2,10 +2,13 @@
     "name": "Acme",
     "dailyClose": { "tz": "America/New_York", "time": "17:00" },
     "modules": { "affiliates": false, "kyc": false, "multiBrand": false },
+    "payout": { "onUncoverable": "failApprove" },
+    "bridge": { "provider": "loopback" },
     "products": [
         {
             "id": "50k",
             "name": "50k one-step",
+            "payout": { "split": 0.8, "mode": "debitOnApprove" },
             "phases": [
                 {
                     "name": "eval",
@@ -17,6 +20,17 @@
                         "maxDrawdown": 2500,
                         "dailyDrawdown": 1000,
                         "minTradingDays": 4
+                    }
+                },
+                {
+                    "name": "funded",
+                    "kind": "funded",
+                    "balance": 50000,
+                    "ruleset": {
+                        "profitTarget": 0,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 0
                     }
                 }
             ]

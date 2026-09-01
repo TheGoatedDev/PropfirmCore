@@ -17,10 +17,45 @@ export const phaseSchema = z.object({
     ruleset: rulesetSchema,
 });
 
+export const payoutModes = [
+    "debitOnApprove",
+    "freezeUntilPaid",
+    "debitOnPaid",
+] as const;
+
+export const onUncoverablePolicies = ["failApprove", "autoReject"] as const;
+
+export const onUncoverableSchema = z.enum(onUncoverablePolicies);
+
+export const productPayoutSchema = z
+    .object({
+        split: z.number().min(0).max(1).default(0.8),
+        mode: z.enum(payoutModes).default("debitOnApprove"),
+        onUncoverable: onUncoverableSchema.optional(),
+    })
+    .superRefine((val, ctx) => {
+        if (val.mode !== "debitOnApprove") {
+            ctx.addIssue({
+                code: "custom",
+                message: `payout mode ${val.mode} is not implemented`,
+                path: ["mode"],
+            });
+        }
+    });
+
+export const firmPayoutSchema = z.object({
+    onUncoverable: onUncoverableSchema.default("failApprove"),
+});
+
+export const bridgeSchema = z.object({
+    provider: z.string().min(1).default("loopback"),
+});
+
 export const productSchema = z.object({
     id: z.string().min(1),
     name: z.string().min(1),
     phases: z.array(phaseSchema).min(1),
+    payout: productPayoutSchema.optional(),
 });
 
 export const modulesSchema = z.object({
@@ -51,6 +86,8 @@ export const firmConfigSchema = z.object({
         provider: "manual",
         currency: "usd",
     }),
+    payout: firmPayoutSchema.default({ onUncoverable: "failApprove" }),
+    bridge: bridgeSchema.default({ provider: "loopback" }),
     products: z.array(productSchema).min(1),
 });
 
@@ -60,7 +97,19 @@ export type Product = z.infer<typeof productSchema>;
 export type Modules = z.infer<typeof modulesSchema>;
 export type DailyClose = z.infer<typeof dailyCloseSchema>;
 export type Checkout = z.infer<typeof checkoutSchema>;
+export type ProductPayout = z.infer<typeof productPayoutSchema>;
+export type FirmPayout = z.infer<typeof firmPayoutSchema>;
+export type Bridge = z.infer<typeof bridgeSchema>;
+export type PayoutMode = (typeof payoutModes)[number];
+export type OnUncoverable = (typeof onUncoverablePolicies)[number];
 export type FirmConfig = z.infer<typeof firmConfigSchema>;
+
+export function onUncoverableFor(
+    firm: FirmConfig,
+    product: Product,
+): OnUncoverable {
+    return product.payout?.onUncoverable ?? firm.payout.onUncoverable;
+}
 
 export function parseFirmConfig(input: unknown): FirmConfig {
     return firmConfigSchema.parse(input);

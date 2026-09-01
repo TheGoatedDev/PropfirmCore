@@ -28,6 +28,13 @@ type TradingAccount = {
     status: string;
     equity: number;
 };
+type Payout = {
+    id: string;
+    tradingAccountId: string;
+    amount: number;
+    status: string;
+    reason: string | null;
+};
 
 function basePath() {
     return import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -150,10 +157,15 @@ function SignIn({
 
 function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
     const [accounts, setAccounts] = useState<TradingAccount[]>([]);
+    const [payouts, setPayouts] = useState<Payout[]>([]);
 
     const load = useCallback(async () => {
-        const { data } = await api.GET("/trading-accounts");
-        setAccounts(data ?? []);
+        const [a, p] = await Promise.all([
+            api.GET("/trading-accounts"),
+            api.GET("/payouts"),
+        ]);
+        setAccounts(a.data ?? []);
+        setPayouts((p.data as Payout[] | undefined) ?? []);
     }, []);
 
     useEffect(() => {
@@ -169,6 +181,24 @@ function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
         });
         if (error) {
             onError("error" in error ? String(error.error) : "Complete failed");
+            return;
+        }
+        await load();
+    }
+
+    async function payoutAct(id: string, action: "approve" | "reject" | "pay") {
+        onError(null);
+        const path =
+            action === "approve"
+                ? "/payouts/{id}/approve"
+                : action === "reject"
+                  ? "/payouts/{id}/reject"
+                  : "/payouts/{id}/pay";
+        const { error } = await api.POST(path, { params: { path: { id } } });
+        if (error) {
+            onError(
+                "error" in error ? String(error.error) : `${action} failed`,
+            );
             return;
         }
         await load();
@@ -204,6 +234,60 @@ function AdminHome({ onError }: { onError: (msg: string | null) => void }) {
                     </div>
                     <Button type="submit">Complete</Button>
                 </form>
+            </section>
+            <section>
+                <h2 className="mb-3 text-lg font-medium">Payouts</h2>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>ID</TableHead>
+                            <TableHead>Account</TableHead>
+                            <TableHead>Amount</TableHead>
+                            <TableHead>Status</TableHead>
+                            <TableHead />
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {payouts.map((p) => (
+                            <TableRow key={p.id}>
+                                <TableCell>{p.id}</TableCell>
+                                <TableCell>{p.tradingAccountId}</TableCell>
+                                <TableCell>{p.amount}</TableCell>
+                                <TableCell>
+                                    <Badge>{p.status}</Badge>
+                                </TableCell>
+                                <TableCell className="space-x-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() =>
+                                            void payoutAct(p.id, "approve")
+                                        }
+                                    >
+                                        Approve
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() =>
+                                            void payoutAct(p.id, "reject")
+                                        }
+                                    >
+                                        Reject
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        onClick={() =>
+                                            void payoutAct(p.id, "pay")
+                                        }
+                                    >
+                                        Mark paid
+                                    </Button>
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </section>
             <section>
                 <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>

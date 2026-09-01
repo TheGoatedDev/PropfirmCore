@@ -1483,6 +1483,1016 @@
                 }
             }
         },
+        "/trading-accounts/{id}/payouts": {
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "amount": {
+                                        "type": "number",
+                                        "minimum": 0,
+                                        "exclusiveMinimum": true
+                                    }
+                                },
+                                "required": [
+                                    "amount"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Payout requested. Status is pending.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "tradingAccountId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "uncoverable",
+                                                "admin",
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "tradingAccountId",
+                                        "amount",
+                                        "currency",
+                                        "status",
+                                        "reason"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "get": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payouts on this trading account.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "userId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "tradingAccountId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "amount": {
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "exclusiveMinimum": true
+                                            },
+                                            "currency": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "pending",
+                                                    "approved",
+                                                    "rejected",
+                                                    "paid"
+                                                ]
+                                            },
+                                            "reason": {
+                                                "type": "string",
+                                                "nullable": true,
+                                                "enum": [
+                                                    "uncoverable",
+                                                    "admin",
+                                                    null
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "tradingAccountId",
+                                            "amount",
+                                            "currency",
+                                            "status",
+                                            "reason"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payouts": {
+            "get": {
+                "tags": [
+                    "Payouts"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payouts you can see.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "userId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "tradingAccountId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "amount": {
+                                                "type": "number",
+                                                "minimum": 0,
+                                                "exclusiveMinimum": true
+                                            },
+                                            "currency": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "pending",
+                                                    "approved",
+                                                    "rejected",
+                                                    "paid"
+                                                ]
+                                            },
+                                            "reason": {
+                                                "type": "string",
+                                                "nullable": true,
+                                                "enum": [
+                                                    "uncoverable",
+                                                    "admin",
+                                                    null
+                                                ]
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "tradingAccountId",
+                                            "amount",
+                                            "currency",
+                                            "status",
+                                            "reason"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payouts/{id}": {
+            "get": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The payout.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "tradingAccountId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "uncoverable",
+                                                "admin",
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "tradingAccountId",
+                                        "amount",
+                                        "currency",
+                                        "status",
+                                        "reason"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payouts/{id}/approve": {
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout approved. Bridge withdrew from the trading account.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "tradingAccountId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "uncoverable",
+                                                "admin",
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "tradingAccountId",
+                                        "amount",
+                                        "currency",
+                                        "status",
+                                        "reason"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payouts/{id}/reject": {
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout rejected. Approved payouts are deposited back.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "tradingAccountId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "uncoverable",
+                                                "admin",
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "tradingAccountId",
+                                        "amount",
+                                        "currency",
+                                        "status",
+                                        "reason"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payouts/{id}/pay": {
+            "post": {
+                "tags": [
+                    "Payouts"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payout marked paid. Cash sent outside the system.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "tradingAccountId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "amount": {
+                                            "type": "number",
+                                            "minimum": 0,
+                                            "exclusiveMinimum": true
+                                        },
+                                        "currency": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "reason": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "uncoverable",
+                                                "admin",
+                                                null
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "tradingAccountId",
+                                        "amount",
+                                        "currency",
+                                        "status",
+                                        "reason"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ingest/trading-accounts": {
             "post": {
                 "tags": [
@@ -9916,6 +10926,10 @@
         {
             "name": "Trading Accounts",
             "description": "Trading accounts: session access and force pass or fail."
+        },
+        {
+            "name": "Payouts",
+            "description": "Payouts: trader request, admin approve or reject, mark paid."
         },
         {
             "name": "Ingest",

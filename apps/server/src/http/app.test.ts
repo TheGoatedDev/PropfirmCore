@@ -89,6 +89,8 @@ describe("api", () => {
         ).toBeTruthy();
         expect(spec.paths["/ingest/trading-accounts/{id}/fills"]).toBeTruthy();
         expect(spec.paths["/trading-accounts"]).toBeTruthy();
+        expect(spec.paths["/payouts"]).toBeTruthy();
+        expect(spec.paths["/payouts/{id}/approve"]).toBeTruthy();
         expect(spec.paths["/products"]).toBeTruthy();
         expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();
     });

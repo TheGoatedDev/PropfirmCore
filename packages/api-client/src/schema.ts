@@ -817,6 +817,599 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/trading-accounts/{id}/payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payouts on this trading account. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        amount: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Payout requested. Status is pending. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payouts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payouts you can see. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payouts/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The payout. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payouts/{id}/approve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payout approved. Bridge withdrew from the trading account. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payouts/{id}/reject": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payout rejected. Approved payouts are deposited back. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payouts/{id}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payout marked paid. Cash sent outside the system. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            tradingAccountId: string;
+                            amount: number;
+                            currency: string;
+                            /** @enum {string} */
+                            status: "pending" | "approved" | "rejected" | "paid";
+                            /** @enum {string|null} */
+                            reason: "uncoverable" | "admin" | null;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ingest/trading-accounts": {
         parameters: {
             query?: never;

@@ -5,6 +5,7 @@ export const statement = {
     ...defaultStatements,
     payment: ["complete", "read"],
     tradingAccount: ["read", "list", "fail", "pass"],
+    payout: ["read", "list", "approve", "reject", "pay"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -15,6 +16,7 @@ export const admin = ac.newRole({
     ...adminAc.statements,
     payment: ["complete", "read"],
     tradingAccount: ["read", "list", "fail", "pass"],
+    payout: ["read", "list", "approve", "reject", "pay"],
 });
 
 export const roles = { trader, admin };
@@ -28,6 +30,7 @@ export const roleStatements: Record<
         ...adminAc.statements,
         payment: ["complete", "read"],
         tradingAccount: ["read", "list", "fail", "pass"],
+        payout: ["read", "list", "approve", "reject", "pay"],
     },
 };
 
