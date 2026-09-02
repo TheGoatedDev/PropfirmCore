@@ -6,6 +6,7 @@ import {
     applySnapshot,
     forceFail,
     forcePass,
+    onFundedPhase,
     openTradingAccount,
 } from "./engine.ts";
 import type { Fill, Snapshot } from "./schemas.ts";
@@ -100,32 +101,27 @@ describe("tradingDayKey", () => {
 
 describe("engine", () => {
     it("opens eval as active at phase balance", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0);
+        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         expect(a.status).toBe("active");
         expect(a.startBalance).toBe(50_000);
         expect(a.equity).toBe(50_000);
-        expect(a.userId).toBeNull();
-    });
-
-    it("keeps userId", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         expect(a.userId).toBe("u1");
     });
 
     it("fails on max drawdown", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0);
+        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         const next = applySnapshot(a, snap(47_500), oneStep, dailyClose);
         expect(next.status).toBe("failed");
     });
 
     it("fails on daily drawdown", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0);
+        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         const next = applySnapshot(a, snap(49_000), oneStep, dailyClose);
         expect(next.status).toBe("failed");
     });
 
     it("holds pass until min trading days", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0);
+        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         const rich = applySnapshot(a, snap(53_000), oneStep, dailyClose);
         expect(rich.status).toBe("active");
         const d1 = applyFills(rich, [fill(t0, "f1")], oneStep, dailyClose, t0);
@@ -140,25 +136,25 @@ describe("engine", () => {
         expect(d2.status).toBe("passed");
     });
 
-    it("advances eval to funded", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0);
+    it("advances eval to funded phase, stays active", () => {
+        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
         const next = applySnapshot(a, snap(53_000), twoStep, dailyClose);
-        expect(next.status).toBe("funded");
+        expect(next.status).toBe("active");
         expect(next.phaseIndex).toBe(1);
         expect(next.equity).toBe(50_000);
         expect(next.tradingDays).toEqual([]);
     });
 
-    it("stays funded when profit target hits", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0);
+    it("stays on funded phase when profit target hits", () => {
+        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
         const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
         const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
-        expect(rich.status).toBe("funded");
+        expect(rich.status).toBe("active");
         expect(rich.phaseIndex).toBe(1);
     });
 
     it("rolls daily window at close", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0);
+        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
         const day1 = applySnapshot(a, snap(49_500, t0), oneStep, dailyClose);
         expect(day1.status).toBe("active");
         expect(day1.dailyStartEquity).toBe(50_000);
@@ -170,6 +166,25 @@ describe("engine", () => {
         );
         expect(day2.status).toBe("active");
         expect(day2.dailyStartEquity).toBe(49_500);
+    });
+
+    it("onFundedPhase follows phase kind", () => {
+        const evalBook = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+        );
+        expect(onFundedPhase(evalBook, twoStep)).toBe(false);
+        const funded = applySnapshot(
+            evalBook,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        );
+        expect(onFundedPhase(funded, twoStep)).toBe(true);
+        expect(onFundedPhase(funded, oneStep)).toBe(false);
     });
 
     it("force fail and pass", () => {

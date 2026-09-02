@@ -27,6 +27,25 @@ const valid = {
     ],
 };
 
+const fundedProduct = {
+    ...valid.products[0],
+    phases: [
+        ...valid.products[0].phases,
+        {
+            name: "funded",
+            kind: "funded" as const,
+            balance: 50_000,
+            ruleset: {
+                profitTarget: 0,
+                maxDrawdown: 2500,
+                dailyDrawdown: 1000,
+                minTradingDays: 0,
+            },
+        },
+    ],
+    payout: { split: 0.8, mode: "debitOnApprove" as const },
+};
+
 describe("parseFirmConfig", () => {
     it("defaults modules off", () => {
         const cfg = parseFirmConfig(valid);
@@ -49,7 +68,7 @@ describe("parseFirmConfig", () => {
                 ...valid,
                 products: [
                     {
-                        ...valid.products[0],
+                        ...fundedProduct,
                         payout: { mode: "freezeUntilPaid" },
                     },
                 ],
@@ -63,7 +82,7 @@ describe("parseFirmConfig", () => {
             payout: { onUncoverable: "failApprove" },
             products: [
                 {
-                    ...valid.products[0],
+                    ...fundedProduct,
                     payout: { split: 0.8, onUncoverable: "autoReject" },
                 },
             ],
@@ -82,6 +101,24 @@ describe("parseFirmConfig", () => {
 
     it("loads json", () => {
         expect(loadFirmConfig(JSON.stringify(valid)).name).toBe("Acme");
+    });
+
+    it("rejects funded without payout spec", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                products: [{ ...fundedProduct, payout: undefined }],
+            }),
+        ).toThrow();
+    });
+
+    it("rejects payout spec without funded phase", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                products: [{ ...valid.products[0], payout: { split: 0.8 } }],
+            }),
+        ).toThrow();
     });
 
     it("parses firm.example.json", () => {

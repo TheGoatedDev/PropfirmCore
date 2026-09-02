@@ -51,12 +51,30 @@ export const bridgeSchema = z.object({
     provider: z.string().min(1).default("loopback"),
 });
 
-export const productSchema = z.object({
-    id: z.string().min(1),
-    name: z.string().min(1),
-    phases: z.array(phaseSchema).min(1),
-    payout: productPayoutSchema.optional(),
-});
+export const productSchema = z
+    .object({
+        id: z.string().min(1),
+        name: z.string().min(1),
+        phases: z.array(phaseSchema).min(1),
+        payout: productPayoutSchema.optional(),
+    })
+    .superRefine((val, ctx) => {
+        const funded = val.phases.some((p) => p.kind === "funded");
+        if (funded && !val.payout) {
+            ctx.addIssue({
+                code: "custom",
+                message: "funded phase requires payout spec",
+                path: ["payout"],
+            });
+        }
+        if (!funded && val.payout) {
+            ctx.addIssue({
+                code: "custom",
+                message: "payout spec requires a funded phase",
+                path: ["payout"],
+            });
+        }
+    });
 
 export const modulesSchema = z.object({
     affiliates: z.boolean().default(false),

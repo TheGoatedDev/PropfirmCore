@@ -16,7 +16,7 @@ function resetToPhase(
         userId: account.userId,
         productId: account.productId,
         phaseIndex,
-        status: phase.kind === "funded" ? "funded" : "active",
+        status: "active",
         startBalance: phase.balance,
         equity: phase.balance,
         balance: phase.balance,
@@ -27,12 +27,19 @@ function resetToPhase(
     };
 }
 
+export function onFundedPhase(
+    account: TradingAccount,
+    product: Product,
+): boolean {
+    return product.phases[account.phaseIndex]?.kind === "funded";
+}
+
 export function openTradingAccount(
     id: string,
     product: Product,
     dailyClose: DailyClose,
     now: string,
-    userId: string | null = null,
+    userId: string,
 ): TradingAccount {
     return resetToPhase(
         {

@@ -18,6 +18,7 @@ export {
     applySnapshot,
     forceFail,
     forcePass,
+    onFundedPhase,
     openTradingAccount,
     settle,
 } from "./engine.ts";

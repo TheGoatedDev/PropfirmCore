@@ -7,7 +7,7 @@ const account: TradingAccount = {
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,
-    status: "funded",
+    status: "active",
     startBalance: 50_000,
     equity: 53_000,
     balance: 53_000,
@@ -76,7 +76,7 @@ describe("applyPayout", () => {
         expect(next.balance).toBe(50_600);
         expect(next.dailyStartEquity).toBe(50_600);
         expect(next.startBalance).toBe(50_000);
-        expect(next.status).toBe("funded");
+        expect(next.status).toBe("active");
         expect(next.peakEquity).toBe(53_000);
     });
 

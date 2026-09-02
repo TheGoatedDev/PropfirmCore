@@ -1,12 +1,7 @@
 import { z } from "zod";
 
 export const assetClasses = ["fx", "futures", "crypto", "equity"] as const;
-export const tradingAccountStatuses = [
-    "active",
-    "passed",
-    "failed",
-    "funded",
-] as const;
+export const tradingAccountStatuses = ["active", "passed", "failed"] as const;
 export const fillSides = ["buy", "sell"] as const;
 
 export const assetClassSchema = z.enum(assetClasses);
@@ -85,7 +80,7 @@ export const payoutSchema = z.object({
 
 export const tradingAccountSchema = z.object({
     id: z.string().min(1),
-    userId: z.string().min(1).nullable(),
+    userId: z.string().min(1),
     productId: z.string().min(1),
     phaseIndex: z.number().int(),
     status: tradingAccountStatusSchema,
