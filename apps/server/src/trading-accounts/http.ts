@@ -29,7 +29,7 @@ function actor(user: { id: string; role?: string | null }) {
 
 function canRead(
     who: { id: string; role: string },
-    account: { userId: string | null },
+    account: { userId: string },
 ) {
     if (account.userId === who.id) return true;
     return roleHasPermission(who.role, "tradingAccount", "read");

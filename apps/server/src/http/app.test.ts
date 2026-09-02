@@ -84,6 +84,7 @@ describe("api", () => {
             servers?: { url: string }[];
         };
         expect(spec.servers?.[0]?.url).toBe("http://localhost:3000");
+        expect(spec.paths["/ingest/trading-accounts"]).toBeUndefined();
         expect(
             spec.paths["/ingest/trading-accounts/{id}/snapshot"],
         ).toBeTruthy();

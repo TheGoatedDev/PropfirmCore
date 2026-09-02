@@ -49,7 +49,9 @@ export const payoutReasonEnum = pgEnum("payout_reason", payoutReasons);
 
 export const tradingAccounts = pgTable("trading_accounts", {
     id: text("id").primaryKey(),
-    userId: text("user_id"),
+    userId: text("user_id")
+        .notNull()
+        .references(() => user.id),
     productId: text("product_id").notNull(),
     phaseIndex: integer("phase_index").notNull(),
     status: tradingAccountStatusEnum("status").notNull(),

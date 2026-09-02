@@ -4,7 +4,6 @@ import {
     applyFills,
     applySnapshot,
     fillSchema,
-    openTradingAccount,
     snapshotSchema,
     tradingAccountSchema,
 } from "@propfirmcore/domain";
@@ -30,12 +29,6 @@ import { openApiInfo, tags, withAuthOpenAPI } from "./openapi.ts";
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 
 const idParam = z.object({ id: z.string().min(1) });
-
-const createBody = z.object({
-    id: z.string().min(1),
-    productId: z.string().min(1),
-    userId: z.string().min(1).nullable().optional(),
-});
 
 export type AppDeps = {
     apiKey: string;
@@ -115,63 +108,6 @@ export function createApp(deps: AppDeps) {
     mountPayouts(app, deps);
 
     app.use("/ingest/*", requireApiKey(deps.apiKey));
-
-    app.openapi(
-        createRoute({
-            method: "post",
-            path: "/ingest/trading-accounts",
-            tags: [tags.ingest],
-            security: [{ apiKey: [] }],
-            request: {
-                body: {
-                    content: { "application/json": { schema: createBody } },
-                    required: true,
-                },
-            },
-            responses: {
-                201: {
-                    description: "The trading account was created.",
-                    content: {
-                        "application/json": { schema: tradingAccountSchema },
-                    },
-                },
-                400: {
-                    description: httpDesc.badRequest,
-                    content: { "application/json": { schema: errorSchema } },
-                },
-                401: {
-                    description: httpDesc.unauthorized,
-                    content: { "application/json": { schema: errorSchema } },
-                },
-                409: {
-                    description: httpDesc.exists,
-                    content: { "application/json": { schema: errorSchema } },
-                },
-            },
-        }),
-        async (c) => {
-            const body = c.req.valid("json");
-            const product = productOrNull(deps.firm, body.productId);
-            if (!product) return c.json({ error: "unknown product" }, 400);
-            const existing = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, body.id))
-                .limit(1);
-            if (existing[0]) return c.json({ error: "exists" }, 409);
-            const account = openTradingAccount(
-                body.id,
-                product,
-                deps.firm.dailyClose,
-                new Date().toISOString(),
-                body.userId ?? null,
-            );
-            await deps.db
-                .insert(tradingAccounts)
-                .values(tradingAccountToRow(account));
-            return c.json(account, 201);
-        },
-    );
 
     app.openapi(
         createRoute({

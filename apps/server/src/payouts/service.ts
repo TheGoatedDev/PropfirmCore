@@ -1,6 +1,7 @@
 import { type FirmConfig, onUncoverableFor } from "@propfirmcore/config";
 import {
     availablePayout,
+    onFundedPhase,
     type Payout,
     reservedAmount,
     type TradingAccount,
@@ -62,10 +63,16 @@ export async function requestPayout(
     if (!account) return { ok: false, error: "not found" };
     if (account.userId !== input.userId)
         return { ok: false, error: "forbidden" };
-    if (account.status !== "funded") return { ok: false, error: "not funded" };
-    if (!account.userId) return { ok: false, error: "no user" };
+    const product = firm.products.find((p) => p.id === account.productId);
+    if (
+        !product ||
+        account.status !== "active" ||
+        !onFundedPhase(account, product)
+    ) {
+        return { ok: false, error: "not funded" };
+    }
     const spec = productPayout(firm, account.productId);
-    if (!spec) return { ok: false, error: "payouts not enabled" };
+    if (!spec) return { ok: false, error: "not funded" };
     const open = await loadOpen(db, account.id);
     const available = availableFor(account, firm, open);
     if (input.amount > available)
