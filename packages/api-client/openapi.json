@@ -762,7 +762,6 @@
                                             },
                                             "userId": {
                                                 "type": "string",
-                                                "nullable": true,
                                                 "minLength": 1
                                             },
                                             "productId": {
@@ -777,8 +776,7 @@
                                                 "enum": [
                                                     "active",
                                                     "passed",
-                                                    "failed",
-                                                    "funded"
+                                                    "failed"
                                                 ]
                                             },
                                             "startBalance": {
@@ -877,7 +875,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -892,8 +889,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {
@@ -1209,7 +1205,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -1224,8 +1219,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {
@@ -1361,7 +1355,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -1376,8 +1369,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {
@@ -2493,181 +2485,6 @@
                 }
             }
         },
-        "/ingest/trading-accounts": {
-            "post": {
-                "tags": [
-                    "Ingest"
-                ],
-                "security": [
-                    {
-                        "apiKey": []
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "id": {
-                                        "type": "string",
-                                        "minLength": 1
-                                    },
-                                    "productId": {
-                                        "type": "string",
-                                        "minLength": 1
-                                    },
-                                    "userId": {
-                                        "type": "string",
-                                        "nullable": true,
-                                        "minLength": 1
-                                    }
-                                },
-                                "required": [
-                                    "id",
-                                    "productId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "The trading account was created.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "userId": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "minLength": 1
-                                        },
-                                        "productId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "phaseIndex": {
-                                            "type": "integer"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "active",
-                                                "passed",
-                                                "failed",
-                                                "funded"
-                                            ]
-                                        },
-                                        "startBalance": {
-                                            "type": "number"
-                                        },
-                                        "equity": {
-                                            "type": "number"
-                                        },
-                                        "balance": {
-                                            "type": "number"
-                                        },
-                                        "peakEquity": {
-                                            "type": "number"
-                                        },
-                                        "dailyStartEquity": {
-                                            "type": "number"
-                                        },
-                                        "tradingDayKey": {
-                                            "type": "string"
-                                        },
-                                        "tradingDays": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    },
-                                    "required": [
-                                        "id",
-                                        "userId",
-                                        "productId",
-                                        "phaseIndex",
-                                        "status",
-                                        "startBalance",
-                                        "equity",
-                                        "balance",
-                                        "peakEquity",
-                                        "dailyStartEquity",
-                                        "tradingDayKey",
-                                        "tradingDays"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "description": "The request was invalid. Check the body and parameters.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string",
-                                            "description": "What went wrong, in plain language."
-                                        }
-                                    },
-                                    "required": [
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "description": "You are not signed in, or the API key is missing or wrong.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string",
-                                            "description": "What went wrong, in plain language."
-                                        }
-                                    },
-                                    "required": [
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "409": {
-                        "description": "A resource with this id already exists.",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string",
-                                            "description": "What went wrong, in plain language."
-                                        }
-                                    },
-                                    "required": [
-                                        "error"
-                                    ]
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
         "/ingest/trading-accounts/{id}": {
             "get": {
                 "tags": [
@@ -2703,7 +2520,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -2718,8 +2534,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {
@@ -2923,7 +2738,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -2938,8 +2752,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {
@@ -3165,7 +2978,6 @@
                                         },
                                         "userId": {
                                             "type": "string",
-                                            "nullable": true,
                                             "minLength": 1
                                         },
                                         "productId": {
@@ -3180,8 +2992,7 @@
                                             "enum": [
                                                 "active",
                                                 "passed",
-                                                "failed",
-                                                "funded"
+                                                "failed"
                                             ]
                                         },
                                         "startBalance": {

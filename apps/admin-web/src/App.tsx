@@ -23,7 +23,7 @@ import { api, authPost } from "./api.ts";
 type Me = { id: string; email: string; role: string };
 type TradingAccount = {
     id: string;
-    userId: string | null;
+    userId: string;
     productId: string;
     status: string;
     equity: number;

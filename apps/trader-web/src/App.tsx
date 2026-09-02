@@ -21,10 +21,15 @@ import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { api, authPost } from "./api.ts";
 
 type Me = { id: string; email: string; role: string };
-type Product = { id: string; name: string; phases: { fee: number }[] };
+type Product = {
+    id: string;
+    name: string;
+    phases: { fee?: number; kind: string }[];
+};
 type TradingAccount = {
     id: string;
     productId: string;
+    phaseIndex: number;
     status: string;
     equity: number;
     balance: number;
@@ -328,13 +333,14 @@ function AccountDetail({
     onError: (msg: string | null) => void;
 }) {
     const [account, setAccount] = useState<TradingAccount | null>(null);
+    const [products, setProducts] = useState<Product[]>([]);
     const [fills, setFills] = useState<Fill[]>([]);
     const [snapshots, setSnapshots] = useState<Snapshot[]>([]);
     const [payouts, setPayouts] = useState<Payout[]>([]);
 
     const load = useCallback(async () => {
         onError(null);
-        const [a, f, s, p] = await Promise.all([
+        const [a, f, s, p, prods] = await Promise.all([
             api.GET("/trading-accounts/{id}", { params: { path: { id } } }),
             api.GET("/trading-accounts/{id}/fills", {
                 params: { path: { id } },
@@ -345,6 +351,7 @@ function AccountDetail({
             api.GET("/trading-accounts/{id}/payouts", {
                 params: { path: { id } },
             }),
+            api.GET("/products"),
         ]);
         if (a.error) {
             onError("error" in a.error ? String(a.error.error) : "Not found");
@@ -354,6 +361,7 @@ function AccountDetail({
         setFills((f.data as Fill[] | undefined) ?? []);
         setSnapshots((s.data as Snapshot[] | undefined) ?? []);
         setPayouts((p.data as Payout[] | undefined) ?? []);
+        setProducts((prods.data as Product[] | undefined) ?? []);
     }, [id, onError]);
 
     useEffect(() => {
@@ -392,7 +400,10 @@ function AccountDetail({
                     <p>Balance: {account.balance}</p>
                 </CardContent>
             </Card>
-            {account.status === "funded" ? (
+            {account.status === "active" &&
+            products.find((p) => p.id === account.productId)?.phases[
+                account.phaseIndex
+            ]?.kind === "funded" ? (
                 <form
                     className="flex items-end gap-3"
                     onSubmit={(e) => void requestPayout(e)}

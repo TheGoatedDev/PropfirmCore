@@ -373,11 +373,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -436,11 +436,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -671,11 +671,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -758,11 +758,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -1410,99 +1410,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/ingest/trading-accounts": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": {
-                        id: string;
-                        productId: string;
-                        userId?: string | null;
-                    };
-                };
-            };
-            responses: {
-                /** @description The trading account was created. */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            id: string;
-                            userId: string | null;
-                            productId: string;
-                            phaseIndex: number;
-                            /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
-                            startBalance: number;
-                            equity: number;
-                            balance: number;
-                            peakEquity: number;
-                            dailyStartEquity: number;
-                            tradingDayKey: string;
-                            tradingDays: string[];
-                        };
-                    };
-                };
-                /** @description The request was invalid. Check the body and parameters. */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @description What went wrong, in plain language. */
-                            error: string;
-                        };
-                    };
-                };
-                /** @description You are not signed in, or the API key is missing or wrong. */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @description What went wrong, in plain language. */
-                            error: string;
-                        };
-                    };
-                };
-                /** @description A resource with this id already exists. */
-                409: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": {
-                            /** @description What went wrong, in plain language. */
-                            error: string;
-                        };
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/ingest/trading-accounts/{id}": {
         parameters: {
             query?: never;
@@ -1529,11 +1436,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -1625,11 +1532,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
@@ -1732,11 +1639,11 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            userId: string | null;
+                            userId: string;
                             productId: string;
                             phaseIndex: number;
                             /** @enum {string} */
-                            status: "active" | "passed" | "failed" | "funded";
+                            status: "active" | "passed" | "failed";
                             startBalance: number;
                             equity: number;
                             balance: number;
