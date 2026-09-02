@@ -8,6 +8,7 @@ import type { Db } from "../db/db.ts";
 import { payouts, tradingAccounts } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
+import { roleOf } from "../http/session.ts";
 import {
     approvePayout,
     markPayoutPaid,
@@ -19,10 +20,6 @@ const idParam = z.object({ id: z.string().min(1) });
 const amountBody = z.object({ amount: z.number().positive() });
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
-
-function sessionRole(user: { role?: string | null }): string {
-    return user.role ?? "trader";
-}
 
 export function mountPayouts(app: OpenAPIHono, deps: Deps) {
     app.openapi(
@@ -126,7 +123,7 @@ export function mountPayouts(app: OpenAPIHono, deps: Deps) {
                 .where(eq(tradingAccounts.id, id))
                 .limit(1);
             if (!accounts[0]) return c.json({ error: "not found" }, 404);
-            const role = sessionRole(session.user);
+            const role = roleOf(session.user);
             const own = accounts[0].userId === session.user.id;
             if (
                 !own &&
@@ -166,7 +163,7 @@ export function mountPayouts(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            const role = sessionRole(session.user);
+            const role = roleOf(session.user);
             const rows = roleHasPermission(role, "payout", "list")
                 ? await deps.db.select().from(payouts)
                 : await deps.db
@@ -214,7 +211,7 @@ export function mountPayouts(app: OpenAPIHono, deps: Deps) {
                 .where(eq(payouts.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const role = sessionRole(session.user);
+            const role = roleOf(session.user);
             const own = rows[0].userId === session.user.id;
             if (!own && !roleHasPermission(role, "payout", "read")) {
                 return c.json({ error: "forbidden" }, 403);
@@ -275,7 +272,7 @@ export function mountPayouts(app: OpenAPIHono, deps: Deps) {
                 if (!session) return c.json({ error: "unauthorized" }, 401);
                 if (
                     !roleHasPermission(
-                        sessionRole(session.user),
+                        roleOf(session.user),
                         "payout",
                         permission,
                     )

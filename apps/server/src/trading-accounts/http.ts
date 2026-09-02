@@ -1,10 +1,6 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import type { FirmConfig } from "@propfirmcore/config";
-import {
-    forceFail,
-    forcePass,
-    tradingAccountSchema,
-} from "@propfirmcore/domain";
+import { tradingAccountSchema } from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { roleHasPermission } from "../auth/permissions.ts";
@@ -14,18 +10,15 @@ import {
     snapshots,
     tradingAccountFromRow,
     tradingAccounts,
-    tradingAccountToRow,
 } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
+import { actorOf } from "../http/session.ts";
+import { forceFailAccount, forcePassAccount, getById } from "./service.ts";
 
 const idParam = z.object({ id: z.string().min(1) });
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
-
-function actor(user: { id: string; role?: string | null }) {
-    return { id: user.id, role: user.role ?? "trader" };
-}
 
 function canRead(
     who: { id: string; role: string },
@@ -88,7 +81,7 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            const who = actor(session.user);
+            const who = actorOf(session.user);
             const rows = roleHasPermission(who.role, "tradingAccount", "list")
                 ? await deps.db.select().from(tradingAccounts)
                 : await deps.db
@@ -131,15 +124,9 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            const { id } = c.req.valid("param");
-            const rows = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, id))
-                .limit(1);
-            if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = tradingAccountFromRow(rows[0]);
-            if (!canRead(actor(session.user), account)) {
+            const account = await getById(deps.db, c.req.valid("param").id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            if (!canRead(actorOf(session.user), account)) {
                 return c.json({ error: "forbidden" }, 403);
             }
             return c.json(account, 200);
@@ -179,13 +166,9 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const { id } = c.req.valid("param");
-            const rows = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, id))
-                .limit(1);
-            if (!rows[0]) return c.json({ error: "not found" }, 404);
-            if (!canRead(actor(session.user), tradingAccountFromRow(rows[0]))) {
+            const account = await getById(deps.db, id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            if (!canRead(actorOf(session.user), account)) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const data = await deps.db
@@ -229,13 +212,9 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const { id } = c.req.valid("param");
-            const rows = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, id))
-                .limit(1);
-            if (!rows[0]) return c.json({ error: "not found" }, 404);
-            if (!canRead(actor(session.user), tradingAccountFromRow(rows[0]))) {
+            const account = await getById(deps.db, id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            if (!canRead(actorOf(session.user), account)) {
                 return c.json({ error: "forbidden" }, 403);
             }
             const data = await deps.db
@@ -280,25 +259,18 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             if (!session) return c.json({ error: "unauthorized" }, 401);
             if (
                 !roleHasPermission(
-                    actor(session.user).role,
+                    actorOf(session.user).role,
                     "tradingAccount",
                     "fail",
                 )
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
-            const { id } = c.req.valid("param");
-            const rows = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, id))
-                .limit(1);
-            if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = forceFail(tradingAccountFromRow(rows[0]));
-            await deps.db
-                .update(tradingAccounts)
-                .set(tradingAccountToRow(account))
-                .where(eq(tradingAccounts.id, id));
+            const account = await forceFailAccount(
+                deps.db,
+                c.req.valid("param").id,
+            );
+            if (!account) return c.json({ error: "not found" }, 404);
             return c.json(account, 200);
         },
     );
@@ -337,25 +309,18 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             if (!session) return c.json({ error: "unauthorized" }, 401);
             if (
                 !roleHasPermission(
-                    actor(session.user).role,
+                    actorOf(session.user).role,
                     "tradingAccount",
                     "pass",
                 )
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
-            const { id } = c.req.valid("param");
-            const rows = await deps.db
-                .select()
-                .from(tradingAccounts)
-                .where(eq(tradingAccounts.id, id))
-                .limit(1);
-            if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const account = forcePass(tradingAccountFromRow(rows[0]));
-            await deps.db
-                .update(tradingAccounts)
-                .set(tradingAccountToRow(account))
-                .where(eq(tradingAccounts.id, id));
+            const account = await forcePassAccount(
+                deps.db,
+                c.req.valid("param").id,
+            );
+            if (!account) return c.json({ error: "not found" }, 404);
             return c.json(account, 200);
         },
     );

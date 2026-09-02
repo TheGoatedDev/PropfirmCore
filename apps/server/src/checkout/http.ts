@@ -7,6 +7,7 @@ import type { Db } from "../db/db.ts";
 import { payments } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
+import { roleOf } from "../http/session.ts";
 import { getAdapter } from "./adapters.ts";
 import { completePayment, startCheckout } from "./service.ts";
 
@@ -23,10 +24,6 @@ const paymentSchema = z.object({
 });
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
-
-function sessionRole(user: { role?: string | null }): string {
-    return user.role ?? "trader";
-}
 
 export function mountCheckout(app: OpenAPIHono, deps: Deps) {
     app.openapi(
@@ -122,11 +119,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             if (
-                !roleHasPermission(
-                    sessionRole(session.user),
-                    "payment",
-                    "complete",
-                )
+                !roleHasPermission(roleOf(session.user), "payment", "complete")
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
@@ -188,7 +181,7 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
                 .where(eq(payments.id, id))
                 .limit(1);
             if (!rows[0]) return c.json({ error: "not found" }, 404);
-            const role = sessionRole(session.user);
+            const role = roleOf(session.user);
             const own = rows[0].userId === session.user.id;
             if (!own && !roleHasPermission(role, "payment", "read")) {
                 return c.json({ error: "forbidden" }, 403);
