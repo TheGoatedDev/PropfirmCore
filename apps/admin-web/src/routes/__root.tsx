@@ -1,6 +1,11 @@
 import { AppShell } from "@propfirmcore/ui/components/app-shell";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createRootRoute, Outlet, useNavigate } from "@tanstack/react-router";
+import {
+    createRootRoute,
+    Link,
+    Outlet,
+    useNavigate,
+} from "@tanstack/react-router";
 import { authPost, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -24,6 +29,16 @@ function Root() {
             user={me.data}
             error={error}
             onSignOut={me.data ? () => void signOut() : undefined}
+            sidebar={
+                <nav aria-label="Main" className="space-y-1">
+                    <Link
+                        to="/"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                    >
+                        Home
+                    </Link>
+                </nav>
+            }
         >
             {me.isLoading ? <p>Loading</p> : <Outlet />}
         </AppShell>
