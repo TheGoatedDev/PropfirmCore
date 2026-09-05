@@ -9,10 +9,11 @@ Load this skill before adding a library or picking a tool. Tests: `.agents/skill
 
 ## Frontend
 
-React, Vite, TanStack Router, TanStack Query, Zustand, Tailwind.
+React, Vite, TanStack Router, TanStack Query, Zustand, nuqs, Tailwind.
 
 - TanStack Query: server cache. Wrap the existing API client. Do not add another HTTP layer.
 - Zustand: client UI state only.
+- nuqs: URL search params. `NuqsAdapter` from `nuqs/adapters/tanstack-router` on the root route.
 
 No: Next, React Router, Redux, SWR, Webpack, CRA.
 

@@ -1,5 +1,12 @@
 import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
+import {
+    createDataTableColumnHelper,
+    DataTable,
+    DataTableColumnHeader,
+    type PaginationState,
+    type SortingState,
+} from "@propfirmcore/ui/components/data-table";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
 import {
@@ -10,12 +17,34 @@ import {
     TableHeader,
     TableRow,
 } from "@propfirmcore/ui/components/table";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+    keepPreviousData,
+    useMutation,
+    useQuery,
+    useQueryClient,
+} from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import type { FormEvent } from "react";
+import {
+    parseAsIndex,
+    parseAsString,
+    parseAsStringLiteral,
+    useQueryStates,
+} from "nuqs";
+import { type FormEvent, useEffect, useState } from "react";
 import { z } from "zod";
 import { api, failMsg, keys } from "../../api.ts";
 import { useUi } from "../../stores/ui.ts";
+
+type Account = { id: string; userId: string; status: string };
+
+const col = createDataTableColumnHelper<Account>();
+const sortIds = ["id", "status", "equity", "productId", "userId"] as const;
+const accountSearch = {
+    q: parseAsString.withDefault(""),
+    page: parseAsIndex.withDefault(0),
+    sort: parseAsStringLiteral(sortIds),
+    order: parseAsStringLiteral(["asc", "desc"]),
+};
 
 const paymentIdSchema = z.object({ paymentId: z.string().min(1) });
 
@@ -27,14 +56,44 @@ export const Route = createFileRoute("/_app/")({
 function AdminHome() {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
+    const [{ q, page, sort, order }, setSearch] = useQueryStates(accountSearch);
+    const [filter, setFilter] = useState(q);
+    const pagination: PaginationState = { pageIndex: page, pageSize: 10 };
+    const sorting: SortingState = sort
+        ? [{ id: sort, desc: order === "desc" }]
+        : [];
+
+    useEffect(() => {
+        setFilter(q);
+    }, [q]);
+
+    useEffect(() => {
+        const t = setTimeout(() => {
+            const next = filter.trim();
+            if (next === q) return;
+            void setSearch({ q: next, page: 0 });
+        }, 300);
+        return () => clearTimeout(t);
+    }, [filter, q, setSearch]);
+
+    const accountQuery = {
+        page: page + 1,
+        pageSize: 10,
+        q: q || undefined,
+        sort: sort ?? undefined,
+        order: sort ? (order ?? "asc") : undefined,
+    };
 
     const accounts = useQuery({
-        queryKey: keys.accounts,
+        queryKey: [...keys.accounts, accountQuery],
         queryFn: async () => {
-            const { data, error } = await api.GET("/trading-accounts");
+            const { data, error } = await api.GET("/trading-accounts", {
+                params: { query: accountQuery },
+            });
             if (error) throw error;
-            return data ?? [];
+            return data ?? { items: [], total: 0 };
         },
+        placeholderData: keepPreviousData,
     });
     const payouts = useQuery({
         queryKey: keys.payouts,
@@ -196,31 +255,47 @@ function AdminHome() {
             </section>
             <section>
                 <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>ID</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Status</TableHead>
-                            <TableHead />
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {(accounts.data ?? []).map((a) => (
-                            <TableRow key={a.id}>
-                                <TableCell>{a.id}</TableCell>
-                                <TableCell>{a.userId}</TableCell>
-                                <TableCell>
-                                    <Badge>{a.status}</Badge>
-                                </TableCell>
-                                <TableCell className="space-x-2">
+                <DataTable
+                    columns={col.columns([
+                        col.accessor("id", {
+                            header: ({ column }) => (
+                                <DataTableColumnHeader
+                                    column={column}
+                                    title="ID"
+                                />
+                            ),
+                        }),
+                        col.accessor("userId", {
+                            header: ({ column }) => (
+                                <DataTableColumnHeader
+                                    column={column}
+                                    title="User"
+                                />
+                            ),
+                        }),
+                        col.accessor("status", {
+                            header: ({ column }) => (
+                                <DataTableColumnHeader
+                                    column={column}
+                                    title="Status"
+                                />
+                            ),
+                            cell: ({ row }) => (
+                                <Badge>{row.original.status}</Badge>
+                            ),
+                        }),
+                        col.display({
+                            id: "actions",
+                            enableSorting: false,
+                            cell: ({ row }) => (
+                                <div className="space-x-2">
                                     <Button
                                         size="sm"
                                         variant="outline"
                                         onClick={() => {
                                             setError(null);
                                             force.mutate({
-                                                id: a.id,
+                                                id: row.original.id,
                                                 action: "pass",
                                             });
                                         }}
@@ -233,18 +308,44 @@ function AdminHome() {
                                         onClick={() => {
                                             setError(null);
                                             force.mutate({
-                                                id: a.id,
+                                                id: row.original.id,
                                                 action: "fail",
                                             });
                                         }}
                                     >
                                         Fail
                                     </Button>
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                                </div>
+                            ),
+                        }),
+                    ])}
+                    data={accounts.data?.items ?? []}
+                    total={accounts.data?.total ?? 0}
+                    pagination={pagination}
+                    onPaginationChange={(updater) => {
+                        const next =
+                            typeof updater === "function"
+                                ? updater(pagination)
+                                : updater;
+                        void setSearch({ page: next.pageIndex });
+                    }}
+                    sorting={sorting}
+                    onSortingChange={(updater) => {
+                        const next =
+                            typeof updater === "function"
+                                ? updater(sorting)
+                                : updater;
+                        const col = next[0];
+                        const id = sortIds.find((s) => s === col?.id);
+                        void setSearch({
+                            sort: id ?? null,
+                            order: col ? (col.desc ? "desc" : "asc") : null,
+                            page: 0,
+                        });
+                    }}
+                    filter={filter}
+                    onFilterChange={setFilter}
+                />
             </section>
         </>
     );
