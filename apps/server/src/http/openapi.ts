@@ -28,7 +28,8 @@ export const openApiInfo = {
 };
 
 export const tags = {
-    me: "Me",
+    authentication: "Authentication",
+    authenticationAdmin: "Authentication - Admin",
     products: "Products",
     tradingAccounts: "Trading Accounts",
     payments: "Payments",
@@ -37,10 +38,10 @@ export const tags = {
 } as const;
 
 const tagMeta: Record<string, string> = {
-    Authentication: "Sign-up, sign-in, session, password, and linked accounts.",
-    "Authentication - Admin":
+    [tags.authentication]:
+        "Sign-up, sign-in, session, password, and linked accounts.",
+    [tags.authenticationAdmin]:
         "Better Auth admin plugin: users, roles, bans, impersonation.",
-    [tags.me]: "The signed-in user.",
     [tags.products]: "Challenge products this firm sells, including checkout.",
     [tags.tradingAccounts]:
         "Trading accounts: session access and force pass or fail.",
@@ -53,8 +54,8 @@ const tagMeta: Record<string, string> = {
 
 function authTag(path: string): string {
     return path.startsWith("/auth/admin")
-        ? "Authentication - Admin"
-        : "Authentication";
+        ? tags.authenticationAdmin
+        : tags.authentication;
 }
 
 function retagAuthPath(item: PathItem, tag: string): PathItem {

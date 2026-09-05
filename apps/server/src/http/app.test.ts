@@ -69,7 +69,7 @@ describe("api", () => {
     });
 
     it("me without session is 401", async () => {
-        const res = await app().request("/me");
+        const res = await app().request("/auth/me");
         expect(res.status).toBe(401);
     });
 
@@ -95,6 +95,8 @@ describe("api", () => {
         expect(spec.paths["/payouts"]).toBeTruthy();
         expect(spec.paths["/payouts/{id}/approve"]).toBeTruthy();
         expect(spec.paths["/products"]).toBeTruthy();
+        expect(spec.paths["/auth/me"]).toBeTruthy();
+        expect(spec.paths["/me"]).toBeUndefined();
         expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();
     });
 });

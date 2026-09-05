@@ -5,9 +5,7 @@ describe("withAuthOpenAPI", () => {
     it("retags auth vs admin and describes groups", async () => {
         const spec = await withAuthOpenAPI(
             {
-                paths: {
-                    "/me": { get: { tags: ["Me"] } },
-                },
+                paths: {},
             },
             {
                 api: {
@@ -33,7 +31,6 @@ describe("withAuthOpenAPI", () => {
         expect(tags.map((t) => t.name).sort()).toEqual([
             "Authentication",
             "Authentication - Admin",
-            "Me",
         ]);
     });
 });

@@ -13,12 +13,11 @@ const meSchema = z.object({
 type Deps = { auth: Auth };
 
 export function mountAuth(app: OpenAPIHono, deps: Deps) {
-    app.on(["POST", "GET"], "/auth/*", (c) => deps.auth.handler(c.req.raw));
     app.openapi(
         createRoute({
             method: "get",
-            path: "/me",
-            tags: [tags.me],
+            path: "/auth/me",
+            tags: [tags.authentication],
             responses: {
                 200: {
                     description: "The signed-in user.",
@@ -47,4 +46,5 @@ export function mountAuth(app: OpenAPIHono, deps: Deps) {
             );
         },
     );
+    app.on(["POST", "GET"], "/auth/*", (c) => deps.auth.handler(c.req.raw));
 }

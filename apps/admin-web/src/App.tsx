@@ -51,7 +51,7 @@ export function App() {
     const [error, setError] = useState<string | null>(null);
 
     const refreshMe = useCallback(async () => {
-        const { data } = await api.GET("/me");
+        const { data } = await api.GET("/auth/me");
         setMe(data ?? null);
         setReady(true);
     }, []);
