@@ -42,8 +42,7 @@ export function AppShell({
         <div className="flex min-h-svh flex-col">
             <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">
                 <div className="flex items-center gap-3">
-                    {logo}
-                    <h1 className="text-lg font-semibold">{title}</h1>
+                    {logo ?? <h1 className="text-lg font-semibold">{title}</h1>}
                 </div>
                 {user ? (
                     <div className="flex items-center gap-3">
