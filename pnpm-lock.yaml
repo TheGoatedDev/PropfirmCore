@@ -79,6 +79,28 @@ importers:
         specifier: 8.2.2
         version: 8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0)
 
+  apps/ingest-load:
+    dependencies:
+      '@propfirmcore/api-client':
+        specifier: workspace:*
+        version: link:../../packages/api-client
+      '@propfirmcore/config':
+        specifier: workspace:*
+        version: link:../../packages/config
+      tsx:
+        specifier: 4.23.13
+        version: 4.23.13
+      zod:
+        specifier: 4.5.4
+        version: 4.5.4
+    devDependencies:
+      '@types/node':
+        specifier: 24.10.0
+        version: 24.10.0
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
+
   apps/server:
     dependencies:
       '@better-auth/drizzle-adapter':

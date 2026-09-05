@@ -1,0 +1,12 @@
+{
+    "baseUrl": "http://localhost:3000",
+    "productId": "load",
+    "accounts": 50,
+    "rps": 2000,
+    "duration": "60s",
+    "mix": [
+        { "behavior": "passEval", "weight": 1 },
+        { "behavior": "blowMaxDd", "weight": 1 },
+        { "behavior": "blowDailyDd", "weight": 1 }
+    ]
+}

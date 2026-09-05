@@ -34,6 +34,24 @@
                     }
                 }
             ]
+        },
+        {
+            "id": "load",
+            "name": "load eval",
+            "phases": [
+                {
+                    "name": "eval",
+                    "kind": "eval",
+                    "balance": 50000,
+                    "fee": 0,
+                    "ruleset": {
+                        "profitTarget": 3000,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 4
+                    }
+                }
+            ]
         }
     ]
 }
