@@ -29,6 +29,11 @@ function Root() {
             user={me.data}
             error={error}
             onSignOut={me.data ? () => void signOut() : undefined}
+            logo={
+                <Link to="/" className="text-lg font-semibold">
+                    Admin
+                </Link>
+            }
             sidebar={
                 <nav aria-label="Main" className="space-y-1">
                     <Link

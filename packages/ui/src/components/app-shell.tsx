@@ -7,6 +7,7 @@ export function AppShell({
     user,
     error,
     onSignOut,
+    logo,
     sidebar,
     children,
 }: {
@@ -14,13 +15,17 @@ export function AppShell({
     user?: { email: string } | null;
     error?: string | null;
     onSignOut?: () => void;
+    logo?: ReactNode;
     sidebar?: ReactNode;
     children: ReactNode;
 }) {
     return (
         <div className="flex min-h-svh">
-            {sidebar ? (
-                <aside className="w-52 shrink-0 border-r p-4">{sidebar}</aside>
+            {logo || sidebar ? (
+                <aside className="w-52 shrink-0 border-r p-4">
+                    {logo ? <div className="mb-4">{logo}</div> : null}
+                    {sidebar}
+                </aside>
             ) : null}
             <div className="min-w-0 flex-1">
                 <div className="mx-auto max-w-3xl space-y-6 p-6">
