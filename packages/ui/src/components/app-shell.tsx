@@ -9,6 +9,7 @@ import {
     BreadcrumbSeparator,
 } from "./breadcrumb";
 import { Button } from "./button";
+import { ModeToggle } from "./mode-toggle";
 
 export type Crumb = { label: string; to: string };
 
@@ -60,6 +61,7 @@ export function AppShell({
                 </div>
                 {user ? (
                     <div className="flex items-center gap-3">
+                        <ModeToggle />
                         <span className="text-sm text-muted-foreground">
                             {user.email}
                         </span>

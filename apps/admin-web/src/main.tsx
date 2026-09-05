@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@propfirmcore/ui/components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { RouterProvider } from "@tanstack/react-router";
@@ -11,9 +12,11 @@ const root = document.getElementById("root");
 if (!root) throw new Error("root missing");
 createRoot(root).render(
     <StrictMode>
-        <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} context={{ queryClient }} />
-            <ReactQueryDevtools />
-        </QueryClientProvider>
+        <ThemeProvider>
+            <QueryClientProvider client={queryClient}>
+                <RouterProvider router={router} context={{ queryClient }} />
+                <ReactQueryDevtools />
+            </QueryClientProvider>
+        </ThemeProvider>
     </StrictMode>,
 );
