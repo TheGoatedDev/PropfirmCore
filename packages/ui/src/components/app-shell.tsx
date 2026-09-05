@@ -63,15 +63,13 @@ export function AppShell({
                         {sidebar}
                     </aside>
                 ) : null}
-                <div className="min-w-0 flex-1">
-                    <div className="mx-auto max-w-3xl space-y-6 p-6">
-                        {error ? (
-                            <Alert>
-                                <AlertDescription>{error}</AlertDescription>
-                            </Alert>
-                        ) : null}
-                        {children}
-                    </div>
+                <div className="min-w-0 flex-1 space-y-6 p-6">
+                    {error ? (
+                        <Alert>
+                            <AlertDescription>{error}</AlertDescription>
+                        </Alert>
+                    ) : null}
+                    {children}
                 </div>
             </div>
         </div>
