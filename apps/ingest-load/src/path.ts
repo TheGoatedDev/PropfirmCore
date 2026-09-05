@@ -1,4 +1,5 @@
 import type { Ruleset } from "@propfirmcore/config";
+import { DateTime } from "luxon";
 
 export const behaviors = ["passEval", "blowMaxDd", "blowDailyDd"] as const;
 export type Behavior = (typeof behaviors)[number];
@@ -14,12 +15,18 @@ export type Path = {
     lastTs: string;
 };
 
+function plus(iso: string, duration: { days?: number; milliseconds?: number }) {
+    const out = DateTime.fromISO(iso, { zone: "utc" }).plus(duration).toISO();
+    if (!out) throw new Error(`bad ts: ${iso}`);
+    return out;
+}
+
 export function addDays(iso: string, days: number): string {
-    return new Date(new Date(iso).getTime() + days * 86_400_000).toISOString();
+    return plus(iso, { days });
 }
 
 export function addMs(iso: string, ms: number): string {
-    return new Date(new Date(iso).getTime() + ms).toISOString();
+    return plus(iso, { milliseconds: ms });
 }
 
 function snap(equity: number, ts: string): Step {

@@ -1,6 +1,7 @@
 import type { FirmConfig } from "@propfirmcore/config";
 import { openTradingAccount } from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
+import { DateTime } from "luxon";
 import {
     type Db,
     payments,
@@ -45,11 +46,13 @@ export async function completePayment(
     }
     const product = firm.products.find((p) => p.id === payment.productId);
     if (!product) return { ok: false as const, error: "unknown product" };
+    const now = DateTime.utc().toISO();
+    if (!now) throw new Error("bad now");
     const account = openTradingAccount(
         crypto.randomUUID(),
         product,
         firm.dailyClose,
-        new Date().toISOString(),
+        now,
         payment.userId,
     );
     await db.transaction(async (tx) => {

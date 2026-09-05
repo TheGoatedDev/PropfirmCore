@@ -2,6 +2,12 @@ import { createApiClient } from "@propfirmcore/api-client";
 
 export const api = createApiClient("/api", { credentials: "include" });
 
+export const keys = {
+    me: ["me"] as const,
+    accounts: ["trading-accounts"] as const,
+    payouts: ["payouts"] as const,
+};
+
 export async function authPost(path: string, body?: Record<string, unknown>) {
     const res = await fetch(`/api${path}`, {
         method: "POST",
@@ -12,4 +18,17 @@ export async function authPost(path: string, body?: Record<string, unknown>) {
     const json: unknown = await res.json().catch(() => null);
     if (!res.ok) return { error: json };
     return { data: json };
+}
+
+export function failMsg(error: unknown, fallback: string) {
+    if (error && typeof error === "object") {
+        if ("error" in error) return String(error.error);
+        if ("message" in error) return String(error.message);
+    }
+    return fallback;
+}
+
+export async function fetchMe() {
+    const { data } = await api.GET("/auth/me");
+    return data ?? null;
 }
