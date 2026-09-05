@@ -29,7 +29,10 @@ const signInSchema = z.object({
 });
 const paymentIdSchema = z.object({ paymentId: z.string().min(1) });
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+    component: Home,
+    staticData: { crumb: "Home" },
+});
 
 function Home() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });

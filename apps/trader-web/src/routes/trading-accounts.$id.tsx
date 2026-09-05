@@ -17,7 +17,7 @@ import {
     TableRow,
 } from "@propfirmcore/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Navigate } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { api, failMsg, fetchMe, keys } from "../api.ts";
@@ -45,6 +45,7 @@ type Snapshot = {
 
 export const Route = createFileRoute("/trading-accounts/$id")({
     component: Account,
+    staticData: { crumb: "Trading account" },
 });
 
 function Account() {
@@ -57,7 +58,6 @@ function Account() {
 function AccountDetail({ id }: { id: string }) {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
-    const navigate = useNavigate();
 
     const account = useQuery({
         queryKey: keys.account(id),
@@ -153,12 +153,6 @@ function AccountDetail({ id }: { id: string }) {
 
     return (
         <div className="space-y-4">
-            <Button
-                variant="outline"
-                onClick={() => void navigate({ to: "/" })}
-            >
-                Back
-            </Button>
             <Card>
                 <CardHeader>
                     <CardTitle>{acc.id}</CardTitle>

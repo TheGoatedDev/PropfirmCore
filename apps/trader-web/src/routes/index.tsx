@@ -30,7 +30,10 @@ const signInSchema = z.object({
 
 type Product = { id: string; name: string };
 
-export const Route = createFileRoute("/")({ component: Home });
+export const Route = createFileRoute("/")({
+    component: Home,
+    staticData: { crumb: "Home" },
+});
 
 function Home() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });

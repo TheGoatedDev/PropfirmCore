@@ -28,6 +28,7 @@ export function AppShell({
     onSignOut,
     logo,
     sidebar,
+    breadcrumb,
     children,
 }: {
     title: string;
@@ -36,6 +37,7 @@ export function AppShell({
     onSignOut?: () => void;
     logo?: ReactNode;
     sidebar?: ReactNode;
+    breadcrumb?: ReactNode;
     children: ReactNode;
 }) {
     return (
@@ -64,6 +66,7 @@ export function AppShell({
                     </aside>
                 ) : null}
                 <div className="min-w-0 flex-1 space-y-6 p-6">
+                    {breadcrumb}
                     {error ? (
                         <Alert>
                             <AlertDescription>{error}</AlertDescription>
