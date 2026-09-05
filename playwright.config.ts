@@ -12,7 +12,6 @@ const apiEnv = {
 };
 
 export default defineConfig({
-    testDir: "./e2e",
     fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
@@ -21,7 +20,10 @@ export default defineConfig({
         trace: "on-first-retry",
         ...devices["Desktop Chrome"],
     },
-    projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
+    projects: [
+        { name: "smoke", testDir: "./e2e/smoke" },
+        { name: "regression", testDir: "./e2e/regression" },
+    ],
     webServer: [
         {
             command: "pnpm --filter @propfirmcore/server start",
