@@ -1,5 +1,4 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
-import type { FirmConfig } from "@propfirmcore/config";
 import {
     fillSchema,
     snapshotSchema,
@@ -9,13 +8,21 @@ import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { getById } from "../trading-accounts/service.ts";
+import type { IngestPublish } from "./bus.ts";
 import { requireApiKey } from "./ingest-key.ts";
-import { ingestFills, ingestSnapshot } from "./service.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 const idParam = z.object({ id: z.string().min(1) });
+const snapshotAccepted = z.object({
+    accountId: z.string(),
+    externalId: z.string(),
+});
+const fillsAccepted = z.object({
+    accountId: z.string(),
+    externalIds: z.array(z.string()),
+});
 
-type Deps = { apiKey: string; firm: FirmConfig; db: Db };
+type Deps = { apiKey: string; db: Db; publish: IngestPublish };
 
 export function mountIngest(app: OpenAPIHono, deps: Deps) {
     app.use("/ingest/*", requireApiKey(deps.apiKey));
@@ -66,11 +73,10 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
                 },
             },
             responses: {
-                200: {
-                    description:
-                        "The trading account after applying the equity snapshot.",
+                202: {
+                    description: httpDesc.accepted,
                     content: {
-                        "application/json": { schema: tradingAccountSchema },
+                        "application/json": { schema: snapshotAccepted },
                     },
                 },
                 400: {
@@ -85,23 +91,23 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                503: {
+                    description: httpDesc.unavailable,
+                    content: { "application/json": { schema: errorSchema } },
+                },
             },
         }),
         async (c) => {
             const { id } = c.req.valid("param");
-            const result = await ingestSnapshot(
-                deps.db,
-                deps.firm,
-                id,
-                c.req.valid("json"),
-            );
-            if (!result.ok) {
-                if (result.error === "not found") {
-                    return c.json({ error: result.error }, 404);
-                }
-                return c.json({ error: result.error }, 400);
+            const body = c.req.valid("json");
+            const account = await getById(deps.db, id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            try {
+                await deps.publish.snapshot({ accountId: id, ...body });
+            } catch {
+                return c.json({ error: "unavailable" }, 503);
             }
-            return c.json(result.account, 200);
+            return c.json({ accountId: id, externalId: body.externalId }, 202);
         },
     );
 
@@ -119,11 +125,10 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
                 },
             },
             responses: {
-                200: {
-                    description:
-                        "The trading account after applying the fills.",
+                202: {
+                    description: httpDesc.accepted,
                     content: {
-                        "application/json": { schema: tradingAccountSchema },
+                        "application/json": { schema: fillsAccepted },
                     },
                 },
                 400: {
@@ -138,23 +143,29 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                503: {
+                    description: httpDesc.unavailable,
+                    content: { "application/json": { schema: errorSchema } },
+                },
             },
         }),
         async (c) => {
             const { id } = c.req.valid("param");
-            const result = await ingestFills(
-                deps.db,
-                deps.firm,
-                id,
-                c.req.valid("json").fills,
-            );
-            if (!result.ok) {
-                if (result.error === "not found") {
-                    return c.json({ error: result.error }, 404);
-                }
-                return c.json({ error: result.error }, 400);
+            const body = c.req.valid("json");
+            const account = await getById(deps.db, id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            try {
+                await deps.publish.fills({ accountId: id, fills: body.fills });
+            } catch {
+                return c.json({ error: "unavailable" }, 503);
             }
-            return c.json(result.account, 200);
+            return c.json(
+                {
+                    accountId: id,
+                    externalIds: body.fills.map((f) => f.externalId),
+                },
+                202,
+            );
         },
     );
 }

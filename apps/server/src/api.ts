@@ -2,40 +2,34 @@ import { serve } from "@hono/node-server";
 import { createAuth } from "./auth/auth.ts";
 import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
 import { createDb, migrate } from "./db/db.ts";
+import { env } from "./env.ts";
 import { defaultFirmPath, loadFirmFromPath } from "./firm.ts";
 import { createApp } from "./http/app.ts";
+import { connectIngest, natsPublish } from "./ingest/nats.ts";
 
-const databaseUrl = process.env.DATABASE_URL;
-const apiKey = process.env.INGEST_API_KEY;
-const secret = process.env.BETTER_AUTH_SECRET;
-if (!databaseUrl) throw new Error("DATABASE_URL required");
-if (!apiKey) throw new Error("INGEST_API_KEY required");
-if (!secret) throw new Error("BETTER_AUTH_SECRET required");
-
-const { db } = createDb(databaseUrl);
+const { db } = createDb(env.DATABASE_URL);
 await migrate(db);
 
 const auth = createAuth(db, {
-    secret,
-    baseURL: process.env.BETTER_AUTH_URL ?? "http://localhost:3000",
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
 });
 
-const bootstrapEmail = process.env.BOOTSTRAP_ADMIN_EMAIL;
-const bootstrapPassword = process.env.BOOTSTRAP_ADMIN_PASSWORD;
-if (bootstrapEmail && bootstrapPassword) {
+if (env.BOOTSTRAP_ADMIN_EMAIL && env.BOOTSTRAP_ADMIN_PASSWORD) {
     await bootstrapAdmin(db, auth, {
-        email: bootstrapEmail,
-        password: bootstrapPassword,
+        email: env.BOOTSTRAP_ADMIN_EMAIL,
+        password: env.BOOTSTRAP_ADMIN_PASSWORD,
     });
 }
 
+const nc = await connectIngest(env.NATS_URL, env.NATS_TOKEN);
 const app = createApp({
     db,
-    firm: loadFirmFromPath(defaultFirmPath()),
-    apiKey,
+    firm: loadFirmFromPath(defaultFirmPath(env.FIRM_CONFIG_PATH)),
+    apiKey: env.INGEST_API_KEY,
     auth,
+    publish: natsPublish(nc),
 });
 
-const port = Number(process.env.PORT ?? 3000);
-serve({ fetch: app.fetch, port, hostname: "0.0.0.0" });
-console.log(`api :${port}`);
+serve({ fetch: app.fetch, port: env.PORT, hostname: "0.0.0.0" });
+console.log(`api :${env.PORT}`);

@@ -2725,74 +2725,23 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "The trading account after applying the equity snapshot.",
+                    "202": {
+                        "description": "Queued. GET the trading account for the settled book.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "userId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "productId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "phaseIndex": {
-                                            "type": "integer"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "active",
-                                                "passed",
-                                                "failed"
-                                            ]
-                                        },
-                                        "startBalance": {
-                                            "type": "number"
-                                        },
-                                        "equity": {
-                                            "type": "number"
-                                        },
-                                        "balance": {
-                                            "type": "number"
-                                        },
-                                        "peakEquity": {
-                                            "type": "number"
-                                        },
-                                        "dailyStartEquity": {
-                                            "type": "number"
-                                        },
-                                        "tradingDayKey": {
+                                        "accountId": {
                                             "type": "string"
                                         },
-                                        "tradingDays": {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
+                                        "externalId": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
-                                        "id",
-                                        "userId",
-                                        "productId",
-                                        "phaseIndex",
-                                        "status",
-                                        "startBalance",
-                                        "equity",
-                                        "balance",
-                                        "peakEquity",
-                                        "dailyStartEquity",
-                                        "tradingDayKey",
-                                        "tradingDays"
+                                        "accountId",
+                                        "externalId"
                                     ]
                                 }
                             }
@@ -2838,6 +2787,25 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The ingest bus is down. Try again.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -2965,55 +2933,17 @@
                     }
                 },
                 "responses": {
-                    "200": {
-                        "description": "The trading account after applying the fills.",
+                    "202": {
+                        "description": "Queued. GET the trading account for the settled book.",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "type": "object",
                                     "properties": {
-                                        "id": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "userId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "productId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "phaseIndex": {
-                                            "type": "integer"
-                                        },
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "active",
-                                                "passed",
-                                                "failed"
-                                            ]
-                                        },
-                                        "startBalance": {
-                                            "type": "number"
-                                        },
-                                        "equity": {
-                                            "type": "number"
-                                        },
-                                        "balance": {
-                                            "type": "number"
-                                        },
-                                        "peakEquity": {
-                                            "type": "number"
-                                        },
-                                        "dailyStartEquity": {
-                                            "type": "number"
-                                        },
-                                        "tradingDayKey": {
+                                        "accountId": {
                                             "type": "string"
                                         },
-                                        "tradingDays": {
+                                        "externalIds": {
                                             "type": "array",
                                             "items": {
                                                 "type": "string"
@@ -3021,18 +2951,8 @@
                                         }
                                     },
                                     "required": [
-                                        "id",
-                                        "userId",
-                                        "productId",
-                                        "phaseIndex",
-                                        "status",
-                                        "startBalance",
-                                        "equity",
-                                        "balance",
-                                        "peakEquity",
-                                        "dailyStartEquity",
-                                        "tradingDayKey",
-                                        "tradingDays"
+                                        "accountId",
+                                        "externalIds"
                                     ]
                                 }
                             }
@@ -3078,6 +2998,25 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "503": {
+                        "description": "The ingest bus is down. Try again.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -10744,7 +10683,7 @@
         },
         {
             "name": "Ingest",
-            "description": "Push fills and equity from a broker or bridge. Use X-Api-Key."
+            "description": "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key."
         },
         {
             "name": "Authentication",

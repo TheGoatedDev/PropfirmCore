@@ -50,18 +50,10 @@ jobs:
                     --health-interval 5s
                     --health-timeout 3s
                     --health-retries 10
-            redis:
-                image: redis:7-alpine
-                ports:
-                    - 6379:6379
-                options: >-
-                    --health-cmd "redis-cli ping"
-                    --health-interval 5s
-                    --health-timeout 3s
-                    --health-retries 10
         env:
             DATABASE_URL: postgres://propfirm:propfirm@localhost:5432/propfirm
-            REDIS_URL: redis://localhost:6379
+            NATS_URL: nats://localhost:4222
+            NATS_TOKEN: dev
             INGEST_API_KEY: dev
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
             BETTER_AUTH_URL: http://localhost:3000
@@ -76,6 +68,15 @@ jobs:
               with:
                   node-version-file: .node-version
                   cache: pnpm
+
+            - run: docker run -d --name nats -p 4222:4222 nats:2-alpine -js -auth dev
+            - run: |
+                  for i in $(seq 1 30); do
+                    nc -z localhost 4222 && exit 0
+                    sleep 1
+                  done
+                  echo "nats did not start" >&2
+                  exit 1
 
             - run: pnpm install --frozen-lockfile
             - run: pnpm exec playwright install --with-deps chromium

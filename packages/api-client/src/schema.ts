@@ -1524,26 +1524,15 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description The trading account after applying the equity snapshot. */
-                200: {
+                /** @description Queued. GET the trading account for the settled book. */
+                202: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
-                            id: string;
-                            userId: string;
-                            productId: string;
-                            phaseIndex: number;
-                            /** @enum {string} */
-                            status: "active" | "passed" | "failed";
-                            startBalance: number;
-                            equity: number;
-                            balance: number;
-                            peakEquity: number;
-                            dailyStartEquity: number;
-                            tradingDayKey: string;
-                            tradingDays: string[];
+                            accountId: string;
+                            externalId: string;
                         };
                     };
                 };
@@ -1573,6 +1562,18 @@ export interface paths {
                 };
                 /** @description Nothing exists at this id. */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description The ingest bus is down. Try again. */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1631,26 +1632,15 @@ export interface paths {
                 };
             };
             responses: {
-                /** @description The trading account after applying the fills. */
-                200: {
+                /** @description Queued. GET the trading account for the settled book. */
+                202: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
-                            id: string;
-                            userId: string;
-                            productId: string;
-                            phaseIndex: number;
-                            /** @enum {string} */
-                            status: "active" | "passed" | "failed";
-                            startBalance: number;
-                            equity: number;
-                            balance: number;
-                            peakEquity: number;
-                            dailyStartEquity: number;
-                            tradingDayKey: string;
-                            tradingDays: string[];
+                            accountId: string;
+                            externalIds: string[];
                         };
                     };
                 };
@@ -1680,6 +1670,18 @@ export interface paths {
                 };
                 /** @description Nothing exists at this id. */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description The ingest bus is down. Try again. */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };

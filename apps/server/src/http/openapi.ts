@@ -48,7 +48,7 @@ const tagMeta: Record<string, string> = {
     [tags.payouts]:
         "Payouts: trader request, admin approve or reject, mark paid.",
     [tags.ingest]:
-        "Push fills and equity from a broker or bridge. Use X-Api-Key.",
+        "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key.",
 };
 
 function authTag(path: string): string {

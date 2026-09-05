@@ -5,6 +5,7 @@ import type { Auth } from "../auth/auth.ts";
 import { mountAuth } from "../auth/http.ts";
 import { mountCheckout } from "../checkout/http.ts";
 import type { Db } from "../db/db.ts";
+import type { IngestPublish } from "../ingest/bus.ts";
 import { mountIngest } from "../ingest/http.ts";
 import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
@@ -15,6 +16,7 @@ export type AppDeps = {
     firm: FirmConfig;
     db: Db;
     auth: Auth;
+    publish: IngestPublish;
 };
 
 export function createApp(deps: AppDeps) {

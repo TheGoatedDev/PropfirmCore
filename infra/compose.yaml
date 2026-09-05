@@ -17,12 +17,16 @@ services:
             timeout: 3s
             retries: 10
 
-    redis:
-        image: redis:7-alpine
+    nats:
+        image: nats:2-alpine
+        command: ["-js", "-sd", "/data", "-m", "8222", "-auth", "dev"]
         ports:
-            - "6379:6379"
+            - "4222:4222"
+            - "8222:8222"
+        volumes:
+            - natsdata:/data
         healthcheck:
-            test: ["CMD", "redis-cli", "ping"]
+            test: ["CMD", "wget", "--spider", "-q", "http://127.0.0.1:8222/healthz"]
             interval: 5s
             timeout: 3s
             retries: 10
@@ -37,7 +41,8 @@ services:
         environment:
             ROLE: api
             DATABASE_URL: postgres://propfirm:propfirm@postgres:5432/propfirm
-            REDIS_URL: redis://redis:6379
+            NATS_URL: nats://nats:4222
+            NATS_TOKEN: dev
             INGEST_API_KEY: dev
             FIRM_CONFIG_PATH: /app/firm.example.json
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
@@ -47,7 +52,7 @@ services:
         depends_on:
             postgres:
                 condition: service_healthy
-            redis:
+            nats:
                 condition: service_healthy
 
     worker:
@@ -57,9 +62,16 @@ services:
             dockerfile: docker/server.Dockerfile
         environment:
             ROLE: worker
-            REDIS_URL: redis://redis:6379
+            DATABASE_URL: postgres://propfirm:propfirm@postgres:5432/propfirm
+            NATS_URL: nats://nats:4222
+            NATS_TOKEN: dev
+            INGEST_API_KEY: dev
+            BETTER_AUTH_SECRET: change-me-to-a-long-random-string
+            FIRM_CONFIG_PATH: /app/firm.example.json
         depends_on:
-            redis:
+            postgres:
+                condition: service_healthy
+            nats:
                 condition: service_healthy
 
     proxy:
@@ -97,3 +109,4 @@ services:
 
 volumes:
     pgdata:
+    natsdata:

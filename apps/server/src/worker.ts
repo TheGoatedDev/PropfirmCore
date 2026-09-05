@@ -1,9 +1,13 @@
-import { Worker } from "bullmq";
-import Redis from "ioredis";
+import { createDb } from "./db/db.ts";
+import { env } from "./env.ts";
+import { defaultFirmPath, loadFirmFromPath } from "./firm.ts";
+import { connectIngest, runIngestWorker } from "./ingest/nats.ts";
 
-const url = process.env.REDIS_URL;
-if (!url) throw new Error("REDIS_URL required");
-
-const connection = new Redis(url, { maxRetriesPerRequest: null });
-const worker = new Worker("jobs", async () => undefined, { connection });
-worker.on("ready", () => console.log("worker ready"));
+const { db } = createDb(env.DATABASE_URL);
+const nc = await connectIngest(env.NATS_URL, env.NATS_TOKEN);
+console.log("worker ready");
+await runIngestWorker(
+    nc,
+    db,
+    loadFirmFromPath(defaultFirmPath(env.FIRM_CONFIG_PATH)),
+);

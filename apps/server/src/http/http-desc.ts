@@ -10,4 +10,6 @@ export const httpDesc = {
     badRequest: "The request was invalid. Check the body and parameters.",
     notFound: "Nothing exists at this id.",
     exists: "A resource with this id already exists.",
+    accepted: "Queued. GET the trading account for the settled book.",
+    unavailable: "The ingest bus is down. Try again.",
 } as const;

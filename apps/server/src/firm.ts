@@ -8,8 +8,7 @@ export function loadFirmFromPath(path: string): FirmConfig {
     return loadFirmConfig(readFileSync(path, "utf8"));
 }
 
-export function defaultFirmPath(): string {
-    const fromEnv = process.env.FIRM_CONFIG_PATH;
+export function defaultFirmPath(fromEnv?: string): string {
     if (!fromEnv) return resolve(repoRoot, "firm.example.json");
     if (isAbsolute(fromEnv)) return fromEnv;
     return resolve(repoRoot, fromEnv);

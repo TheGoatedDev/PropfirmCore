@@ -3,6 +3,7 @@ import { loadFirmConfig } from "@propfirmcore/config";
 import { createAuth } from "./auth/auth.ts";
 import type { Db } from "./db/db.ts";
 import { createApp } from "./http/app.ts";
+import { noopIngestPublish } from "./ingest/bus.ts";
 
 const firm = loadFirmConfig(
     readFileSync(
@@ -21,6 +22,7 @@ const app = createApp({
     firm,
     db: {} as Db,
     auth,
+    publish: noopIngestPublish,
 });
 
 const res = await app.request("/openapi.json");

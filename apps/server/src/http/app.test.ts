@@ -3,6 +3,7 @@ import { loadFirmConfig } from "@propfirmcore/config";
 import { describe, expect, it } from "vitest";
 import type { Auth } from "../auth/auth.ts";
 import type { Db } from "../db/db.ts";
+import { noopIngestPublish } from "../ingest/bus.ts";
 import { type AppDeps, createApp } from "./app.ts";
 
 const auth = {
@@ -28,6 +29,7 @@ function app() {
         firm,
         db: {} as Db,
         auth,
+        publish: noopIngestPublish,
     } satisfies AppDeps);
 }
 
