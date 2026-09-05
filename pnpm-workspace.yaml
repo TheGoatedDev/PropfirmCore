@@ -2,7 +2,10 @@ packages:
   - "apps/*"
   - "packages/*"
 allowBuilds:
+  cpu-features: true
   esbuild: true
   msgpackr-extract: true
+  protobufjs: true
+  ssh2: true
 minimumReleaseAgeExclude:
   - lucide-react@1.38.0
