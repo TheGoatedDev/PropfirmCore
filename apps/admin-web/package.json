@@ -3,11 +3,6 @@
     "version": "0.0.0",
     "private": true,
     "type": "module",
-    "imports": {
-        "#components/*": "./src/components/*.tsx",
-        "#lib/*": "./src/lib/*.ts",
-        "#hooks/*": "./src/hooks/*.ts"
-    },
     "scripts": {
         "dev": "vite",
         "build": "vite build",

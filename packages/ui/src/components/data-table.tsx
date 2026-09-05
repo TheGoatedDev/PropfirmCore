@@ -8,8 +8,8 @@ import {
     useTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown } from "lucide-react";
-import { Button } from "#components/button";
-import { Input } from "#components/input";
+import { Button } from "@/components/button";
+import { Input } from "@/components/input";
 import {
     Table,
     TableBody,
@@ -17,8 +17,8 @@ import {
     TableHead,
     TableHeader,
     TableRow,
-} from "#components/table";
-import { type DataTableFeatures, features } from "#lib/data-table-features";
+} from "@/components/table";
+import { type DataTableFeatures, features } from "@/lib/data-table-features";
 
 export type { PaginationState, SortingState };
 export { type DataTableFeatures, features };

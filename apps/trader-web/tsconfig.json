@@ -4,6 +4,7 @@
         "jsx": "react-jsx",
         "lib": ["ES2022", "DOM", "DOM.Iterable"],
         "types": ["vite/client"],
+        "paths": { "@/*": ["./src/*", "../../packages/ui/src/*"] },
         "rootDir": "src",
         "noEmit": true
     },
