@@ -17,7 +17,7 @@ import {
     TableRow,
 } from "@propfirmcore/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Navigate, useNavigate, useParams } from "@tanstack/react-router";
+import { createFileRoute, Navigate, useNavigate } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { api, failMsg, fetchMe, keys } from "../api.ts";
@@ -43,9 +43,13 @@ type Snapshot = {
     ts: string;
 };
 
-export function Account() {
+export const Route = createFileRoute("/trading-accounts/$id")({
+    component: Account,
+});
+
+function Account() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
-    const { id } = useParams({ from: "/trading-accounts/$id" });
+    const { id } = Route.useParams();
     if (!me.data) return <Navigate to="/" />;
     return <AccountDetail id={id} />;
 }

@@ -8,7 +8,12 @@ import {
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, Navigate, useNavigate } from "@tanstack/react-router";
+import {
+    createFileRoute,
+    Link,
+    Navigate,
+    useNavigate,
+} from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
@@ -20,7 +25,9 @@ const signUpSchema = z.object({
     password: z.string().min(1),
 });
 
-export function Signup() {
+export const Route = createFileRoute("/signup")({ component: Signup });
+
+function Signup() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
     if (me.data) return <Navigate to="/" />;
     return <SignUpForm />;

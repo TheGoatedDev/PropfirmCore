@@ -17,6 +17,7 @@ import {
     TableRow,
 } from "@propfirmcore/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
 import { api, authPost, failMsg, fetchMe, keys } from "../api.ts";
@@ -28,7 +29,9 @@ const signInSchema = z.object({
 });
 const paymentIdSchema = z.object({ paymentId: z.string().min(1) });
 
-export function Home() {
+export const Route = createFileRoute("/")({ component: Home });
+
+function Home() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
     if (!me.data) return <SignIn />;
     if (me.data.role !== "admin") return <p>not admin</p>;

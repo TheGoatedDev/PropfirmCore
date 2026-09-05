@@ -17,7 +17,7 @@ import {
     TableRow,
 } from "@propfirmcore/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { api, authPost, failMsg, fetchMe, keys } from "../api.ts";
@@ -30,7 +30,9 @@ const signInSchema = z.object({
 
 type Product = { id: string; name: string };
 
-export function Home() {
+export const Route = createFileRoute("/")({ component: Home });
+
+function Home() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
     if (!me.data) return <SignIn />;
     return <Dashboard />;

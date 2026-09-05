@@ -18,7 +18,8 @@
             "!test-results",
             "!packages/api-client/openapi.json",
             "!packages/api-client/src/schema.ts",
-            "!apps/server/drizzle"
+            "!apps/server/drizzle",
+            "!**/routeTree.gen.ts"
         ]
     },
     "formatter": {
