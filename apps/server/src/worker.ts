@@ -5,7 +5,6 @@ import { connectIngest, runIngestWorker } from "./ingest/nats.ts";
 
 const { db } = createDb(env.DATABASE_URL);
 const nc = await connectIngest(env.NATS_URL, env.NATS_TOKEN);
-console.log("worker ready");
 await runIngestWorker(
     nc,
     db,

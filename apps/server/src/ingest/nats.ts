@@ -63,6 +63,7 @@ export async function runIngestWorker(
     const js = jetstream(nc);
     const consumer = await js.consumers.get(ingestStream, ingestConsumer);
     const messages = await consumer.consume();
+    console.log("worker ready");
     for await (const m of messages) {
         try {
             if (m.subject === ingestSnapshotSubject) {
