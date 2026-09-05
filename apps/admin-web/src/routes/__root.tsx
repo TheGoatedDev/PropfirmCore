@@ -1,4 +1,4 @@
-import { AppShell } from "@propfirmcore/ui/components/app-shell";
+import { AppShell, SidebarItem } from "@propfirmcore/ui/components/app-shell";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
     createRootRoute,
@@ -6,6 +6,7 @@ import {
     Outlet,
     useNavigate,
 } from "@tanstack/react-router";
+import { House } from "lucide-react";
 import { authPost, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -40,7 +41,7 @@ function Root() {
                         to="/"
                         className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
                     >
-                        Home
+                        <SidebarItem icon={<House />}>Home</SidebarItem>
                     </Link>
                 </nav>
             }

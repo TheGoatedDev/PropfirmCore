@@ -2,6 +2,25 @@ import type { ReactNode } from "react";
 import { Alert, AlertDescription } from "./alert";
 import { Button } from "./button";
 
+export function SidebarItem({
+    icon,
+    children,
+}: {
+    icon?: ReactNode;
+    children: ReactNode;
+}) {
+    return (
+        <span className="flex items-center gap-2">
+            {icon ? (
+                <span className="flex size-4 shrink-0 items-center justify-center [&_svg]:size-4">
+                    {icon}
+                </span>
+            ) : null}
+            {children}
+        </span>
+    );
+}
+
 export function AppShell({
     title,
     user,
@@ -20,39 +39,40 @@ export function AppShell({
     children: ReactNode;
 }) {
     return (
-        <div className="flex min-h-svh">
-            {logo || sidebar ? (
-                <aside className="w-52 shrink-0 border-r p-4">
-                    {logo ? <div className="mb-4">{logo}</div> : null}
-                    {sidebar}
-                </aside>
-            ) : null}
-            <div className="min-w-0 flex-1">
-                <div className="mx-auto max-w-3xl space-y-6 p-6">
-                    <header className="flex items-center justify-between">
-                        <h1 className="text-xl font-semibold">{title}</h1>
-                        {user ? (
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm text-muted-foreground">
-                                    {user.email}
-                                </span>
-                                {onSignOut ? (
-                                    <Button
-                                        variant="outline"
-                                        onClick={onSignOut}
-                                    >
-                                        Sign out
-                                    </Button>
-                                ) : null}
-                            </div>
+        <div className="flex min-h-svh flex-col">
+            <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">
+                <div className="flex items-center gap-3">
+                    {logo}
+                    <h1 className="text-lg font-semibold">{title}</h1>
+                </div>
+                {user ? (
+                    <div className="flex items-center gap-3">
+                        <span className="text-sm text-muted-foreground">
+                            {user.email}
+                        </span>
+                        {onSignOut ? (
+                            <Button variant="outline" onClick={onSignOut}>
+                                Sign out
+                            </Button>
                         ) : null}
-                    </header>
-                    {error ? (
-                        <Alert>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    ) : null}
-                    {children}
+                    </div>
+                ) : null}
+            </header>
+            <div className="flex min-h-0 flex-1">
+                {sidebar ? (
+                    <aside className="w-52 shrink-0 border-r p-4">
+                        {sidebar}
+                    </aside>
+                ) : null}
+                <div className="min-w-0 flex-1">
+                    <div className="mx-auto max-w-3xl space-y-6 p-6">
+                        {error ? (
+                            <Alert>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        ) : null}
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>
