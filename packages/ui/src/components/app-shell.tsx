@@ -1,6 +1,8 @@
-import type { ReactNode } from "react";
+import type { MouseEvent, ReactNode } from "react";
 import { Alert, AlertDescription } from "./alert";
 import { Button } from "./button";
+
+export type Crumb = { label: string; to: string };
 
 export function SidebarItem({
     icon,
@@ -28,7 +30,8 @@ export function AppShell({
     onSignOut,
     logo,
     sidebar,
-    breadcrumb,
+    crumbs,
+    onCrumb,
     children,
 }: {
     title: string;
@@ -37,7 +40,8 @@ export function AppShell({
     onSignOut?: () => void;
     logo?: ReactNode;
     sidebar?: ReactNode;
-    breadcrumb?: ReactNode;
+    crumbs?: Crumb[];
+    onCrumb?: (to: string) => void;
     children: ReactNode;
 }) {
     return (
@@ -66,7 +70,56 @@ export function AppShell({
                     </aside>
                 ) : null}
                 <div className="min-w-0 flex-1 space-y-6 p-6">
-                    {breadcrumb}
+                    {crumbs && crumbs.length >= 2 ? (
+                        <nav aria-label="Breadcrumb">
+                            <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
+                                {crumbs.map((c, i) => {
+                                    const last = i === crumbs.length - 1;
+                                    return (
+                                        <li
+                                            key={`${c.to}-${c.label}`}
+                                            className="flex items-center gap-1"
+                                        >
+                                            {i > 0 ? (
+                                                <span aria-hidden>/</span>
+                                            ) : null}
+                                            {last ? (
+                                                <span
+                                                    className="text-foreground"
+                                                    aria-current="page"
+                                                >
+                                                    {c.label}
+                                                </span>
+                                            ) : (
+                                                <a
+                                                    href={c.to}
+                                                    className="hover:underline"
+                                                    onClick={(
+                                                        e: MouseEvent<HTMLAnchorElement>,
+                                                    ) => {
+                                                        if (
+                                                            !onCrumb ||
+                                                            e.button !== 0 ||
+                                                            e.metaKey ||
+                                                            e.altKey ||
+                                                            e.ctrlKey ||
+                                                            e.shiftKey
+                                                        ) {
+                                                            return;
+                                                        }
+                                                        e.preventDefault();
+                                                        onCrumb(c.to);
+                                                    }}
+                                                >
+                                                    {c.label}
+                                                </a>
+                                            )}
+                                        </li>
+                                    );
+                                })}
+                            </ol>
+                        </nav>
+                    ) : null}
                     {error ? (
                         <Alert>
                             <AlertDescription>{error}</AlertDescription>

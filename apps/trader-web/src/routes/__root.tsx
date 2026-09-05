@@ -13,45 +13,12 @@ import { useUi } from "../stores/ui.ts";
 
 export const Route = createRootRoute({ component: Root });
 
-function Breadcrumbs() {
-    const crumbs = useMatches().filter((m) => m.staticData.crumb);
-    if (crumbs.length < 2) return null;
-    return (
-        <nav aria-label="Breadcrumb">
-            <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-                {crumbs.map((m, i) => {
-                    const last = i === crumbs.length - 1;
-                    return (
-                        <li key={m.id} className="flex items-center gap-1">
-                            {i > 0 ? <span aria-hidden>/</span> : null}
-                            {last ? (
-                                <span
-                                    className="text-foreground"
-                                    aria-current="page"
-                                >
-                                    {m.staticData.crumb}
-                                </span>
-                            ) : (
-                                <Link
-                                    to={m.pathname}
-                                    className="hover:underline"
-                                >
-                                    {m.staticData.crumb}
-                                </Link>
-                            )}
-                        </li>
-                    );
-                })}
-            </ol>
-        </nav>
-    );
-}
-
 function Root() {
     const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
     const error = useUi((s) => s.error);
     const qc = useQueryClient();
     const navigate = useNavigate();
+    const matches = useMatches();
 
     async function signOut() {
         await authPost("/auth/sign-out");
@@ -80,7 +47,17 @@ function Root() {
                     </Link>
                 </nav>
             }
-            breadcrumb={me.data ? <Breadcrumbs /> : undefined}
+            crumbs={
+                me.data
+                    ? matches
+                          .filter((m) => m.staticData.crumb)
+                          .map((m) => ({
+                              label: m.staticData.crumb ?? "",
+                              to: m.pathname,
+                          }))
+                    : undefined
+            }
+            onCrumb={(to) => void navigate({ to })}
         >
             {me.isLoading ? <p>Loading</p> : <Outlet />}
         </AppShell>
