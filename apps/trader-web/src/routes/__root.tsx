@@ -12,8 +12,6 @@ function Root() {
     const qc = useQueryClient();
     const navigate = useNavigate();
 
-    if (me.isLoading) return <p className="p-6">Loading</p>;
-
     async function signOut() {
         await authPost("/auth/sign-out");
         qc.setQueryData(keys.me, null);
@@ -25,9 +23,9 @@ function Root() {
             title="Trader"
             user={me.data}
             error={error}
-            onSignOut={() => void signOut()}
+            onSignOut={me.data ? () => void signOut() : undefined}
         >
-            <Outlet />
+            {me.isLoading ? <p>Loading</p> : <Outlet />}
         </AppShell>
     );
 }
