@@ -1,6 +1,5 @@
 {
     "$schema": "https://turbo.build/schema.json",
-    "globalEnv": ["TEST_INT"],
     "tasks": {
         "build": {
             "dependsOn": ["^build"],
@@ -12,9 +11,6 @@
         },
         "typecheck": {
             "dependsOn": ["^typecheck"],
-            "outputs": []
-        },
-        "test": {
             "outputs": []
         },
         "lint": {

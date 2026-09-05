@@ -18,7 +18,7 @@ Pure functions. No I/O.
 Yes: `packages/domain`, config parse, permission math.
 No: postgres, NATS, `listen`, `fetch` to a live server, browser.
 
-Runner: Vitest `*.test.ts` next to the code. `pnpm test`.
+Runner: Vitest `*.test.ts` next to the code. `pnpm test:unit`.
 
 ### Integration
 
@@ -27,7 +27,7 @@ HTTP / worker / db / NATS contract. No browser.
 Yes: ingest snapshot settles on worker (`settle.int.test.ts`).
 No: `page.goto`, asserting SPA copy.
 
-Runner: Vitest `*.int.test.ts`. `pnpm test:int` boots postgres+NATS (Testcontainers) then API+worker. Docker required. Default `pnpm test` excludes these.
+Runner: Vitest `*.int.test.ts`. `pnpm test:int` boots postgres+NATS (Testcontainers) then API+worker. Docker required.
 
 ### E2E
 
@@ -38,7 +38,9 @@ No: API-only, worker settle.
 
 Rule: **no `page.goto` → not e2e.**
 
-Runner: Playwright. `pnpm e2e` boots postgres+NATS (Testcontainers) then API+worker+SPAs. Docker required. `smoke` = golden path (signup → buy 50k → admin complete → active). `regression` = other UI.
+Runner: Playwright. `pnpm test:e2e` boots postgres+NATS (Testcontainers) then API+worker+SPAs. Docker required. `smoke` = golden path (signup → buy 50k → admin complete → active). `regression` = other UI.
+
+`pnpm test` = unit then int then e2e.
 
 ## Default
 

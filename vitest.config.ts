@@ -1,15 +1,25 @@
-import { defineConfig } from "vitest/config";
+import { configDefaults, defineConfig } from "vitest/config";
+
+const exclude = [...configDefaults.exclude, "e2e/**"];
 
 export default defineConfig({
     test: {
         passWithNoTests: true,
-        globalSetup: process.env.TEST_INT
-            ? ["./test/vitest-global-setup.ts"]
-            : undefined,
-        exclude: [
-            "**/node_modules/**",
-            "e2e/**",
-            ...(process.env.TEST_INT ? [] : ["**/*.int.test.ts"]),
+        projects: [
+            {
+                test: {
+                    name: "unit",
+                    exclude: [...exclude, "**/*.int.test.ts"],
+                },
+            },
+            {
+                test: {
+                    name: "int",
+                    include: ["**/*.int.test.ts"],
+                    exclude,
+                    globalSetup: ["./test/vitest-global-setup.ts"],
+                },
+            },
         ],
     },
 });
