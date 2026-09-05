@@ -4,7 +4,7 @@ export default defineConfig({
     fullyParallel: false,
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
-    workers: 1,
+    // workers: 1,
     use: {
         trace: "on-first-retry",
         ...devices["Desktop Chrome"],
