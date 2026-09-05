@@ -1,11 +1,11 @@
 ---
 name: tech-stack
-description: PropfirmCore stack. Use when adding deps, frontend, backend HTTP, validation, dates, routing, state, or tests.
+description: PropfirmCore stack. Use when adding deps, frontend, backend HTTP, validation, dates, routing, or state.
 ---
 
 # Tech stack
 
-Load this skill before adding a library or picking a tool.
+Load this skill before adding a library or picking a tool. Tests: `.agents/skills/testing/SKILL.md`.
 
 ## Frontend
 
