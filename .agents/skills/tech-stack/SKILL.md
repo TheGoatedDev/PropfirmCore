@@ -9,12 +9,12 @@ Load this skill before adding a library or picking a tool.
 
 ## Frontend
 
-React, Vite, TanStack Router, TanStack Query, Zustand, Tailwind, Vitest.
+React, Vite, TanStack Router, TanStack Query, Zustand, Tailwind.
 
 - TanStack Query: server cache. Wrap the existing API client. Do not add another HTTP layer.
 - Zustand: client UI state only.
 
-No: Next, React Router, Redux, SWR, Jest, Webpack, CRA.
+No: Next, React Router, Redux, SWR, Webpack, CRA.
 
 ## Backend
 
@@ -24,9 +24,9 @@ No: NestJS, Express, Fastify, Prisma, TypeORM.
 
 ## Shared
 
-Zod (validation), Luxon (time), Biome (lint/format), Playwright (e2e), pnpm, turbo.
+Zod (validation), Luxon (time), Vitest (unit/integration), Biome (lint/format), Playwright (e2e), pnpm, turbo.
 
-No: Yup, class-validator, Valibot, moment, dayjs, date-fns.
+No: Yup, class-validator, Valibot, moment, dayjs, date-fns, Jest.
 
 ## Rules
 
