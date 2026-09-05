@@ -78,7 +78,7 @@ export function AppShell({
                     </aside>
                 ) : null}
                 <div className="min-w-0 flex-1 space-y-6 p-6">
-                    {crumbs ? (
+                    {crumbs && crumbs.length > 1 ? (
                         <Breadcrumb>
                             <BreadcrumbList>
                                 {crumbs.flatMap((c, i) => {
