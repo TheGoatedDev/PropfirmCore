@@ -29,7 +29,7 @@ test("trader buys, admin completes", async ({ browser }) => {
     expect(paymentId).toBeTruthy();
 
     const admin = await browser.newPage();
-    await admin.goto(adminUrl);
+    await admin.goto(`${adminUrl}/signin`);
     await admin.getByLabel("Email").fill("admin@example.com");
     await admin.getByLabel("Password").fill("changeme");
     await admin.getByRole("button", { name: "Sign in" }).click();

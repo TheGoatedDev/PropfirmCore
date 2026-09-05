@@ -17,11 +17,11 @@ import {
     TableRow,
 } from "@propfirmcore/ui/components/table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Navigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
-import { api, failMsg, fetchMe, keys } from "../api.ts";
-import { useUi } from "../stores/ui.ts";
+import { api, failMsg, keys } from "../../api.ts";
+import { useUi } from "../../stores/ui.ts";
 
 const payoutSchema = z.object({ amount: z.coerce.number().positive() });
 
@@ -43,15 +43,13 @@ type Snapshot = {
     ts: string;
 };
 
-export const Route = createFileRoute("/trading-accounts/$id")({
+export const Route = createFileRoute("/_app/trading-accounts/$id")({
     component: Account,
     staticData: { crumb: "Trading account" },
 });
 
 function Account() {
-    const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
     const { id } = Route.useParams();
-    if (!me.data) return <Navigate to="/" />;
     return <AccountDetail id={id} />;
 }
 

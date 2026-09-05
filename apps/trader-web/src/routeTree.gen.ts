@@ -9,86 +9,157 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as TradingAccountsIdRouteImport } from './routes/trading-accounts.$id'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as GuestRouteImport } from './routes/_guest'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as GuestSigninRouteImport } from './routes/_guest/signin'
+import { Route as GuestSignupRouteImport } from './routes/_guest/signup'
+import { Route as AppTradingAccountsIdRouteImport } from './routes/_app/trading-accounts.$id'
 
-const IndexRoute = IndexRouteImport.update({
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GuestRoute = GuestRouteImport.update({
+  id: '/_guest',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
-const SignupRoute = SignupRouteImport.update({
+const GuestSigninRoute = GuestSigninRouteImport.update({
+  id: '/signin',
+  path: '/signin',
+  getParentRoute: () => GuestRoute,
+} as any)
+const GuestSignupRoute = GuestSignupRouteImport.update({
   id: '/signup',
   path: '/signup',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => GuestRoute,
 } as any)
-const TradingAccountsIdRoute = TradingAccountsIdRouteImport.update({
+const AppTradingAccountsIdRoute = AppTradingAccountsIdRouteImport.update({
   id: '/trading-accounts/$id',
   path: '/trading-accounts/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/signup': typeof SignupRoute
-  '/trading-accounts/$id': typeof TradingAccountsIdRoute
+  '/': typeof AppIndexRoute
+  '/signin': typeof GuestSigninRoute
+  '/signup': typeof GuestSignupRoute
+  '/trading-accounts/$id': typeof AppTradingAccountsIdRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/signup': typeof SignupRoute
-  '/trading-accounts/$id': typeof TradingAccountsIdRoute
+  '/': typeof AppIndexRoute
+  '/signin': typeof GuestSigninRoute
+  '/signup': typeof GuestSignupRoute
+  '/trading-accounts/$id': typeof AppTradingAccountsIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/signup': typeof SignupRoute
-  '/trading-accounts/$id': typeof TradingAccountsIdRoute
+  '/_app': typeof AppRouteWithChildren
+  '/_guest': typeof GuestRouteWithChildren
+  '/_guest/signin': typeof GuestSigninRoute
+  '/_guest/signup': typeof GuestSignupRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/trading-accounts/$id': typeof AppTradingAccountsIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signup' | '/trading-accounts/$id'
+  fullPaths: '/' | '/signin' | '/signup' | '/trading-accounts/$id'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signup' | '/trading-accounts/$id'
-  id: '__root__' | '/' | '/signup' | '/trading-accounts/$id'
+  to: '/' | '/signin' | '/signup' | '/trading-accounts/$id'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_guest'
+    | '/_guest/signin'
+    | '/_guest/signup'
+    | '/_app/'
+    | '/_app/trading-accounts/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  SignupRoute: typeof SignupRoute
-  TradingAccountsIdRoute: typeof TradingAccountsIdRoute
+  AppRoute: typeof AppRouteWithChildren
+  GuestRoute: typeof GuestRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AppRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_guest': {
+      id: '/_guest'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof GuestRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/': {
+      id: '/_app/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/signup': {
-      id: '/signup'
+    '/_guest/signin': {
+      id: '/_guest/signin'
+      path: '/signin'
+      fullPath: '/signin'
+      preLoaderRoute: typeof GuestSigninRouteImport
+      parentRoute: typeof GuestRoute
+    }
+    '/_guest/signup': {
+      id: '/_guest/signup'
       path: '/signup'
       fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof GuestSignupRouteImport
+      parentRoute: typeof GuestRoute
     }
-    '/trading-accounts/$id': {
-      id: '/trading-accounts/$id'
+    '/_app/trading-accounts/$id': {
+      id: '/_app/trading-accounts/$id'
       path: '/trading-accounts/$id'
       fullPath: '/trading-accounts/$id'
-      preLoaderRoute: typeof TradingAccountsIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppTradingAccountsIdRouteImport
+      parentRoute: typeof AppRoute
     }
   }
 }
 
+interface AppRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+  AppTradingAccountsIdRoute: typeof AppTradingAccountsIdRoute
+}
+
+const AppRouteChildren: AppRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppTradingAccountsIdRoute: AppTradingAccountsIdRoute,
+}
+
+const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
+
+interface GuestRouteChildren {
+  GuestSigninRoute: typeof GuestSigninRoute
+  GuestSignupRoute: typeof GuestSignupRoute
+}
+
+const GuestRouteChildren: GuestRouteChildren = {
+  GuestSigninRoute: GuestSigninRoute,
+  GuestSignupRoute: GuestSignupRoute,
+}
+
+const GuestRouteWithChildren = GuestRoute._addFileChildren(GuestRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  SignupRoute: SignupRoute,
-  TradingAccountsIdRoute: TradingAccountsIdRoute,
+  AppRoute: AppRouteWithChildren,
+  GuestRoute: GuestRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

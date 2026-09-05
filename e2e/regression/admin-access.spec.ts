@@ -18,7 +18,7 @@ test("trader cannot use admin", async ({ browser }) => {
     ).toBeVisible();
 
     const admin = await browser.newPage();
-    await admin.goto(adminUrl);
+    await admin.goto(`${adminUrl}/signin`);
     await admin.getByLabel("Email").fill(email);
     await admin.getByLabel("Password").fill(password);
     await admin.getByRole("button", { name: "Sign in" }).click();

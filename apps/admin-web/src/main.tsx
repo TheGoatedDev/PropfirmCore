@@ -12,7 +12,7 @@ if (!root) throw new Error("root missing");
 createRoot(root).render(
     <StrictMode>
         <QueryClientProvider client={queryClient}>
-            <RouterProvider router={router} />
+            <RouterProvider router={router} context={{ queryClient }} />
             <ReactQueryDevtools />
         </QueryClientProvider>
     </StrictMode>,

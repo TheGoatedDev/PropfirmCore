@@ -7,33 +7,21 @@ import {
 } from "@propfirmcore/ui/components/card";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import {
-    createFileRoute,
-    Link,
-    Navigate,
-    useNavigate,
-} from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import type { FormEvent } from "react";
 import { z } from "zod";
-import { authPost, failMsg, fetchMe, keys } from "../api.ts";
-import { useUi } from "../stores/ui.ts";
+import { authPost, failMsg, fetchMe, keys } from "../../api.ts";
+import { useUi } from "../../stores/ui.ts";
 
-const signUpSchema = z.object({
-    name: z.string().min(1),
+const signInSchema = z.object({
     email: z.email(),
     password: z.string().min(1),
 });
 
-export const Route = createFileRoute("/signup")({ component: Signup });
+export const Route = createFileRoute("/_guest/signin")({ component: SignIn });
 
-function Signup() {
-    const me = useQuery({ queryKey: keys.me, queryFn: fetchMe, retry: false });
-    if (me.data) return <Navigate to="/" />;
-    return <SignUpForm />;
-}
-
-function SignUpForm() {
+function SignIn() {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const navigate = useNavigate();
@@ -42,8 +30,7 @@ function SignUpForm() {
         e.preventDefault();
         setError(null);
         const fd = new FormData(e.currentTarget);
-        const parsed = signUpSchema.safeParse({
-            name: String(fd.get("name") ?? ""),
+        const parsed = signInSchema.safeParse({
             email: String(fd.get("email") ?? ""),
             password: String(fd.get("password") ?? ""),
         });
@@ -51,26 +38,22 @@ function SignUpForm() {
             setError(parsed.error.issues[0]?.message ?? "Invalid");
             return;
         }
-        const { error } = await authPost("/auth/sign-up/email", parsed.data);
+        const { error } = await authPost("/auth/sign-in/email", parsed.data);
         if (error) {
-            setError(failMsg(error, "Sign up failed"));
+            setError(failMsg(error, "Sign in failed"));
             return;
         }
-        await qc.invalidateQueries({ queryKey: keys.me });
+        await qc.query({ queryKey: keys.me, queryFn: fetchMe });
         await navigate({ to: "/" });
     }
 
     return (
         <Card>
             <CardHeader>
-                <CardTitle>Sign up</CardTitle>
+                <CardTitle>Sign in</CardTitle>
             </CardHeader>
             <CardContent>
                 <form className="space-y-3" onSubmit={(e) => void submit(e)}>
-                    <div className="space-y-1">
-                        <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" required />
-                    </div>
                     <div className="space-y-1">
                         <Label htmlFor="email">Email</Label>
                         <Input id="email" name="email" type="email" required />
@@ -84,11 +67,11 @@ function SignUpForm() {
                             required
                         />
                     </div>
-                    <Button type="submit">Sign up</Button>
+                    <Button type="submit">Sign in</Button>
                 </form>
                 <p className="mt-3 text-sm">
-                    <Link to="/" className="underline">
-                        Sign in
+                    <Link to="/signup" className="underline">
+                        Sign up
                     </Link>
                 </p>
             </CardContent>
