@@ -1,5 +1,13 @@
 import type { MouseEvent, ReactNode } from "react";
 import { Alert, AlertDescription } from "./alert";
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "./breadcrumb";
 import { Button } from "./button";
 
 export type Crumb = { label: string; to: string };
@@ -70,55 +78,54 @@ export function AppShell({
                     </aside>
                 ) : null}
                 <div className="min-w-0 flex-1 space-y-6 p-6">
-                    {crumbs && crumbs.length >= 2 ? (
-                        <nav aria-label="Breadcrumb">
-                            <ol className="flex flex-wrap items-center gap-1 text-sm text-muted-foreground">
-                                {crumbs.map((c, i) => {
+                    {crumbs ? (
+                        <Breadcrumb>
+                            <BreadcrumbList>
+                                {crumbs.flatMap((c, i) => {
                                     const last = i === crumbs.length - 1;
-                                    return (
-                                        <li
-                                            key={`${c.to}-${c.label}`}
-                                            className="flex items-center gap-1"
-                                        >
-                                            {i > 0 ? (
-                                                <span aria-hidden>/</span>
-                                            ) : null}
-                                            {last ? (
-                                                <span
-                                                    className="text-foreground"
-                                                    aria-current="page"
-                                                >
-                                                    {c.label}
-                                                </span>
-                                            ) : (
-                                                <a
-                                                    href={c.to}
-                                                    className="hover:underline"
-                                                    onClick={(
-                                                        e: MouseEvent<HTMLAnchorElement>,
-                                                    ) => {
-                                                        if (
-                                                            !onCrumb ||
-                                                            e.button !== 0 ||
-                                                            e.metaKey ||
-                                                            e.altKey ||
-                                                            e.ctrlKey ||
-                                                            e.shiftKey
-                                                        ) {
-                                                            return;
-                                                        }
-                                                        e.preventDefault();
-                                                        onCrumb(c.to);
-                                                    }}
-                                                >
-                                                    {c.label}
-                                                </a>
-                                            )}
-                                        </li>
+                                    const key = `${c.to}-${c.label}`;
+                                    const item = last ? (
+                                        <BreadcrumbItem key={key}>
+                                            <BreadcrumbPage>
+                                                {c.label}
+                                            </BreadcrumbPage>
+                                        </BreadcrumbItem>
+                                    ) : (
+                                        <BreadcrumbItem key={key}>
+                                            <BreadcrumbLink
+                                                href={c.to}
+                                                onClick={(
+                                                    e: MouseEvent<HTMLAnchorElement>,
+                                                ) => {
+                                                    if (
+                                                        !onCrumb ||
+                                                        e.button !== 0 ||
+                                                        e.metaKey ||
+                                                        e.altKey ||
+                                                        e.ctrlKey ||
+                                                        e.shiftKey
+                                                    ) {
+                                                        return;
+                                                    }
+                                                    e.preventDefault();
+                                                    onCrumb(c.to);
+                                                }}
+                                            >
+                                                {c.label}
+                                            </BreadcrumbLink>
+                                        </BreadcrumbItem>
                                     );
+                                    return i === 0
+                                        ? [item]
+                                        : [
+                                              <BreadcrumbSeparator
+                                                  key={`${key}-sep`}
+                                              />,
+                                              item,
+                                          ];
                                 })}
-                            </ol>
-                        </nav>
+                            </BreadcrumbList>
+                        </Breadcrumb>
                     ) : null}
                     {error ? (
                         <Alert>
