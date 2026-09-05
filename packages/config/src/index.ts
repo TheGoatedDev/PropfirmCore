@@ -47,9 +47,20 @@ export const firmPayoutSchema = z.object({
     onUncoverable: onUncoverableSchema.default("failApprove"),
 });
 
-export const bridgeSchema = z.object({
-    provider: z.string().min(1).default("loopback"),
-});
+export const bridgeSchema = z
+    .object({
+        provider: z.string().min(1).default("loopback"),
+        url: z.url().optional(),
+    })
+    .superRefine((val, ctx) => {
+        if (val.provider === "webhook" && !val.url) {
+            ctx.addIssue({
+                code: "custom",
+                message: "webhook bridge requires url",
+                path: ["url"],
+            });
+        }
+    });
 
 export const productSchema = z
     .object({

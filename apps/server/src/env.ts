@@ -7,6 +7,7 @@ export const env = createEnv({
         NATS_URL: z.string().min(1),
         NATS_TOKEN: z.string().min(1),
         INGEST_API_KEY: z.string().min(1),
+        BRIDGE_WEBHOOK_KEY: z.string().min(1).optional(),
         BETTER_AUTH_SECRET: z.string().min(1),
         BETTER_AUTH_URL: z.url().default("http://localhost:3000"),
         PORT: z.coerce.number().default(3000),

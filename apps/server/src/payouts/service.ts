@@ -107,7 +107,7 @@ export async function approvePayout(
     if (!account) return { ok: false, error: "not found" };
     const product = firm.products.find((p) => p.id === account.productId);
     if (!product) return { ok: false, error: "unknown product" };
-    const bridge = getBridge(firm.bridge.provider);
+    const bridge = getBridge(firm.bridge);
     if (!bridge) return { ok: false, error: "unknown bridge" };
     const open = await loadOpen(db, account.id);
     const available = availableFor(account, firm, open, payout.id);
@@ -126,7 +126,12 @@ export async function approvePayout(
         }
         return { ok: false, error: "uncoverable" };
     }
-    const nextAccount = await bridge.withdraw(account, payout.amount);
+    let nextAccount: TradingAccount;
+    try {
+        nextAccount = await bridge.withdraw(account, payout.amount);
+    } catch {
+        return { ok: false, error: "bridge failed" };
+    }
     const nextPayout: Payout = { ...payout, status: "approved", reason: null };
     await db.transaction(async (tx) => {
         await tx
@@ -169,9 +174,14 @@ export async function rejectPayout(
     }
     const account = await loadAccount(db, payout.tradingAccountId);
     if (!account) return { ok: false, error: "not found" };
-    const bridge = getBridge(firm.bridge.provider);
+    const bridge = getBridge(firm.bridge);
     if (!bridge) return { ok: false, error: "unknown bridge" };
-    const nextAccount = await bridge.deposit(account, payout.amount);
+    let nextAccount: TradingAccount;
+    try {
+        nextAccount = await bridge.deposit(account, payout.amount);
+    } catch {
+        return { ok: false, error: "bridge failed" };
+    }
     const next: Payout = { ...payout, status: "rejected", reason: "admin" };
     await db.transaction(async (tx) => {
         await tx

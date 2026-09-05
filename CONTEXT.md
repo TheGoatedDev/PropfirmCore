@@ -166,7 +166,10 @@ Approve-time check when live available is less than the requested amount. Firm p
 
 **Bridge**:
 Outbound port that withdraws or deposits on the trading account. Loopback does it in this process. HTTP ingest is inbound snapshots and fills, not this.
-_Avoid_: Broker adapter, webhook (the later HTTP adapter)
+_Avoid_: Broker adapter
 
 **Loopback**:
 The default bridge. Applies `applyPayout` here: equity, balance, and daily start move; rules do not run.
+
+**HTTP adapter**:
+Bridge with `provider: "webhook"`. POST `{ action, accountId, amount }` to `bridge.url`, then the same `applyPayout` as loopback. Optional `BRIDGE_WEBHOOK_KEY` as `X-Api-Key`.

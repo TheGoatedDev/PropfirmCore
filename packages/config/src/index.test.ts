@@ -62,6 +62,26 @@ describe("parseFirmConfig", () => {
         expect(cfg.bridge).toEqual({ provider: "loopback" });
     });
 
+    it("rejects webhook bridge without url", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                bridge: { provider: "webhook" },
+            }),
+        ).toThrow();
+    });
+
+    it("parses webhook bridge with url", () => {
+        const cfg = parseFirmConfig({
+            ...valid,
+            bridge: { provider: "webhook", url: "https://bridge.example/hook" },
+        });
+        expect(cfg.bridge).toEqual({
+            provider: "webhook",
+            url: "https://bridge.example/hook",
+        });
+    });
+
     it("rejects unimplemented payout mode", () => {
         expect(() =>
             parseFirmConfig({
