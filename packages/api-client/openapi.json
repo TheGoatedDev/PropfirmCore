@@ -746,79 +746,150 @@
                 "tags": [
                     "Trading Accounts"
                 ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        },
+                        "required": false,
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10
+                        },
+                        "required": false,
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false,
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "id",
+                                "status",
+                                "equity",
+                                "productId",
+                                "userId"
+                            ]
+                        },
+                        "required": false,
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "default": "asc"
+                        },
+                        "required": false,
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "Trading accounts you can see.",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "object",
-                                        "properties": {
-                                            "id": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "userId": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "productId": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "phaseIndex": {
-                                                "type": "integer"
-                                            },
-                                            "status": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "active",
-                                                    "passed",
-                                                    "failed"
+                                    "type": "object",
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "userId": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "productId": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "phaseIndex": {
+                                                        "type": "integer"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "active",
+                                                            "passed",
+                                                            "failed"
+                                                        ]
+                                                    },
+                                                    "startBalance": {
+                                                        "type": "number"
+                                                    },
+                                                    "equity": {
+                                                        "type": "number"
+                                                    },
+                                                    "balance": {
+                                                        "type": "number"
+                                                    },
+                                                    "peakEquity": {
+                                                        "type": "number"
+                                                    },
+                                                    "dailyStartEquity": {
+                                                        "type": "number"
+                                                    },
+                                                    "tradingDayKey": {
+                                                        "type": "string"
+                                                    },
+                                                    "tradingDays": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "userId",
+                                                    "productId",
+                                                    "phaseIndex",
+                                                    "status",
+                                                    "startBalance",
+                                                    "equity",
+                                                    "balance",
+                                                    "peakEquity",
+                                                    "dailyStartEquity",
+                                                    "tradingDayKey",
+                                                    "tradingDays"
                                                 ]
-                                            },
-                                            "startBalance": {
-                                                "type": "number"
-                                            },
-                                            "equity": {
-                                                "type": "number"
-                                            },
-                                            "balance": {
-                                                "type": "number"
-                                            },
-                                            "peakEquity": {
-                                                "type": "number"
-                                            },
-                                            "dailyStartEquity": {
-                                                "type": "number"
-                                            },
-                                            "tradingDayKey": {
-                                                "type": "string"
-                                            },
-                                            "tradingDays": {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string"
-                                                }
                                             }
                                         },
-                                        "required": [
-                                            "id",
-                                            "userId",
-                                            "productId",
-                                            "phaseIndex",
-                                            "status",
-                                            "startBalance",
-                                            "equity",
-                                            "balance",
-                                            "peakEquity",
-                                            "dailyStartEquity",
-                                            "tradingDayKey",
-                                            "tradingDays"
-                                        ]
-                                    }
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "items",
+                                        "total"
+                                    ]
                                 }
                             }
                         }

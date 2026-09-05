@@ -4,19 +4,29 @@ import { tradingAccountSchema } from "@propfirmcore/domain";
 import { eq } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { roleHasPermission } from "../auth/permissions.ts";
-import {
-    type Db,
-    fills,
-    snapshots,
-    tradingAccountFromRow,
-    tradingAccounts,
-} from "../db/db.ts";
+import { type Db, fills, snapshots } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { actorOf } from "../http/session.ts";
-import { forceFailAccount, forcePassAccount, getById } from "./service.ts";
+import {
+    forceFailAccount,
+    forcePassAccount,
+    getById,
+    listAccounts,
+} from "./service.ts";
 
 const idParam = z.object({ id: z.string().min(1) });
+const listQuery = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    pageSize: z.coerce.number().int().min(1).max(100).default(10),
+    q: z.string().optional(),
+    sort: z.enum(["id", "status", "equity", "productId", "userId"]).optional(),
+    order: z.enum(["asc", "desc"]).default("asc"),
+});
+const listSchema = z.object({
+    items: z.array(tradingAccountSchema),
+    total: z.number().int(),
+});
 
 type Deps = { db: Db; firm: FirmConfig; auth: Auth };
 
@@ -61,12 +71,13 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             method: "get",
             path: "/trading-accounts",
             tags: [tags.tradingAccounts],
+            request: { query: listQuery },
             responses: {
                 200: {
                     description: "Trading accounts you can see.",
                     content: {
                         "application/json": {
-                            schema: z.array(tradingAccountSchema),
+                            schema: listSchema,
                         },
                     },
                 },
@@ -81,14 +92,12 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            const who = actorOf(session.user);
-            const rows = roleHasPermission(who.role, "tradingAccount", "list")
-                ? await deps.db.select().from(tradingAccounts)
-                : await deps.db
-                      .select()
-                      .from(tradingAccounts)
-                      .where(eq(tradingAccounts.userId, who.id));
-            return c.json(rows.map(tradingAccountFromRow), 200);
+            const query = c.req.valid("query");
+            const listed = await listAccounts(deps.db, {
+                who: actorOf(session.user),
+                ...query,
+            });
+            return c.json(listed, 200);
         },
     );
 

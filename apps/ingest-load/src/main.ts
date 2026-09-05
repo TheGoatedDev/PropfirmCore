@@ -371,12 +371,25 @@ async function main() {
     let polling = true;
     const poll = (async () => {
         while (polling) {
-            const { data } = await client.GET("/trading-accounts");
+            const { data } = await client.GET("/trading-accounts", {
+                params: { query: { page: 1, pageSize: 100 } },
+            });
             if (data) {
                 status.active = 0;
                 status.passed = 0;
                 status.failed = 0;
-                for (const a of data) status[a.status]++;
+                for (const a of data.items) status[a.status]++;
+                let page = 2;
+                let seen = data.items.length;
+                while (seen < data.total) {
+                    const next = await client.GET("/trading-accounts", {
+                        params: { query: { page, pageSize: 100 } },
+                    });
+                    if (!next.data?.items.length) break;
+                    for (const a of next.data.items) status[a.status]++;
+                    seen += next.data.items.length;
+                    page += 1;
+                }
             }
             await sleep(1000);
         }

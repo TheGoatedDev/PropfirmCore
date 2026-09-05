@@ -358,7 +358,13 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    q?: string;
+                    sort?: "id" | "status" | "equity" | "productId" | "userId";
+                    order?: "asc" | "desc";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -372,20 +378,23 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            id: string;
-                            userId: string;
-                            productId: string;
-                            phaseIndex: number;
-                            /** @enum {string} */
-                            status: "active" | "passed" | "failed";
-                            startBalance: number;
-                            equity: number;
-                            balance: number;
-                            peakEquity: number;
-                            dailyStartEquity: number;
-                            tradingDayKey: string;
-                            tradingDays: string[];
-                        }[];
+                            items: {
+                                id: string;
+                                userId: string;
+                                productId: string;
+                                phaseIndex: number;
+                                /** @enum {string} */
+                                status: "active" | "passed" | "failed";
+                                startBalance: number;
+                                equity: number;
+                                balance: number;
+                                peakEquity: number;
+                                dailyStartEquity: number;
+                                tradingDayKey: string;
+                                tradingDays: string[];
+                            }[];
+                            total: number;
+                        };
                     };
                 };
                 /** @description You are not signed in, or the API key is missing or wrong. */
