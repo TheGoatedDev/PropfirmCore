@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 const traderUrl = "http://localhost:5173";
 
 test("theme toggle sets html class", async ({ page }) => {
-    const email = `t${Date.now()}@example.com`;
+    const email = `t${crypto.randomUUID()}@example.com`;
     await page.goto(`${traderUrl}/signup`);
     await page.getByLabel("Name").fill("Trader");
     await page.getByLabel("Email").fill(email);

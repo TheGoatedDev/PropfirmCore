@@ -4,7 +4,7 @@ const traderUrl = "http://localhost:5173";
 const adminUrl = "http://localhost:5174";
 
 test("trader buys, admin completes", async ({ browser }) => {
-    const email = `t${Date.now()}@example.com`;
+    const email = `t${crypto.randomUUID()}@example.com`;
     const password = "password12";
 
     const trader = await browser.newPage();
