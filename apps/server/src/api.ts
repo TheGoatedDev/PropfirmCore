@@ -6,6 +6,7 @@ import { env } from "./env.ts";
 import { defaultFirmPath, loadFirmFromPath } from "./firm.ts";
 import { createApp } from "./http/app.ts";
 import { connectIngest, natsPublish } from "./ingest/nats.ts";
+import { log } from "./logger.ts";
 
 const { db } = createDb(env.DATABASE_URL);
 await migrate(db);
@@ -32,4 +33,4 @@ const app = createApp({
 });
 
 serve({ fetch: app.fetch, port: env.PORT, hostname: "0.0.0.0" });
-console.log(`api :${env.PORT}`);
+log.info({ port: env.PORT }, "api listening");

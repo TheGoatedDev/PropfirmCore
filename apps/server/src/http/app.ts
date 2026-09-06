@@ -7,6 +7,7 @@ import { mountCheckout } from "../checkout/http.ts";
 import type { Db } from "../db/db.ts";
 import type { IngestPublish } from "../ingest/bus.ts";
 import { mountIngest } from "../ingest/http.ts";
+import { log } from "../logger.ts";
 import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
 import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
@@ -29,6 +30,18 @@ export function createApp(deps: AppDeps) {
             credentials: true,
         }),
     );
+
+    app.use("*", async (c, next) => {
+        if (c.req.path === "/health") return next();
+        const t = performance.now();
+        await next();
+        log.info({
+            method: c.req.method,
+            path: c.req.path,
+            status: c.res.status,
+            ms: Math.round(performance.now() - t),
+        });
+    });
 
     app.openAPIRegistry.registerComponent("securitySchemes", "apiKey", {
         type: "apiKey",

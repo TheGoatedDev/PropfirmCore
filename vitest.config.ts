@@ -9,6 +9,7 @@ export default defineConfig({
             {
                 test: {
                     name: "unit",
+                    env: { LOG_LEVEL: "silent" },
                     exclude: [...exclude, "**/*.int.test.ts"],
                 },
             },

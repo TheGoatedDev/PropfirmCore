@@ -2,6 +2,7 @@ import { AckPolicy, jetstream, jetstreamManager } from "@nats-io/jetstream";
 import { connect } from "@nats-io/transport-node";
 import type { FirmConfig } from "@propfirmcore/config";
 import type { Db } from "../db/db.ts";
+import { log } from "../logger.ts";
 import {
     decodeFills,
     decodeSnapshot,
@@ -63,7 +64,7 @@ export async function runIngestWorker(
     const js = jetstream(nc);
     const consumer = await js.consumers.get(ingestStream, ingestConsumer);
     const messages = await consumer.consume();
-    console.log("worker ready");
+    log.info("worker ready");
     for await (const m of messages) {
         try {
             if (m.subject === ingestSnapshotSubject) {
@@ -75,7 +76,7 @@ export async function runIngestWorker(
             }
             m.ack();
         } catch (e) {
-            console.error(e);
+            log.error({ err: e });
             m.nak();
         }
     }

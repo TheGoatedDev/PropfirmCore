@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { type ApiClient, createApiClient } from "@propfirmcore/api-client";
 import { productSchema } from "@propfirmcore/config";
 import { z } from "zod";
+import { log } from "./logger.ts";
 import {
     addMs,
     type Behavior,
@@ -59,7 +60,7 @@ type WorkerStart = {
 type Progress = { accepted: number; errors: number; inFlight: number };
 
 function die(msg: string): never {
-    console.error(msg);
+    log.error(msg);
     process.exit(1);
 }
 

@@ -19,7 +19,9 @@ No: Next, React Router, Redux, SWR, Webpack, CRA.
 
 ## Backend
 
-Hono, Drizzle, Better Auth.
+Hono, Drizzle, Better Auth, pino.
+
+- pino-pretty when `NODE_ENV !== "production"`. Wrapper, not a stack pick.
 
 No: NestJS, Express, Fastify, Prisma, TypeORM.
 
