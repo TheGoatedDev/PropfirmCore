@@ -9,6 +9,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { log } from "../logger.ts";
 import { getAdapter } from "./adapters.ts";
 
 export function productFee(firm: FirmConfig, productId: string): number | null {
@@ -61,6 +62,12 @@ export async function completePayment(
             .update(payments)
             .set({ status: "paid", tradingAccountId: account.id })
             .where(eq(payments.id, paymentId));
+    });
+    log.info({
+        paymentId,
+        tradingAccountId: account.id,
+        userId: payment.userId,
+        productId: payment.productId,
     });
     return {
         ok: true as const,

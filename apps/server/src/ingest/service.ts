@@ -16,9 +16,24 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { log } from "../logger.ts";
 
 function productOrNull(firm: FirmConfig, productId: string) {
     return firm.products.find((p) => p.id === productId);
+}
+
+function logSettle(account: TradingAccount, next: TradingAccount) {
+    if (
+        next.status === account.status &&
+        next.phaseIndex === account.phaseIndex
+    ) {
+        return;
+    }
+    log.info({
+        accountId: account.id,
+        from: { status: account.status, phaseIndex: account.phaseIndex },
+        to: { status: next.status, phaseIndex: next.phaseIndex },
+    });
 }
 
 export async function ingestSnapshot(
@@ -61,6 +76,7 @@ export async function ingestSnapshot(
             .update(tradingAccounts)
             .set(tradingAccountToRow(next))
             .where(eq(tradingAccounts.id, id));
+        logSettle(account, next);
         return { ok: true, account: next };
     });
 }
@@ -106,6 +122,7 @@ export async function ingestFills(
             .update(tradingAccounts)
             .set(tradingAccountToRow(next))
             .where(eq(tradingAccounts.id, id));
+        logSettle(account, next);
         return { ok: true, account: next };
     });
 }

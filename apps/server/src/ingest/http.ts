@@ -7,6 +7,7 @@ import {
 import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
+import { log } from "../logger.ts";
 import { getById } from "../trading-accounts/service.ts";
 import type { IngestPublish } from "./bus.ts";
 import { requireApiKey } from "./ingest-key.ts";
@@ -104,7 +105,8 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             if (!account) return c.json({ error: "not found" }, 404);
             try {
                 await deps.publish.snapshot({ accountId: id, ...body });
-            } catch {
+            } catch (err) {
+                log.error({ err, accountId: id, kind: "snapshot" });
                 return c.json({ error: "unavailable" }, 503);
             }
             return c.json({ accountId: id, externalId: body.externalId }, 202);
@@ -156,7 +158,8 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             if (!account) return c.json({ error: "not found" }, 404);
             try {
                 await deps.publish.fills({ accountId: id, fills: body.fills });
-            } catch {
+            } catch (err) {
+                log.error({ err, accountId: id, kind: "fills" });
                 return c.json({ error: "unavailable" }, 503);
             }
             return c.json(

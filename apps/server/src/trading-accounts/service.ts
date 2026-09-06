@@ -11,6 +11,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { log } from "../logger.ts";
 
 const sortColumns = {
     id: tradingAccounts.id,
@@ -89,6 +90,7 @@ export async function forceFailAccount(
         .update(tradingAccounts)
         .set(tradingAccountToRow(next))
         .where(eq(tradingAccounts.id, id));
+    log.info({ accountId: id, status: next.status });
     return next;
 }
 
@@ -103,5 +105,6 @@ export async function forcePassAccount(
         .update(tradingAccounts)
         .set(tradingAccountToRow(next))
         .where(eq(tradingAccounts.id, id));
+    log.info({ accountId: id, status: next.status });
     return next;
 }

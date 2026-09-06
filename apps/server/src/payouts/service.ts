@@ -14,6 +14,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { log } from "../logger.ts";
 import { getBridge } from "./adapters.ts";
 
 type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
@@ -107,6 +108,12 @@ export async function requestPayout(
         reason: null,
     };
     await db.insert(payouts).values(payout);
+    log.info({
+        payoutId: payout.id,
+        tradingAccountId: payout.tradingAccountId,
+        amount: payout.amount,
+        status: payout.status,
+    });
     return { ok: true, payout, tradingAccount: account };
 }
 
@@ -140,6 +147,13 @@ export async function approvePayout(
                     .update(payouts)
                     .set({ status: "rejected", reason: "uncoverable" })
                     .where(eq(payouts.id, payoutId));
+                log.info({
+                    payoutId,
+                    tradingAccountId: payout.tradingAccountId,
+                    amount: payout.amount,
+                    status: "rejected",
+                    reason: "uncoverable",
+                });
                 return { ok: true, payout: rejected, tradingAccount: account };
             }
             return { ok: false, error: "uncoverable" };
@@ -147,7 +161,8 @@ export async function approvePayout(
         let nextAccount: TradingAccount;
         try {
             nextAccount = await bridge.withdraw(account, payout.amount);
-        } catch {
+        } catch (err) {
+            log.error({ err, payoutId });
             return { ok: false, error: "bridge failed" };
         }
         const nextPayout: Payout = {
@@ -163,6 +178,12 @@ export async function approvePayout(
             .update(tradingAccounts)
             .set(tradingAccountToRow(nextAccount))
             .where(eq(tradingAccounts.id, account.id));
+        log.info({
+            payoutId,
+            tradingAccountId: payout.tradingAccountId,
+            amount: payout.amount,
+            status: "approved",
+        });
         return { ok: true, payout: nextPayout, tradingAccount: nextAccount };
     });
 }
@@ -193,6 +214,13 @@ export async function rejectPayout(
                 .set({ status: "rejected", reason: "admin" })
                 .where(eq(payouts.id, payoutId));
             const account = await loadAccount(tx, payout.tradingAccountId);
+            log.info({
+                payoutId,
+                tradingAccountId: payout.tradingAccountId,
+                amount: payout.amount,
+                status: "rejected",
+                reason: "admin",
+            });
             return { ok: true, payout: next, tradingAccount: account };
         }
         const account = await loadAccount(tx, payout.tradingAccountId, true);
@@ -202,7 +230,8 @@ export async function rejectPayout(
         let nextAccount: TradingAccount;
         try {
             nextAccount = await bridge.deposit(account, payout.amount);
-        } catch {
+        } catch (err) {
+            log.error({ err, payoutId });
             return { ok: false, error: "bridge failed" };
         }
         const next: Payout = { ...payout, status: "rejected", reason: "admin" };
@@ -214,6 +243,13 @@ export async function rejectPayout(
             .update(tradingAccounts)
             .set(tradingAccountToRow(nextAccount))
             .where(eq(tradingAccounts.id, account.id));
+        log.info({
+            payoutId,
+            tradingAccountId: payout.tradingAccountId,
+            amount: payout.amount,
+            status: "rejected",
+            reason: "admin",
+        });
         return { ok: true, payout: next, tradingAccount: nextAccount };
     });
 }
@@ -241,5 +277,11 @@ export async function markPayoutPaid(
         .set({ status: "paid" })
         .where(eq(payouts.id, payoutId));
     const account = await loadAccount(db, payout.tradingAccountId);
+    log.info({
+        payoutId,
+        tradingAccountId: payout.tradingAccountId,
+        amount: payout.amount,
+        status: "paid",
+    });
     return { ok: true, payout: next, tradingAccount: account };
 }
