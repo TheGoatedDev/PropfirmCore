@@ -16,6 +16,9 @@ import {
 } from "../db/db.ts";
 import { getBridge } from "./adapters.ts";
 
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+type Exec = Db | Tx;
+
 export function productPayout(firm: FirmConfig, productId: string) {
     return firm.products.find((p) => p.id === productId)?.payout;
 }
@@ -27,16 +30,33 @@ type Ok = {
 };
 type Err = { ok: false; error: string };
 
-async function loadAccount(db: Db, id: string) {
-    const rows = await db
-        .select()
-        .from(tradingAccounts)
-        .where(eq(tradingAccounts.id, id))
-        .limit(1);
+async function loadAccount(db: Exec, id: string, lock = false) {
+    const rows = lock
+        ? await db
+              .select()
+              .from(tradingAccounts)
+              .where(eq(tradingAccounts.id, id))
+              .for("update")
+              .limit(1)
+        : await db
+              .select()
+              .from(tradingAccounts)
+              .where(eq(tradingAccounts.id, id))
+              .limit(1);
     return rows[0] ? tradingAccountFromRow(rows[0]) : null;
 }
 
-async function loadOpen(db: Db, tradingAccountId: string) {
+async function lockPayout(db: Exec, id: string) {
+    const rows = await db
+        .select()
+        .from(payouts)
+        .where(eq(payouts.id, id))
+        .for("update")
+        .limit(1);
+    return rows[0];
+}
+
+async function loadOpen(db: Exec, tradingAccountId: string) {
     return db
         .select()
         .from(payouts)
@@ -95,45 +115,46 @@ export async function approvePayout(
     firm: FirmConfig,
     payoutId: string,
 ): Promise<Ok | Err> {
-    const rows = await db
-        .select()
-        .from(payouts)
-        .where(eq(payouts.id, payoutId))
-        .limit(1);
-    const payout = rows[0];
-    if (!payout) return { ok: false, error: "not found" };
-    if (payout.status !== "pending") return { ok: false, error: "not pending" };
-    const account = await loadAccount(db, payout.tradingAccountId);
-    if (!account) return { ok: false, error: "not found" };
-    const product = firm.products.find((p) => p.id === account.productId);
-    if (!product) return { ok: false, error: "unknown product" };
     const bridge = getBridge(firm.bridge);
     if (!bridge) return { ok: false, error: "unknown bridge" };
-    const open = await loadOpen(db, account.id);
-    const available = availableFor(account, firm, open, payout.id);
-    if (payout.amount > available) {
-        if (onUncoverableFor(firm, product) === "autoReject") {
-            const rejected: Payout = {
-                ...payout,
-                status: "rejected",
-                reason: "uncoverable",
-            };
-            await db
-                .update(payouts)
-                .set({ status: "rejected", reason: "uncoverable" })
-                .where(eq(payouts.id, payoutId));
-            return { ok: true, payout: rejected, tradingAccount: account };
+    // ponytail: row lock held during bridge HTTP, outbox/NAK if payout volume hurts
+    return db.transaction(async (tx) => {
+        const payout = await lockPayout(tx, payoutId);
+        if (!payout) return { ok: false, error: "not found" };
+        if (payout.status !== "pending")
+            return { ok: false, error: "not pending" };
+        const account = await loadAccount(tx, payout.tradingAccountId, true);
+        if (!account) return { ok: false, error: "not found" };
+        const product = firm.products.find((p) => p.id === account.productId);
+        if (!product) return { ok: false, error: "unknown product" };
+        const open = await loadOpen(tx, account.id);
+        const available = availableFor(account, firm, open, payout.id);
+        if (payout.amount > available) {
+            if (onUncoverableFor(firm, product) === "autoReject") {
+                const rejected: Payout = {
+                    ...payout,
+                    status: "rejected",
+                    reason: "uncoverable",
+                };
+                await tx
+                    .update(payouts)
+                    .set({ status: "rejected", reason: "uncoverable" })
+                    .where(eq(payouts.id, payoutId));
+                return { ok: true, payout: rejected, tradingAccount: account };
+            }
+            return { ok: false, error: "uncoverable" };
         }
-        return { ok: false, error: "uncoverable" };
-    }
-    let nextAccount: TradingAccount;
-    try {
-        nextAccount = await bridge.withdraw(account, payout.amount);
-    } catch {
-        return { ok: false, error: "bridge failed" };
-    }
-    const nextPayout: Payout = { ...payout, status: "approved", reason: null };
-    await db.transaction(async (tx) => {
+        let nextAccount: TradingAccount;
+        try {
+            nextAccount = await bridge.withdraw(account, payout.amount);
+        } catch {
+            return { ok: false, error: "bridge failed" };
+        }
+        const nextPayout: Payout = {
+            ...payout,
+            status: "approved",
+            reason: null,
+        };
         await tx
             .update(payouts)
             .set({ status: "approved", reason: null })
@@ -142,8 +163,8 @@ export async function approvePayout(
             .update(tradingAccounts)
             .set(tradingAccountToRow(nextAccount))
             .where(eq(tradingAccounts.id, account.id));
+        return { ok: true, payout: nextPayout, tradingAccount: nextAccount };
     });
-    return { ok: true, payout: nextPayout, tradingAccount: nextAccount };
 }
 
 export async function rejectPayout(
@@ -151,39 +172,40 @@ export async function rejectPayout(
     firm: FirmConfig,
     payoutId: string,
 ): Promise<Ok | Err> {
-    const rows = await db
-        .select()
-        .from(payouts)
-        .where(eq(payouts.id, payoutId))
-        .limit(1);
-    const payout = rows[0];
-    if (!payout) return { ok: false, error: "not found" };
-    if (payout.status === "paid") return { ok: false, error: "already paid" };
-    if (payout.status === "rejected") {
-        const account = await loadAccount(db, payout.tradingAccountId);
-        return { ok: true, payout, tradingAccount: account };
-    }
-    if (payout.status === "pending") {
+    // ponytail: row lock held during bridge HTTP, outbox/NAK if payout volume hurts
+    return db.transaction(async (tx) => {
+        const payout = await lockPayout(tx, payoutId);
+        if (!payout) return { ok: false, error: "not found" };
+        if (payout.status === "paid")
+            return { ok: false, error: "already paid" };
+        if (payout.status === "rejected") {
+            const account = await loadAccount(tx, payout.tradingAccountId);
+            return { ok: true, payout, tradingAccount: account };
+        }
+        if (payout.status === "pending") {
+            const next: Payout = {
+                ...payout,
+                status: "rejected",
+                reason: "admin",
+            };
+            await tx
+                .update(payouts)
+                .set({ status: "rejected", reason: "admin" })
+                .where(eq(payouts.id, payoutId));
+            const account = await loadAccount(tx, payout.tradingAccountId);
+            return { ok: true, payout: next, tradingAccount: account };
+        }
+        const account = await loadAccount(tx, payout.tradingAccountId, true);
+        if (!account) return { ok: false, error: "not found" };
+        const bridge = getBridge(firm.bridge);
+        if (!bridge) return { ok: false, error: "unknown bridge" };
+        let nextAccount: TradingAccount;
+        try {
+            nextAccount = await bridge.deposit(account, payout.amount);
+        } catch {
+            return { ok: false, error: "bridge failed" };
+        }
         const next: Payout = { ...payout, status: "rejected", reason: "admin" };
-        await db
-            .update(payouts)
-            .set({ status: "rejected", reason: "admin" })
-            .where(eq(payouts.id, payoutId));
-        const account = await loadAccount(db, payout.tradingAccountId);
-        return { ok: true, payout: next, tradingAccount: account };
-    }
-    const account = await loadAccount(db, payout.tradingAccountId);
-    if (!account) return { ok: false, error: "not found" };
-    const bridge = getBridge(firm.bridge);
-    if (!bridge) return { ok: false, error: "unknown bridge" };
-    let nextAccount: TradingAccount;
-    try {
-        nextAccount = await bridge.deposit(account, payout.amount);
-    } catch {
-        return { ok: false, error: "bridge failed" };
-    }
-    const next: Payout = { ...payout, status: "rejected", reason: "admin" };
-    await db.transaction(async (tx) => {
         await tx
             .update(payouts)
             .set({ status: "rejected", reason: "admin" })
@@ -192,8 +214,8 @@ export async function rejectPayout(
             .update(tradingAccounts)
             .set(tradingAccountToRow(nextAccount))
             .where(eq(tradingAccounts.id, account.id));
+        return { ok: true, payout: next, tradingAccount: nextAccount };
     });
-    return { ok: true, payout: next, tradingAccount: nextAccount };
 }
 
 export async function markPayoutPaid(
