@@ -9,6 +9,7 @@ import {
     onFundedPhase,
     openTradingAccount,
 } from "./engine.ts";
+import { applyPayout } from "./payout.ts";
 import type { Fill, Snapshot } from "./schemas.ts";
 
 const dailyClose: DailyClose = { tz: "America/New_York", time: "17:00" };
@@ -185,6 +186,46 @@ describe("engine", () => {
         );
         expect(onFundedPhase(funded, twoStep)).toBe(true);
         expect(onFundedPhase(funded, oneStep)).toBe(false);
+    });
+
+    it("net snapshot without applyPayout fails daily dd", () => {
+        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
+        const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
+        const peak = applySnapshot(
+            rich,
+            snap(53_000, "2026-01-15T22:00:00.000Z"),
+            twoStep,
+            dailyClose,
+        );
+        const next = applySnapshot(
+            peak,
+            snap(50_600, "2026-01-15T22:00:00.000Z"),
+            twoStep,
+            dailyClose,
+        );
+        expect(next.status).toBe("failed");
+    });
+
+    it("applyPayout then net snapshot stays active", () => {
+        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
+        const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
+        const peak = applySnapshot(
+            rich,
+            snap(53_000, "2026-01-15T22:00:00.000Z"),
+            twoStep,
+            dailyClose,
+        );
+        const debited = applyPayout(peak, 2400);
+        const next = applySnapshot(
+            debited,
+            snap(50_600, "2026-01-15T22:00:00.000Z"),
+            twoStep,
+            dailyClose,
+        );
+        expect(next.status).toBe("active");
+        expect(next.dailyStartEquity).toBe(50_600);
     });
 
     it("force fail and pass", () => {
