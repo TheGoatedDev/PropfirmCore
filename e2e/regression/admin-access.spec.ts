@@ -9,18 +9,16 @@ test("trader cannot use admin", async ({ browser }) => {
 
     const trader = await browser.newPage();
     await trader.goto(`${traderUrl}/signup`);
-    await trader.getByLabel("Name").fill("Trader");
-    await trader.getByLabel("Email").fill(email);
-    await trader.getByLabel("Password").fill(password);
-    await trader.getByRole("button", { name: "Sign up" }).click();
-    await expect(
-        trader.getByRole("heading", { name: "Products" }),
-    ).toBeVisible();
+    await trader.getByTestId("sign-up-name").fill("Trader");
+    await trader.getByTestId("sign-up-email").fill(email);
+    await trader.getByTestId("sign-up-password").fill(password);
+    await trader.getByTestId("sign-up-submit").click();
+    await expect(trader.getByTestId("products-heading")).toBeVisible();
 
     const admin = await browser.newPage();
     await admin.goto(`${adminUrl}/signin`);
-    await admin.getByLabel("Email").fill(email);
-    await admin.getByLabel("Password").fill(password);
-    await admin.getByRole("button", { name: "Sign in" }).click();
-    await expect(admin.getByText("not admin")).toBeVisible();
+    await admin.getByTestId("sign-in-email").fill(email);
+    await admin.getByTestId("sign-in-password").fill(password);
+    await admin.getByTestId("sign-in-submit").click();
+    await expect(admin.getByTestId("guest-not-admin")).toBeVisible();
 });

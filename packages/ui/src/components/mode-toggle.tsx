@@ -19,6 +19,7 @@ export function ModeToggle() {
                         variant="outline"
                         size="icon"
                         className="relative"
+                        data-testid="theme-toggle"
                     />
                 }
             >
@@ -27,13 +28,22 @@ export function ModeToggle() {
                 <span className="sr-only">Toggle theme</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem
+                    data-testid="theme-light"
+                    onClick={() => setTheme("light")}
+                >
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem
+                    data-testid="theme-dark"
+                    onClick={() => setTheme("dark")}
+                >
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem
+                    data-testid="theme-system"
+                    onClick={() => setTheme("system")}
+                >
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>

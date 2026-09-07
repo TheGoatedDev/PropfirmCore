@@ -159,6 +159,9 @@ function AccountDetail({ id }: { id: string }) {
                     <p>Status: {acc.status}</p>
                     <p>Equity: {acc.equity}</p>
                     <p>Balance: {acc.balance}</p>
+                    <p>Broker: {acc.brokerId}</p>
+                    <p>Login: {acc.brokerLogin}</p>
+                    <p>Password: {acc.brokerPassword}</p>
                 </CardContent>
             </Card>
             {funded ? (

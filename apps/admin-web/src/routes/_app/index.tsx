@@ -35,7 +35,12 @@ import { z } from "zod";
 import { api, failMsg, keys } from "../../api.ts";
 import { useUi } from "../../stores/ui.ts";
 
-type Account = { id: string; userId: string; status: string };
+type Account = {
+    id: string;
+    userId: string;
+    status: string;
+    brokerId: string;
+};
 
 const col = createDataTableColumnHelper<Account>();
 const sortIds = ["id", "status", "equity", "productId", "userId"] as const;
@@ -182,9 +187,16 @@ function AdminHome() {
                 >
                     <div className="space-y-1">
                         <Label htmlFor="paymentId">Payment ID</Label>
-                        <Input id="paymentId" name="paymentId" required />
+                        <Input
+                            id="paymentId"
+                            name="paymentId"
+                            data-testid="payment-complete-id"
+                            required
+                        />
                     </div>
-                    <Button type="submit">Complete</Button>
+                    <Button type="submit" data-testid="payment-complete-submit">
+                        Complete
+                    </Button>
                 </form>
             </section>
             <section>
@@ -254,7 +266,12 @@ function AdminHome() {
                 </Table>
             </section>
             <section>
-                <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>
+                <h2
+                    className="mb-3 text-lg font-medium"
+                    data-testid="accounts-heading"
+                >
+                    Trading accounts
+                </h2>
                 <DataTable
                     columns={col.columns([
                         col.accessor("id", {
@@ -273,6 +290,14 @@ function AdminHome() {
                                 />
                             ),
                         }),
+                        col.accessor("brokerId", {
+                            header: ({ column }) => (
+                                <DataTableColumnHeader
+                                    column={column}
+                                    title="Broker"
+                                />
+                            ),
+                        }),
                         col.accessor("status", {
                             header: ({ column }) => (
                                 <DataTableColumnHeader
@@ -281,7 +306,9 @@ function AdminHome() {
                                 />
                             ),
                             cell: ({ row }) => (
-                                <Badge>{row.original.status}</Badge>
+                                <Badge data-testid="account-status">
+                                    {row.original.status}
+                                </Badge>
                             ),
                         }),
                         col.display({

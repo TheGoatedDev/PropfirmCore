@@ -19,7 +19,7 @@ export const Route = createFileRoute("/_app")({
             queryFn: fetchMe,
             staleTime: "static",
         });
-        if (!me || me.role !== "admin") throw redirect({ to: "/signin" });
+        if (me?.role !== "admin") throw redirect({ to: "/signin" });
         return { me };
     },
     pendingComponent: Pending,

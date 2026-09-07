@@ -56,7 +56,13 @@ function SignIn() {
                 <form className="space-y-3" onSubmit={(e) => void submit(e)}>
                     <div className="space-y-1">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" required />
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            data-testid="sign-in-email"
+                            required
+                        />
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="password">Password</Label>
@@ -64,10 +70,13 @@ function SignIn() {
                             id="password"
                             name="password"
                             type="password"
+                            data-testid="sign-in-password"
                             required
                         />
                     </div>
-                    <Button type="submit">Sign in</Button>
+                    <Button type="submit" data-testid="sign-in-submit">
+                        Sign in
+                    </Button>
                 </form>
             </CardContent>
         </Card>

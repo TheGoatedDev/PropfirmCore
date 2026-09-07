@@ -96,6 +96,7 @@ export function DataTable<TData extends RowData>({
                     value={filter}
                     onChange={(event) => onFilterChange(event.target.value)}
                     className="max-w-sm"
+                    data-testid="table-filter"
                 />
             </div>
             <div className="overflow-hidden rounded-md border">
@@ -142,7 +143,9 @@ export function DataTable<TData extends RowData>({
                                     colSpan={columns.length}
                                     className="h-24 text-center"
                                 >
-                                    No results.
+                                    <span data-testid="table-empty">
+                                        No results.
+                                    </span>
                                 </TableCell>
                             </TableRow>
                         )}
@@ -150,7 +153,10 @@ export function DataTable<TData extends RowData>({
                 </Table>
             </div>
             <div className="flex items-center justify-end space-x-2 py-4">
-                <span className="text-muted-foreground text-sm">
+                <span
+                    className="text-muted-foreground text-sm"
+                    data-testid="table-page"
+                >
                     Page {pagination.pageIndex + 1} of{" "}
                     {Math.max(table.getPageCount(), 1)}
                 </span>
@@ -159,6 +165,7 @@ export function DataTable<TData extends RowData>({
                     size="sm"
                     onClick={() => table.previousPage()}
                     disabled={!table.getCanPreviousPage()}
+                    data-testid="table-prev"
                 >
                     Previous
                 </Button>
@@ -167,6 +174,7 @@ export function DataTable<TData extends RowData>({
                     size="sm"
                     onClick={() => table.nextPage()}
                     disabled={!table.getCanNextPage()}
+                    data-testid="table-next"
                 >
                     Next
                 </Button>

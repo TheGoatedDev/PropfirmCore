@@ -38,6 +38,15 @@ No: API-only, worker settle.
 
 Rule: **no `page.goto` → not e2e.**
 
+### E2E locators
+
+Stable hook is `data-testid`. Playwright: `page.getByTestId("…")`.
+
+- kebab-case. Repeat rows: entity or index — `broker-id-{i}`, `product-broker-{productIndex}-{brokerId}`.
+- No CSS `#id`, `[id^=]`, `label[for=]`, or `locator("..")` parent walks.
+- Unique copy (`getByRole("heading")`) is OK only when not acting on a control. Fields, buttons, checkboxes, row actions = testid.
+- Put the testid on the node the test clicks or fills, not a wrapper Base UI hides (`aria-hidden` checkbox).
+
 Runner: Playwright. `pnpm test:e2e` boots postgres+NATS (Testcontainers) then API+worker+SPAs. Docker required. `smoke` = golden path (signup → buy 50k → admin complete → active). `regression` = other UI.
 
 `pnpm test` = unit then int then e2e.

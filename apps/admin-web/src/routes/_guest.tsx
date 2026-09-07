@@ -24,7 +24,7 @@ function Pending() {
 function Guest() {
     const { me } = Route.useRouteContext();
     const error = useUi((s) => s.error);
-    if (me) return <p>not admin</p>;
+    if (me) return <p data-testid="guest-not-admin">not admin</p>;
     return (
         <div className="min-h-svh space-y-6 p-6">
             {error ? (

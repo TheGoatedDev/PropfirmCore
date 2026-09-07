@@ -9,19 +9,13 @@ test("trader buys, admin completes", async ({ browser }) => {
 
     const trader = await browser.newPage();
     await trader.goto(`${traderUrl}/signup`);
-    await trader.getByLabel("Name").fill("Trader");
-    await trader.getByLabel("Email").fill(email);
-    await trader.getByLabel("Password").fill(password);
-    await trader.getByRole("button", { name: "Sign up" }).click();
-    await expect(
-        trader.getByRole("heading", { name: "Products" }),
-    ).toBeVisible();
-    await trader
-        .getByText("50k one-step", { exact: true })
-        .locator("..")
-        .getByRole("button", { name: "Buy" })
-        .click();
-    const payment = trader.getByText(/^Payment ID:/);
+    await trader.getByTestId("sign-up-name").fill("Trader");
+    await trader.getByTestId("sign-up-email").fill(email);
+    await trader.getByTestId("sign-up-password").fill(password);
+    await trader.getByTestId("sign-up-submit").click();
+    await expect(trader.getByTestId("products-heading")).toBeVisible();
+    await trader.getByTestId("product-buy-50k").click();
+    const payment = trader.getByTestId("payment-id");
     await expect(payment).toBeVisible();
     const paymentId = (await payment.textContent())
         ?.replace("Payment ID:", "")
@@ -30,16 +24,18 @@ test("trader buys, admin completes", async ({ browser }) => {
 
     const admin = await browser.newPage();
     await admin.goto(`${adminUrl}/signin`);
-    await admin.getByLabel("Email").fill("admin@example.com");
-    await admin.getByLabel("Password").fill("changeme");
-    await admin.getByRole("button", { name: "Sign in" }).click();
-    await expect(
-        admin.getByRole("heading", { name: "Trading accounts" }),
-    ).toBeVisible();
-    await admin.getByLabel("Payment ID").fill(paymentId ?? "");
-    await admin.getByRole("button", { name: "Complete" }).click();
-    await expect(admin.getByText("active").first()).toBeVisible();
+    await admin.getByTestId("sign-in-email").fill("admin@example.com");
+    await admin.getByTestId("sign-in-password").fill("changeme");
+    await admin.getByTestId("sign-in-submit").click();
+    await expect(admin.getByTestId("accounts-heading")).toBeVisible();
+    await admin.getByTestId("payment-complete-id").fill(paymentId ?? "");
+    await admin.getByTestId("payment-complete-submit").click();
+    await expect(admin.getByTestId("account-status").first()).toHaveText(
+        "active",
+    );
 
     await trader.reload();
-    await expect(trader.getByText("active").first()).toBeVisible();
+    await expect(trader.getByTestId("account-status").first()).toHaveText(
+        "active",
+    );
 });

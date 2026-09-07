@@ -33,7 +33,11 @@ const accountSearch = {
     order: parseAsStringLiteral(["asc", "desc"]),
 };
 
-type Product = { id: string; name: string };
+type Product = {
+    id: string;
+    name: string;
+    brokers: { id: string; name: string }[];
+};
 type Account = {
     id: string;
     productId: string;
@@ -57,7 +61,9 @@ const columns = col.columns([
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Status" />
         ),
-        cell: ({ row }) => <Badge>{row.original.status}</Badge>,
+        cell: ({ row }) => (
+            <Badge data-testid="account-status">{row.original.status}</Badge>
+        ),
     }),
     col.accessor("equity", {
         header: ({ column }) => (
@@ -125,9 +131,10 @@ function Dashboard() {
     });
 
     const buy = useMutation({
-        mutationFn: async (id: string) => {
+        mutationFn: async (input: { id: string; brokerId: string }) => {
             const { data, error } = await api.POST("/products/{id}/buy", {
-                params: { path: { id } },
+                params: { path: { id: input.id } },
+                body: { brokerId: input.brokerId },
             });
             if (error) throw error;
             return data;
@@ -144,28 +151,64 @@ function Dashboard() {
     return (
         <>
             <section>
-                <h2 className="mb-3 text-lg font-medium">Products</h2>
-                {paymentId ? <p>Payment ID: {paymentId}</p> : null}
+                <h2
+                    className="mb-3 text-lg font-medium"
+                    data-testid="products-heading"
+                >
+                    Products
+                </h2>
+                {paymentId ? (
+                    <p data-testid="payment-id">Payment ID: {paymentId}</p>
+                ) : null}
                 <div className="space-y-3">
                     {(products.data ?? []).map((p) => (
                         <Card key={p.id}>
-                            <CardHeader className="flex flex-row items-center justify-between">
+                            <CardHeader className="flex flex-row items-center justify-between gap-3">
                                 <CardTitle>{p.name}</CardTitle>
-                                <Button
-                                    onClick={() => {
+                                <form
+                                    className="flex items-center gap-2"
+                                    onSubmit={(e) => {
+                                        e.preventDefault();
+                                        const brokerId = String(
+                                            new FormData(e.currentTarget).get(
+                                                "brokerId",
+                                            ) ?? "",
+                                        );
                                         setError(null);
-                                        buy.mutate(p.id);
+                                        buy.mutate({ id: p.id, brokerId });
                                     }}
                                 >
-                                    Buy
-                                </Button>
+                                    <select
+                                        name="brokerId"
+                                        aria-label="Broker"
+                                        className="border px-2 py-1 text-sm"
+                                        required
+                                    >
+                                        {p.brokers.map((b) => (
+                                            <option key={b.id} value={b.id}>
+                                                {b.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <Button
+                                        type="submit"
+                                        data-testid={`product-buy-${p.id}`}
+                                    >
+                                        Buy
+                                    </Button>
+                                </form>
                             </CardHeader>
                         </Card>
                     ))}
                 </div>
             </section>
             <section>
-                <h2 className="mb-3 text-lg font-medium">Trading accounts</h2>
+                <h2
+                    className="mb-3 text-lg font-medium"
+                    data-testid="accounts-heading"
+                >
+                    Trading accounts
+                </h2>
                 <DataTable
                     columns={columns}
                     data={accounts.data?.items ?? []}

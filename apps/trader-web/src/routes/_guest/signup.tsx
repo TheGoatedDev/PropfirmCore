@@ -58,11 +58,22 @@ function Signup() {
                 <form className="space-y-3" onSubmit={(e) => void submit(e)}>
                     <div className="space-y-1">
                         <Label htmlFor="name">Name</Label>
-                        <Input id="name" name="name" required />
+                        <Input
+                            id="name"
+                            name="name"
+                            data-testid="sign-up-name"
+                            required
+                        />
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="email">Email</Label>
-                        <Input id="email" name="email" type="email" required />
+                        <Input
+                            id="email"
+                            name="email"
+                            type="email"
+                            data-testid="sign-up-email"
+                            required
+                        />
                     </div>
                     <div className="space-y-1">
                         <Label htmlFor="password">Password</Label>
@@ -70,10 +81,13 @@ function Signup() {
                             id="password"
                             name="password"
                             type="password"
+                            data-testid="sign-up-password"
                             required
                         />
                     </div>
-                    <Button type="submit">Sign up</Button>
+                    <Button type="submit" data-testid="sign-up-submit">
+                        Sign up
+                    </Button>
                 </form>
                 <p className="mt-3 text-sm">
                     <Link to="/signin" className="underline">
