@@ -14,6 +14,8 @@ React, Vite, TanStack Router, TanStack Query, Zustand, nuqs, Tailwind.
 - TanStack Query: server cache. Wrap the existing API client. Do not add another HTTP layer.
 - Zustand: client UI state only.
 - nuqs: URL search params. `NuqsAdapter` from `nuqs/adapters/tanstack-router` on the root route.
+- React Hook Form + `@hookform/resolvers` (zod) for nested/complex forms. Pair with shadcn form fields in `@propfirmcore/ui`. Not for server cache.
+- No Formik, Final Form, or extra form libs.
 
 No: Next, React Router, Redux, SWR, Webpack, CRA.
 
