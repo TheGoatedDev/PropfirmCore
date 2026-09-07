@@ -6,32 +6,34 @@ export const statement = {
     payment: ["complete", "read"],
     tradingAccount: ["read", "list", "fail", "pass"],
     payout: ["read", "list", "approve", "reject", "pay"],
+    firm: ["read", "write"],
 } as const;
 
 export const ac = createAccessControl(statement);
 
 export const trader = ac.newRole({});
 
-export const admin = ac.newRole({
+const staff = {
     ...adminAc.statements,
     payment: ["complete", "read"],
     tradingAccount: ["read", "list", "fail", "pass"],
     payout: ["read", "list", "approve", "reject", "pay"],
-});
+    firm: ["read", "write"],
+} as const;
 
-export const roles = { trader, admin };
+export const admin = ac.newRole(staff);
+
+export const operator = ac.newRole(staff);
+
+export const roles = { trader, admin, operator };
 
 export const roleStatements: Record<
     string,
     Record<string, readonly string[]>
 > = {
     trader: {},
-    admin: {
-        ...adminAc.statements,
-        payment: ["complete", "read"],
-        tradingAccount: ["read", "list", "fail", "pass"],
-        payout: ["read", "list", "approve", "reject", "pay"],
-    },
+    admin: staff,
+    operator: staff,
 };
 
 export function roleHasPermission(

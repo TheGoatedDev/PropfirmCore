@@ -15,11 +15,14 @@ const firm = loadFirmConfig(
 const auth = createAuth({} as Db, {
     secret: "export-openapi-secret-32-chars-min",
     baseURL: "http://localhost:3000",
+    liveFirmId: () => firm.id,
 });
 
+const ingestKeys = { loopback: "export" };
 const app = createApp({
-    apiKey: "export",
+    ingestKeys,
     firm,
+    holder: { current: firm, ingestKeys },
     db: {} as Db,
     auth,
     publish: noopIngestPublish,

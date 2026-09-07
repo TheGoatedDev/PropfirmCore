@@ -1,4 +1,5 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import type { FirmConfig } from "@propfirmcore/config";
 import {
     fillSchema,
     snapshotSchema,
@@ -8,9 +9,10 @@ import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { log } from "../logger.ts";
+import { fillsFrozenForAccount } from "../payouts/service.ts";
 import { getById } from "../trading-accounts/service.ts";
 import type { IngestPublish } from "./bus.ts";
-import { requireApiKey } from "./ingest-key.ts";
+import { matchIngestKey, requireIngestKey } from "./ingest-key.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 const idParam = z.object({ id: z.string().min(1) });
@@ -23,10 +25,15 @@ const fillsAccepted = z.object({
     externalIds: z.array(z.string()),
 });
 
-type Deps = { apiKey: string; db: Db; publish: IngestPublish };
+type Deps = {
+    ingestKeys: Record<string, string>;
+    db: Db;
+    firm: FirmConfig;
+    publish: IngestPublish;
+};
 
 export function mountIngest(app: OpenAPIHono, deps: Deps) {
-    app.use("/ingest/*", requireApiKey(deps.apiKey));
+    app.use("/ingest/*", requireIngestKey(deps.ingestKeys));
 
     app.openapi(
         createRoute({
@@ -55,7 +62,13 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
         async (c) => {
             const { id } = c.req.valid("param");
             const account = await getById(deps.db, id);
-            if (!account) return c.json({ error: "not found" }, 404);
+            if (
+                !account ||
+                account.brokerId !==
+                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+            ) {
+                return c.json({ error: "not found" }, 404);
+            }
             return c.json(account, 200);
         },
     );
@@ -102,7 +115,13 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             const { id } = c.req.valid("param");
             const body = c.req.valid("json");
             const account = await getById(deps.db, id);
-            if (!account) return c.json({ error: "not found" }, 404);
+            if (
+                !account ||
+                account.brokerId !==
+                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+            ) {
+                return c.json({ error: "not found" }, 404);
+            }
             try {
                 await deps.publish.snapshot({ accountId: id, ...body });
             } catch (err) {
@@ -145,6 +164,10 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                409: {
+                    description: httpDesc.conflict,
+                    content: { "application/json": { schema: errorSchema } },
+                },
                 503: {
                     description: httpDesc.unavailable,
                     content: { "application/json": { schema: errorSchema } },
@@ -155,7 +178,16 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             const { id } = c.req.valid("param");
             const body = c.req.valid("json");
             const account = await getById(deps.db, id);
-            if (!account) return c.json({ error: "not found" }, 404);
+            if (
+                !account ||
+                account.brokerId !==
+                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+            ) {
+                return c.json({ error: "not found" }, 404);
+            }
+            if (await fillsFrozenForAccount(deps.db, deps.firm, account)) {
+                return c.json({ error: "frozen" }, 409);
+            }
             try {
                 await deps.publish.fills({ accountId: id, fills: body.fills });
             } catch (err) {

@@ -17,6 +17,7 @@
         "test:int": "vitest run --project int",
         "test:e2e": "playwright test",
         "ingest-load": "pnpm --filter @propfirmcore/ingest-load start",
+        "mock-broker": "pnpm --filter @propfirmcore/mock-broker-app start",
         "lint": "biome check .",
         "format": "biome check --write .",
         "actionlint": "actionlint",

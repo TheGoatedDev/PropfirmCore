@@ -24,9 +24,11 @@ const firm = loadFirmConfig(
 );
 
 function app() {
+    const ingestKeys = { loopback: "secret" };
     return createApp({
-        apiKey: "secret",
+        ingestKeys,
         firm,
+        holder: { current: firm, ingestKeys },
         db: {} as Db,
         auth,
         publish: noopIngestPublish,
@@ -95,6 +97,7 @@ describe("api", () => {
         expect(spec.paths["/payouts"]).toBeTruthy();
         expect(spec.paths["/payouts/{id}/approve"]).toBeTruthy();
         expect(spec.paths["/products"]).toBeTruthy();
+        expect(spec.paths["/firm"]).toBeTruthy();
         expect(spec.paths["/auth/me"]).toBeTruthy();
         expect(spec.paths["/me"]).toBeUndefined();
         expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();

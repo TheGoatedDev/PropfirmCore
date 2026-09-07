@@ -1,6 +1,11 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+    onUncoverablePolicies,
+    payoutModes,
+    phaseKinds,
+} from "@propfirmcore/config";
+import {
     assetClasses,
     type Fill,
     fillSchema,
@@ -15,11 +20,13 @@ import {
     tradingAccountStatuses,
 } from "@propfirmcore/domain";
 import {
+    boolean,
     doublePrecision,
     integer,
     jsonb,
     pgEnum,
     pgTable,
+    primaryKey,
     text,
 } from "drizzle-orm/pg-core";
 import { drizzle } from "drizzle-orm/postgres-js";
@@ -46,9 +53,88 @@ export const fillSideEnum = pgEnum("fill_side", fillSides);
 export const paymentStatusEnum = pgEnum("payment_status", paymentStatuses);
 export const payoutStatusEnum = pgEnum("payout_status", payoutStatuses);
 export const payoutReasonEnum = pgEnum("payout_reason", payoutReasons);
+export const phaseKindEnum = pgEnum("phase_kind", phaseKinds);
+export const payoutModeEnum = pgEnum("payout_mode", payoutModes);
+export const onUncoverableEnum = pgEnum(
+    "on_uncoverable",
+    onUncoverablePolicies,
+);
+
+export const firms = pgTable("firm", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    dailyCloseTz: text("daily_close_tz").notNull(),
+    dailyCloseTime: text("daily_close_time").notNull(),
+    modulesAffiliates: boolean("modules_affiliates").notNull(),
+    modulesKyc: boolean("modules_kyc").notNull(),
+    modulesMultiBrand: boolean("modules_multi_brand").notNull(),
+    checkoutProvider: text("checkout_provider").notNull(),
+    checkoutCurrency: text("checkout_currency").notNull(),
+    payoutOnUncoverable: onUncoverableEnum("payout_on_uncoverable").notNull(),
+});
+
+export const brokers = pgTable(
+    "brokers",
+    {
+        firmId: text("firm_id")
+            .notNull()
+            .references(() => firms.id),
+        id: text("id").notNull(),
+        name: text("name").notNull(),
+        bridgeProvider: text("bridge_provider").notNull(),
+        bridgeUrl: text("bridge_url"),
+    },
+    (t) => [primaryKey({ columns: [t.firmId, t.id] })],
+);
+
+export const products = pgTable(
+    "products",
+    {
+        firmId: text("firm_id")
+            .notNull()
+            .references(() => firms.id),
+        id: text("id").notNull(),
+        name: text("name").notNull(),
+        payoutSplit: doublePrecision("payout_split"),
+        payoutMode: payoutModeEnum("payout_mode"),
+        payoutOnUncoverable: onUncoverableEnum("payout_on_uncoverable"),
+    },
+    (t) => [primaryKey({ columns: [t.firmId, t.id] })],
+);
+
+export const productBrokers = pgTable(
+    "product_brokers",
+    {
+        firmId: text("firm_id").notNull(),
+        productId: text("product_id").notNull(),
+        brokerId: text("broker_id").notNull(),
+    },
+    (t) => [primaryKey({ columns: [t.firmId, t.productId, t.brokerId] })],
+);
+
+export const phases = pgTable(
+    "phases",
+    {
+        firmId: text("firm_id").notNull(),
+        productId: text("product_id").notNull(),
+        idx: integer("idx").notNull(),
+        name: text("name").notNull(),
+        kind: phaseKindEnum("kind").notNull(),
+        balance: doublePrecision("balance").notNull(),
+        fee: doublePrecision("fee"),
+        profitTarget: doublePrecision("profit_target").notNull(),
+        maxDrawdown: doublePrecision("max_drawdown").notNull(),
+        dailyDrawdown: doublePrecision("daily_drawdown").notNull(),
+        minTradingDays: integer("min_trading_days").notNull(),
+    },
+    (t) => [primaryKey({ columns: [t.firmId, t.productId, t.idx] })],
+);
 
 export const tradingAccounts = pgTable("trading_accounts", {
     id: text("id").primaryKey(),
+    firmId: text("firm_id")
+        .notNull()
+        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),
@@ -62,6 +148,9 @@ export const tradingAccounts = pgTable("trading_accounts", {
     dailyStartEquity: doublePrecision("daily_start_equity").notNull(),
     tradingDayKey: text("trading_day_key").notNull(),
     tradingDays: jsonb("trading_days").$type<string[]>().notNull(),
+    brokerId: text("broker_id").notNull(),
+    brokerLogin: text("broker_login").notNull(),
+    brokerPassword: text("broker_password").notNull(),
 });
 
 export const snapshots = pgTable("snapshots", {
@@ -94,6 +183,9 @@ export const fills = pgTable("fills", {
 
 export const payments = pgTable("payments", {
     id: text("id").primaryKey(),
+    firmId: text("firm_id")
+        .notNull()
+        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),
@@ -103,6 +195,7 @@ export const payments = pgTable("payments", {
     provider: text("provider").notNull(),
     providerRef: text("provider_ref"),
     status: paymentStatusEnum("status").notNull(),
+    brokerId: text("broker_id").notNull(),
     tradingAccountId: text("trading_account_id").references(
         () => tradingAccounts.id,
     ),
@@ -110,6 +203,9 @@ export const payments = pgTable("payments", {
 
 export const payouts = pgTable("payouts", {
     id: text("id").primaryKey(),
+    firmId: text("firm_id")
+        .notNull()
+        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),
@@ -138,6 +234,11 @@ export function createDb(url: string) {
     const db = drizzle(sql, {
         schema: {
             ...authSchema,
+            firms,
+            brokers,
+            products,
+            productBrokers,
+            phases,
             tradingAccounts,
             fills,
             snapshots,

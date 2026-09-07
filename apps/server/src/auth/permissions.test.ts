@@ -43,4 +43,16 @@ describe("roleHasPermission", () => {
     it("trader cannot approve payout", () => {
         expect(roleHasPermission("trader", "payout", "approve")).toBe(false);
     });
+
+    it("operator can write firm", () => {
+        expect(roleHasPermission("operator", "firm", "write")).toBe(true);
+    });
+
+    it("admin can write firm", () => {
+        expect(roleHasPermission("admin", "firm", "write")).toBe(true);
+    });
+
+    it("trader cannot write firm", () => {
+        expect(roleHasPermission("trader", "firm", "write")).toBe(false);
+    });
 });

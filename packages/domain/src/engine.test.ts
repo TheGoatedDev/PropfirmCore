@@ -17,6 +17,7 @@ const dailyClose: DailyClose = { tz: "America/New_York", time: "17:00" };
 const oneStep: Product = {
     id: "1step",
     name: "50k",
+    brokers: ["loopback"],
     phases: [
         {
             name: "eval",
@@ -35,6 +36,7 @@ const oneStep: Product = {
 const twoStep: Product = {
     id: "2step",
     name: "50k 2-step",
+    brokers: ["loopback"],
     phases: [
         {
             name: "eval",
@@ -102,7 +104,15 @@ describe("tradingDayKey", () => {
 
 describe("engine", () => {
     it("opens eval as active at phase balance", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         expect(a.status).toBe("active");
         expect(a.startBalance).toBe(50_000);
         expect(a.equity).toBe(50_000);
@@ -110,19 +120,43 @@ describe("engine", () => {
     });
 
     it("fails on max drawdown", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const next = applySnapshot(a, snap(47_500), oneStep, dailyClose);
         expect(next.status).toBe("failed");
     });
 
     it("fails on daily drawdown", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const next = applySnapshot(a, snap(49_000), oneStep, dailyClose);
         expect(next.status).toBe("failed");
     });
 
     it("holds pass until min trading days", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const rich = applySnapshot(a, snap(53_000), oneStep, dailyClose);
         expect(rich.status).toBe("active");
         const d1 = applyFills(rich, [fill(t0, "f1")], oneStep, dailyClose, t0);
@@ -138,7 +172,15 @@ describe("engine", () => {
     });
 
     it("advances eval to funded phase, stays active", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const next = applySnapshot(a, snap(53_000), twoStep, dailyClose);
         expect(next.status).toBe("active");
         expect(next.phaseIndex).toBe(1);
@@ -147,7 +189,15 @@ describe("engine", () => {
     });
 
     it("stays on funded phase when profit target hits", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
         const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
         expect(rich.status).toBe("active");
@@ -155,7 +205,15 @@ describe("engine", () => {
     });
 
     it("rolls daily window at close", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const day1 = applySnapshot(a, snap(49_500, t0), oneStep, dailyClose);
         expect(day1.status).toBe("active");
         expect(day1.dailyStartEquity).toBe(50_000);
@@ -176,6 +234,8 @@ describe("engine", () => {
             dailyClose,
             t0,
             "u1",
+            "loopback",
+            "acme",
         );
         expect(onFundedPhase(evalBook, twoStep)).toBe(false);
         const funded = applySnapshot(
@@ -189,7 +249,15 @@ describe("engine", () => {
     });
 
     it("net snapshot without applyPayout fails daily dd", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
         const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
         const peak = applySnapshot(
@@ -208,7 +276,15 @@ describe("engine", () => {
     });
 
     it("applyPayout then net snapshot stays active", () => {
-        const a = openTradingAccount("a1", twoStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
         const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
         const peak = applySnapshot(
@@ -229,7 +305,15 @@ describe("engine", () => {
     });
 
     it("force fail and pass", () => {
-        const a = openTradingAccount("a1", oneStep, dailyClose, t0, "u1");
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
         expect(forceFail(a).status).toBe("failed");
         expect(forcePass(a).status).toBe("passed");
         expect(forceFail(a).userId).toBe("u1");

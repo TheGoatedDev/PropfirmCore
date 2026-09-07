@@ -12,4 +12,6 @@ export const httpDesc = {
     exists: "A resource with this id already exists.",
     accepted: "Queued. GET the trading account for the settled book.",
     unavailable: "The ingest bus is down. Try again.",
+    conflict:
+        "Trading is frozen until the pending payout is approved or rejected.",
 } as const;

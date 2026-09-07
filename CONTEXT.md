@@ -1,24 +1,32 @@
 # PropfirmCore
 
-Retail challenge mill: eval, then funded, then payout split. One firm per deploy.
+Eval, then funded, then payout split. Fits a challenge mill or a retail prop firm. A stack can host many Firms.
 
 ## Language
 
 ### People
 
 **Firm**:
-The business that operates this mill. One Firm per deploy.
-_Avoid_: tenant, organization, brand
+The business that sells products on this stack. Many per stack.
+_Avoid_: tenant, organization, brand, mill
+
+**Operator**:
+A User who runs the stack. Not bound to a Firm.
+_Avoid_: superadmin, platform admin, host
 
 **User**:
-A login identity. May own many trading accounts, or none.
+A login identity. Belongs to one Firm, or to none if Operator. May own many trading accounts, or none.
 
 **Trader**:
 A User who buys products, trades, and requests payouts.
 _Avoid_: customer, client, account holder
 
 **Admin**:
-A User who operates the Firm: complete payments, force pass or fail, approve reject or pay payouts.
+A User who operates a Firm: complete payments, force pass or fail, approve reject or pay payouts.
+
+**Role**:
+A permission set for Users on one Firm. Builtins are trader and admin. A Firm Admin may add more. Operator is not a Role.
+_Avoid_: group, organization role, tenant role
 
 ### Offering
 
@@ -122,8 +130,12 @@ A tradable spec: symbol, asset class, tick, multiplier, currency.
 `fx`, `futures`, `crypto`, or `equity`.
 
 **Ingest**:
-Inbound feed of snapshots and fills onto an existing trading account. Unknown id is rejected. Does not open a book.
+Inbound feed of snapshots and fills onto an existing trading account. Unknown id is rejected. Does not open a book. Key must match the account's Broker.
 _Avoid_: webhook, stream
+
+**Broker**:
+The platform a trading account lives on. A Firm has many. A Product lists which. The trader picks at buy. Immutable after.
+_Avoid_: platform, venue, Broker adapter
 
 ### Money in
 
@@ -141,8 +153,11 @@ _Avoid_: Withdrawal, profit split, disbursement
 Trader share of sim profit, 0 to 1, on the product.
 
 **Payout mode**:
-When sim money moves. `debitOnApprove` is the only implemented mode. `freezeUntilPaid` and `debitOnPaid` are reserved names.
+When sim money moves, and whether fills freeze while a payout is pending. `debitOnApprove` withdraws on approve. `freezeUntilApproved` also freezes fills until approve. `debitOnPaid` is reserved.
 _Avoid_: Debit on request
+
+**Frozen**:
+Fills refused. Snapshots still settle. True while a `freezeUntilApproved` payout is pending. Not a trading-account status.
 
 **Pending**:
 Trader requested a payout. Nothing deducted yet. The amount is reserved against available.
@@ -165,11 +180,14 @@ _Avoid_: Settled, completed
 Approve-time check when live available is less than the requested amount. Firm policy, optional product override: `failApprove` leaves it pending; `autoReject` sets `rejected` with reason `uncoverable`.
 
 **Bridge**:
-Outbound port that withdraws or deposits on the trading account. Loopback does it in this process. HTTP ingest is inbound snapshots and fills, not this.
+Outbound port on a Broker. Withdraw and deposit move sim. Freeze and unfreeze do not. Provision creates the remote book and returns login and password. Loopback does it in this process. HTTP ingest is inbound snapshots and fills, not this.
 _Avoid_: Broker adapter
 
+**Provision**:
+Bridge action when a Payment completes. The Broker creates the remote book and returns login and password. Failure leaves the Payment pending and does not insert a trading account.
+
 **Loopback**:
-The default bridge. Applies `applyPayout` here: equity, balance, and daily start move; rules do not run.
+The default bridge. Applies `applyPayout` here: equity, balance, and daily start move; rules do not run. Freeze and unfreeze are no-ops. Provision returns login = account id, password = `loopback`.
 
 **HTTP adapter**:
-Bridge with `provider: "webhook"`. POST `{ action, accountId, amount }` to `bridge.url`, then the same `applyPayout` as loopback. Optional `BRIDGE_WEBHOOK_KEY` as `X-Api-Key`.
+Bridge with `provider: "webhook"`. POST `{ action, accountId, amount? }` to the broker's `bridge.url`. `withdraw` and `deposit` then `applyPayout`. `freeze` and `unfreeze` do not move sim. `provision` returns `{ login, password }`. Optional per-broker `BRIDGE_WEBHOOK_KEY_<ID>` as `X-Api-Key`.

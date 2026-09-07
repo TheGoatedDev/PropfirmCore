@@ -43,12 +43,14 @@ services:
             DATABASE_URL: postgres://propfirm:propfirm@postgres:5432/propfirm
             NATS_URL: nats://nats:4222
             NATS_TOKEN: dev
-            INGEST_API_KEY: dev
+            INGEST_API_KEY_LOOPBACK: dev
             FIRM_CONFIG_PATH: /app/firm.example.json
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
             BETTER_AUTH_URL: http://localhost
-            BOOTSTRAP_ADMIN_EMAIL: admin@example.com
-            BOOTSTRAP_ADMIN_PASSWORD: changeme
+            BOOTSTRAP_OPERATOR_EMAIL: operator@example.com
+            BOOTSTRAP_OPERATOR_PASSWORD: changeme
+            BOOTSTRAP_FIRM_ADMIN_EMAIL: admin@example.com
+            BOOTSTRAP_FIRM_ADMIN_PASSWORD: changeme
         depends_on:
             postgres:
                 condition: service_healthy
@@ -65,7 +67,7 @@ services:
             DATABASE_URL: postgres://propfirm:propfirm@postgres:5432/propfirm
             NATS_URL: nats://nats:4222
             NATS_TOKEN: dev
-            INGEST_API_KEY: dev
+            INGEST_API_KEY_LOOPBACK: dev
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
             FIRM_CONFIG_PATH: /app/firm.example.json
         depends_on:
@@ -104,6 +106,19 @@ services:
                 VITE_BASE: /admin/
                 DIST_DEST: /usr/share/nginx/html/admin
                 NGINX_CONF: nginx-admin.conf
+        depends_on:
+            - api
+
+    operator-web:
+        profiles: ["ui"]
+        build:
+            context: ..
+            dockerfile: docker/web.Dockerfile
+            args:
+                APP: operator-web
+                VITE_BASE: /operator/
+                DIST_DEST: /usr/share/nginx/html/operator
+                NGINX_CONF: nginx-operator.conf
         depends_on:
             - api
 

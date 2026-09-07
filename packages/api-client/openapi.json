@@ -58,6 +58,10 @@
                         "type": "string",
                         "format": "date-time",
                         "readOnly": true
+                    },
+                    "firmId": {
+                        "type": "string",
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -253,12 +257,17 @@
                                         },
                                         "role": {
                                             "type": "string"
+                                        },
+                                        "firmId": {
+                                            "type": "string",
+                                            "nullable": true
                                         }
                                     },
                                     "required": [
                                         "id",
                                         "email",
-                                        "role"
+                                        "role",
+                                        "firmId"
                                     ]
                                 }
                             }
@@ -266,6 +275,888 @@
                     },
                     "401": {
                         "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/firm": {
+            "get": {
+                "tags": [
+                    "Firm"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The live Firm config.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "dailyClose": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tz": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                                }
+                                            },
+                                            "required": [
+                                                "tz",
+                                                "time"
+                                            ]
+                                        },
+                                        "modules": {
+                                            "type": "object",
+                                            "properties": {
+                                                "affiliates": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                },
+                                                "kyc": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                },
+                                                "multiBrand": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                }
+                                            },
+                                            "default": {
+                                                "affiliates": false,
+                                                "kyc": false,
+                                                "multiBrand": false
+                                            }
+                                        },
+                                        "checkout": {
+                                            "type": "object",
+                                            "properties": {
+                                                "provider": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "manual"
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "usd"
+                                                }
+                                            },
+                                            "default": {
+                                                "provider": "manual",
+                                                "currency": "usd"
+                                            }
+                                        },
+                                        "payout": {
+                                            "type": "object",
+                                            "properties": {
+                                                "onUncoverable": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "failApprove",
+                                                        "autoReject"
+                                                    ],
+                                                    "default": "failApprove"
+                                                }
+                                            },
+                                            "default": {
+                                                "onUncoverable": "failApprove"
+                                            }
+                                        },
+                                        "brokers": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "bridge": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "provider": {
+                                                                "type": "string",
+                                                                "minLength": 1,
+                                                                "default": "loopback"
+                                                            },
+                                                            "url": {
+                                                                "type": "string",
+                                                                "format": "uri"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "bridge"
+                                                ]
+                                            },
+                                            "minItems": 1
+                                        },
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "brokers": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "minItems": 1
+                                                    },
+                                                    "phases": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "minLength": 1
+                                                                },
+                                                                "kind": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "eval",
+                                                                        "funded"
+                                                                    ]
+                                                                },
+                                                                "balance": {
+                                                                    "type": "number",
+                                                                    "minimum": 0,
+                                                                    "exclusiveMinimum": true
+                                                                },
+                                                                "fee": {
+                                                                    "type": "number",
+                                                                    "minimum": 0
+                                                                },
+                                                                "ruleset": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "profitTarget": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "maxDrawdown": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "dailyDrawdown": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "minTradingDays": {
+                                                                            "type": "integer",
+                                                                            "minimum": 0
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "profitTarget",
+                                                                        "maxDrawdown",
+                                                                        "dailyDrawdown",
+                                                                        "minTradingDays"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "name",
+                                                                "kind",
+                                                                "balance",
+                                                                "ruleset"
+                                                            ]
+                                                        },
+                                                        "minItems": 1
+                                                    },
+                                                    "payout": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "split": {
+                                                                "type": "number",
+                                                                "minimum": 0,
+                                                                "maximum": 1,
+                                                                "default": 0.8
+                                                            },
+                                                            "mode": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "debitOnApprove",
+                                                                    "freezeUntilApproved",
+                                                                    "debitOnPaid"
+                                                                ],
+                                                                "default": "debitOnApprove"
+                                                            },
+                                                            "onUncoverable": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "failApprove",
+                                                                    "autoReject"
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "brokers",
+                                                    "phases"
+                                                ]
+                                            },
+                                            "minItems": 1
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "dailyClose",
+                                        "brokers",
+                                        "products"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": [
+                    "Firm"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                                    },
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "dailyClose": {
+                                        "type": "object",
+                                        "properties": {
+                                            "tz": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "time": {
+                                                "type": "string",
+                                                "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                            }
+                                        },
+                                        "required": [
+                                            "tz",
+                                            "time"
+                                        ]
+                                    },
+                                    "modules": {
+                                        "type": "object",
+                                        "properties": {
+                                            "affiliates": {
+                                                "type": "boolean",
+                                                "default": false
+                                            },
+                                            "kyc": {
+                                                "type": "boolean",
+                                                "default": false
+                                            },
+                                            "multiBrand": {
+                                                "type": "boolean",
+                                                "default": false
+                                            }
+                                        },
+                                        "default": {
+                                            "affiliates": false,
+                                            "kyc": false,
+                                            "multiBrand": false
+                                        }
+                                    },
+                                    "checkout": {
+                                        "type": "object",
+                                        "properties": {
+                                            "provider": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "default": "manual"
+                                            },
+                                            "currency": {
+                                                "type": "string",
+                                                "minLength": 1,
+                                                "default": "usd"
+                                            }
+                                        },
+                                        "default": {
+                                            "provider": "manual",
+                                            "currency": "usd"
+                                        }
+                                    },
+                                    "payout": {
+                                        "type": "object",
+                                        "properties": {
+                                            "onUncoverable": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "failApprove",
+                                                    "autoReject"
+                                                ],
+                                                "default": "failApprove"
+                                            }
+                                        },
+                                        "default": {
+                                            "onUncoverable": "failApprove"
+                                        }
+                                    },
+                                    "brokers": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "bridge": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "provider": {
+                                                            "type": "string",
+                                                            "minLength": 1,
+                                                            "default": "loopback"
+                                                        },
+                                                        "url": {
+                                                            "type": "string",
+                                                            "format": "uri"
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "bridge"
+                                            ]
+                                        },
+                                        "minItems": 1
+                                    },
+                                    "products": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "id": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "name": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "brokers": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "minItems": 1
+                                                },
+                                                "phases": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "name": {
+                                                                "type": "string",
+                                                                "minLength": 1
+                                                            },
+                                                            "kind": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "eval",
+                                                                    "funded"
+                                                                ]
+                                                            },
+                                                            "balance": {
+                                                                "type": "number",
+                                                                "minimum": 0,
+                                                                "exclusiveMinimum": true
+                                                            },
+                                                            "fee": {
+                                                                "type": "number",
+                                                                "minimum": 0
+                                                            },
+                                                            "ruleset": {
+                                                                "type": "object",
+                                                                "properties": {
+                                                                    "profitTarget": {
+                                                                        "type": "number",
+                                                                        "minimum": 0
+                                                                    },
+                                                                    "maxDrawdown": {
+                                                                        "type": "number",
+                                                                        "minimum": 0
+                                                                    },
+                                                                    "dailyDrawdown": {
+                                                                        "type": "number",
+                                                                        "minimum": 0
+                                                                    },
+                                                                    "minTradingDays": {
+                                                                        "type": "integer",
+                                                                        "minimum": 0
+                                                                    }
+                                                                },
+                                                                "required": [
+                                                                    "profitTarget",
+                                                                    "maxDrawdown",
+                                                                    "dailyDrawdown",
+                                                                    "minTradingDays"
+                                                                ]
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "name",
+                                                            "kind",
+                                                            "balance",
+                                                            "ruleset"
+                                                        ]
+                                                    },
+                                                    "minItems": 1
+                                                },
+                                                "payout": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "split": {
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "maximum": 1,
+                                                            "default": 0.8
+                                                        },
+                                                        "mode": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "debitOnApprove",
+                                                                "freezeUntilApproved",
+                                                                "debitOnPaid"
+                                                            ],
+                                                            "default": "debitOnApprove"
+                                                        },
+                                                        "onUncoverable": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "failApprove",
+                                                                "autoReject"
+                                                            ]
+                                                        }
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "id",
+                                                "name",
+                                                "brokers",
+                                                "phases"
+                                            ]
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "id",
+                                    "name",
+                                    "dailyClose",
+                                    "brokers",
+                                    "products"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The live Firm config after replace.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "dailyClose": {
+                                            "type": "object",
+                                            "properties": {
+                                                "tz": {
+                                                    "type": "string",
+                                                    "minLength": 1
+                                                },
+                                                "time": {
+                                                    "type": "string",
+                                                    "pattern": "^([01]\\d|2[0-3]):[0-5]\\d$"
+                                                }
+                                            },
+                                            "required": [
+                                                "tz",
+                                                "time"
+                                            ]
+                                        },
+                                        "modules": {
+                                            "type": "object",
+                                            "properties": {
+                                                "affiliates": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                },
+                                                "kyc": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                },
+                                                "multiBrand": {
+                                                    "type": "boolean",
+                                                    "default": false
+                                                }
+                                            },
+                                            "default": {
+                                                "affiliates": false,
+                                                "kyc": false,
+                                                "multiBrand": false
+                                            }
+                                        },
+                                        "checkout": {
+                                            "type": "object",
+                                            "properties": {
+                                                "provider": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "manual"
+                                                },
+                                                "currency": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "usd"
+                                                }
+                                            },
+                                            "default": {
+                                                "provider": "manual",
+                                                "currency": "usd"
+                                            }
+                                        },
+                                        "payout": {
+                                            "type": "object",
+                                            "properties": {
+                                                "onUncoverable": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "failApprove",
+                                                        "autoReject"
+                                                    ],
+                                                    "default": "failApprove"
+                                                }
+                                            },
+                                            "default": {
+                                                "onUncoverable": "failApprove"
+                                            }
+                                        },
+                                        "brokers": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "bridge": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "provider": {
+                                                                "type": "string",
+                                                                "minLength": 1,
+                                                                "default": "loopback"
+                                                            },
+                                                            "url": {
+                                                                "type": "string",
+                                                                "format": "uri"
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "bridge"
+                                                ]
+                                            },
+                                            "minItems": 1
+                                        },
+                                        "products": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "name": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "brokers": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "minLength": 1
+                                                        },
+                                                        "minItems": 1
+                                                    },
+                                                    "phases": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "object",
+                                                            "properties": {
+                                                                "name": {
+                                                                    "type": "string",
+                                                                    "minLength": 1
+                                                                },
+                                                                "kind": {
+                                                                    "type": "string",
+                                                                    "enum": [
+                                                                        "eval",
+                                                                        "funded"
+                                                                    ]
+                                                                },
+                                                                "balance": {
+                                                                    "type": "number",
+                                                                    "minimum": 0,
+                                                                    "exclusiveMinimum": true
+                                                                },
+                                                                "fee": {
+                                                                    "type": "number",
+                                                                    "minimum": 0
+                                                                },
+                                                                "ruleset": {
+                                                                    "type": "object",
+                                                                    "properties": {
+                                                                        "profitTarget": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "maxDrawdown": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "dailyDrawdown": {
+                                                                            "type": "number",
+                                                                            "minimum": 0
+                                                                        },
+                                                                        "minTradingDays": {
+                                                                            "type": "integer",
+                                                                            "minimum": 0
+                                                                        }
+                                                                    },
+                                                                    "required": [
+                                                                        "profitTarget",
+                                                                        "maxDrawdown",
+                                                                        "dailyDrawdown",
+                                                                        "minTradingDays"
+                                                                    ]
+                                                                }
+                                                            },
+                                                            "required": [
+                                                                "name",
+                                                                "kind",
+                                                                "balance",
+                                                                "ruleset"
+                                                            ]
+                                                        },
+                                                        "minItems": 1
+                                                    },
+                                                    "payout": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "split": {
+                                                                "type": "number",
+                                                                "minimum": 0,
+                                                                "maximum": 1,
+                                                                "default": 0.8
+                                                            },
+                                                            "mode": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "debitOnApprove",
+                                                                    "freezeUntilApproved",
+                                                                    "debitOnPaid"
+                                                                ],
+                                                                "default": "debitOnApprove"
+                                                            },
+                                                            "onUncoverable": {
+                                                                "type": "string",
+                                                                "enum": [
+                                                                    "failApprove",
+                                                                    "autoReject"
+                                                                ]
+                                                            }
+                                                        }
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "name",
+                                                    "brokers",
+                                                    "phases"
+                                                ]
+                                            },
+                                            "minItems": 1
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "dailyClose",
+                                        "brokers",
+                                        "products"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -302,6 +1193,25 @@
                         "in": "path"
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "brokerId": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    }
+                                },
+                                "required": [
+                                    "brokerId"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "Checkout started. Follow redirectUrl if set; free products return a trading account immediately.",
@@ -345,6 +1255,9 @@
                                                         "canceled"
                                                     ]
                                                 },
+                                                "brokerId": {
+                                                    "type": "string"
+                                                },
                                                 "tradingAccountId": {
                                                     "type": "string",
                                                     "nullable": true
@@ -359,6 +1272,7 @@
                                                 "provider",
                                                 "providerRef",
                                                 "status",
+                                                "brokerId",
                                                 "tradingAccountId"
                                             ]
                                         },
@@ -477,6 +1391,9 @@
                                                         "canceled"
                                                     ]
                                                 },
+                                                "brokerId": {
+                                                    "type": "string"
+                                                },
                                                 "tradingAccountId": {
                                                     "type": "string",
                                                     "nullable": true
@@ -491,6 +1408,7 @@
                                                 "provider",
                                                 "providerRef",
                                                 "status",
+                                                "brokerId",
                                                 "tradingAccountId"
                                             ]
                                         },
@@ -620,6 +1538,9 @@
                                                 "canceled"
                                             ]
                                         },
+                                        "brokerId": {
+                                            "type": "string"
+                                        },
                                         "tradingAccountId": {
                                             "type": "string",
                                             "nullable": true
@@ -634,6 +1555,7 @@
                                         "provider",
                                         "providerRef",
                                         "status",
+                                        "brokerId",
                                         "tradingAccountId"
                                     ]
                                 }
@@ -822,6 +1744,10 @@
                                                         "type": "string",
                                                         "minLength": 1
                                                     },
+                                                    "firmId": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
                                                     "userId": {
                                                         "type": "string",
                                                         "minLength": 1
@@ -864,10 +1790,21 @@
                                                         "items": {
                                                             "type": "string"
                                                         }
+                                                    },
+                                                    "brokerId": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "brokerLogin": {
+                                                        "type": "string"
+                                                    },
+                                                    "brokerPassword": {
+                                                        "type": "string"
                                                     }
                                                 },
                                                 "required": [
                                                     "id",
+                                                    "firmId",
                                                     "userId",
                                                     "productId",
                                                     "phaseIndex",
@@ -878,7 +1815,10 @@
                                                     "peakEquity",
                                                     "dailyStartEquity",
                                                     "tradingDayKey",
-                                                    "tradingDays"
+                                                    "tradingDays",
+                                                    "brokerId",
+                                                    "brokerLogin",
+                                                    "brokerPassword"
                                                 ]
                                             }
                                         },
@@ -944,6 +1884,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -986,10 +1930,21 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -1000,7 +1955,10 @@
                                         "peakEquity",
                                         "dailyStartEquity",
                                         "tradingDayKey",
-                                        "tradingDays"
+                                        "tradingDays",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
                                     ]
                                 }
                             }
@@ -1274,6 +2232,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -1316,10 +2278,21 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -1330,7 +2303,10 @@
                                         "peakEquity",
                                         "dailyStartEquity",
                                         "tradingDayKey",
-                                        "tradingDays"
+                                        "tradingDays",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
                                     ]
                                 }
                             }
@@ -1424,6 +2400,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -1466,10 +2446,21 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -1480,7 +2471,10 @@
                                         "peakEquity",
                                         "dailyStartEquity",
                                         "tradingDayKey",
-                                        "tradingDays"
+                                        "tradingDays",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
                                     ]
                                 }
                             }
@@ -1594,6 +2588,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -1632,6 +2630,7 @@
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -1750,6 +2749,10 @@
                                                 "type": "string",
                                                 "minLength": 1
                                             },
+                                            "firmId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
                                             "userId": {
                                                 "type": "string",
                                                 "minLength": 1
@@ -1788,6 +2791,7 @@
                                         },
                                         "required": [
                                             "id",
+                                            "firmId",
                                             "userId",
                                             "tradingAccountId",
                                             "amount",
@@ -1879,6 +2883,10 @@
                                                 "type": "string",
                                                 "minLength": 1
                                             },
+                                            "firmId": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
                                             "userId": {
                                                 "type": "string",
                                                 "minLength": 1
@@ -1917,6 +2925,7 @@
                                         },
                                         "required": [
                                             "id",
+                                            "firmId",
                                             "userId",
                                             "tradingAccountId",
                                             "amount",
@@ -1979,6 +2988,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -2017,6 +3030,7 @@
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -2116,6 +3130,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -2154,6 +3172,7 @@
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -2272,6 +3291,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -2310,6 +3333,7 @@
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -2428,6 +3452,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -2466,6 +3494,7 @@
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -2589,6 +3618,10 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
+                                        "firmId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -2631,10 +3664,21 @@
                                             "items": {
                                                 "type": "string"
                                             }
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [
                                         "id",
+                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -2645,7 +3689,10 @@
                                         "peakEquity",
                                         "dailyStartEquity",
                                         "tradingDayKey",
-                                        "tradingDays"
+                                        "tradingDays",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
                                     ]
                                 }
                             }
@@ -3069,6 +4116,25 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Trading is frozen until the pending payout is approved or rejected.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -10735,6 +11801,10 @@
         {
             "name": "Authentication",
             "description": "Sign-up, sign-in, session, password, and linked accounts."
+        },
+        {
+            "name": "Firm",
+            "description": "Live Firm config. Admin and operator only."
         },
         {
             "name": "Products",

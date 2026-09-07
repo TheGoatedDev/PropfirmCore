@@ -10,6 +10,7 @@ import {
     tradingAccountToRow,
 } from "../db/db.ts";
 import { log } from "../logger.ts";
+import { getBridge } from "../payouts/adapters.ts";
 import { getAdapter } from "./adapters.ts";
 
 export function productFee(firm: FirmConfig, productId: string): number | null {
@@ -49,23 +50,39 @@ export async function completePayment(
     if (!product) return { ok: false as const, error: "unknown product" };
     const now = DateTime.utc().toISO();
     if (!now) throw new Error("bad now");
+    const bridge = getBridge(firm, payment.brokerId);
+    if (!bridge) return { ok: false as const, error: "unknown bridge" };
     const account = openTradingAccount(
         crypto.randomUUID(),
         product,
         firm.dailyClose,
         now,
         payment.userId,
+        payment.brokerId,
+        firm.id,
     );
+    let creds: { login: string; password: string };
+    try {
+        creds = await bridge.provision(account, account.startBalance);
+    } catch (err) {
+        log.error({ err, paymentId, brokerId: payment.brokerId });
+        return { ok: false as const, error: "bridge failed" };
+    }
+    const opened = {
+        ...account,
+        brokerLogin: creds.login,
+        brokerPassword: creds.password,
+    };
     await db.transaction(async (tx) => {
-        await tx.insert(tradingAccounts).values(tradingAccountToRow(account));
+        await tx.insert(tradingAccounts).values(tradingAccountToRow(opened));
         await tx
             .update(payments)
-            .set({ status: "paid", tradingAccountId: account.id })
+            .set({ status: "paid", tradingAccountId: opened.id })
             .where(eq(payments.id, paymentId));
     });
     log.info({
         paymentId,
-        tradingAccountId: account.id,
+        tradingAccountId: opened.id,
         userId: payment.userId,
         productId: payment.productId,
     });
@@ -74,31 +91,37 @@ export async function completePayment(
         payment: {
             ...payment,
             status: "paid" as const,
-            tradingAccountId: account.id,
+            tradingAccountId: opened.id,
         },
-        tradingAccount: account,
+        tradingAccount: opened,
     };
 }
 
 export async function startCheckout(
     db: Db,
     firm: FirmConfig,
-    input: { userId: string; productId: string },
+    input: { userId: string; productId: string; brokerId: string },
 ) {
     const fee = productFee(firm, input.productId);
     if (fee === null) return { ok: false as const, error: "unknown product" };
+    const product = firm.products.find((p) => p.id === input.productId);
+    if (!product?.brokers.includes(input.brokerId)) {
+        return { ok: false as const, error: "unknown broker" };
+    }
     const provider = firm.checkout.provider;
     const adapter = getAdapter(provider);
     if (!adapter) return { ok: false as const, error: "unknown provider" };
     const paymentId = crypto.randomUUID();
     await db.insert(payments).values({
         id: paymentId,
+        firmId: firm.id,
         userId: input.userId,
         productId: input.productId,
         amount: fee,
         currency: firm.checkout.currency,
         provider,
         status: "pending",
+        brokerId: input.brokerId,
     });
     if (fee === 0) {
         const done = await completePayment(db, firm, paymentId);

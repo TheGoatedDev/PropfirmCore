@@ -5,6 +5,13 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { type ApiClient, createApiClient } from "@propfirmcore/api-client";
 import { productSchema } from "@propfirmcore/config";
+import {
+    type MockBook,
+    makeIngestClient,
+    postFill,
+    postSnapshot,
+    seedBooks,
+} from "@propfirmcore/mock-broker";
 import { z } from "zod";
 import { log } from "./logger.ts";
 import {
@@ -40,13 +47,12 @@ const profileSchema = z.object({
 type Profile = z.infer<typeof profileSchema>;
 
 type Book = {
-    id: string;
+    mock: MockBook;
     behavior: Behavior;
     queue: Step[];
     lastEquity: number;
     lastBalance: number;
     lastTs: string;
-    seq: number;
 };
 
 type WorkerStart = {
@@ -147,48 +153,18 @@ function shard<T>(items: T[], n: number): T[][] {
 }
 
 async function send(client: ApiClient, book: Book, step: Step) {
-    book.seq++;
-    const externalId = `${book.id}-${book.seq}`;
     if (step.kind === "snapshot") {
-        const { response } = await client.POST(
-            "/ingest/trading-accounts/{id}/snapshot",
-            {
-                params: { path: { id: book.id } },
-                body: {
-                    externalId,
-                    equity: step.equity,
-                    balance: step.balance,
-                    ts: step.ts,
-                    positions: [],
-                },
-            },
-        );
-        return response.status === 202;
+        book.mock.account = {
+            ...book.mock.account,
+            equity: step.equity,
+            balance: step.balance,
+        };
+        const status = await postSnapshot(client, book.mock, step.ts);
+        return status === 202;
     }
-    const { response } = await client.POST(
-        "/ingest/trading-accounts/{id}/fills",
-        {
-            params: { path: { id: book.id } },
-            body: {
-                fills: [
-                    {
-                        externalId,
-                        positionId: externalId,
-                        symbol: "EURUSD",
-                        class: "fx",
-                        qty: 1,
-                        price: 1.1,
-                        side: "buy",
-                        ts: step.ts,
-                        multiplier: 100_000,
-                        tickSize: 0.00001,
-                        currency: "USD",
-                    },
-                ],
-            },
-        },
-    );
-    return response.status === 202;
+    if (book.mock.frozen) return true;
+    const status = await postFill(client, book.mock, step.ts);
+    return status === 202 || status === 409;
 }
 
 async function runIngest(
@@ -208,7 +184,7 @@ async function runIngest(
     function pick(): Book | undefined {
         for (let n = 0; n < books.length; n++) {
             const b = books[rr++ % books.length];
-            if (b && !busy.has(b.id)) return b;
+            if (b && !busy.has(b.mock.account.id)) return b;
         }
         return undefined;
     }
@@ -222,7 +198,7 @@ async function runIngest(
             const book = pick();
             if (!book) break;
             sent++;
-            busy.add(book.id);
+            busy.add(book.mock.account.id);
             progress.inFlight++;
             const step = nextStep(book);
             void send(client, book, step)
@@ -235,7 +211,7 @@ async function runIngest(
                 })
                 .finally(() => {
                     progress.inFlight--;
-                    busy.delete(book.id);
+                    busy.delete(book.mock.account.id);
                 });
         }
         await sleep(5);
@@ -250,7 +226,7 @@ async function workerMain() {
     const start = await new Promise<WorkerStart>((resolve) => {
         process.once("message", (msg) => resolve(msg as WorkerStart));
     });
-    const client = makeClient(start.baseUrl, start.apiKey);
+    const client = makeIngestClient(start.baseUrl, start.apiKey);
     const result = await runIngest(
         client,
         start.books,
@@ -300,7 +276,8 @@ async function main() {
         JSON.parse(readFileSync(profilePath, "utf8")) as unknown,
     );
     const durationMs = parseDuration(profile.duration);
-    const apiKey = process.env.INGEST_API_KEY ?? "dev";
+    const apiKey =
+        process.env.INGEST_API_KEY_MOCK ?? process.env.INGEST_API_KEY ?? "dev";
     const jar = cookieJar();
     const bearer: { token?: string } = {};
     const client = makeClient(profile.baseUrl, apiKey, jar, bearer);
@@ -319,11 +296,21 @@ async function main() {
     const listed = await client.GET("/products");
     if (listed.error || !listed.data)
         die(`products failed: ${JSON.stringify(listed.error)}`);
-    const products = z.array(productSchema).parse(listed.data);
+    const products = z
+        .array(
+            productSchema.extend({
+                brokers: z
+                    .array(z.object({ id: z.string(), name: z.string() }))
+                    .min(1),
+            }),
+        )
+        .parse(listed.data);
     const product = products.find((p) => p.id === profile.productId);
     if (!product) die(`unknown product ${profile.productId}`);
     const phase = product.phases[0];
     if ((phase.fee ?? 0) !== 0) die(`product ${product.id} fee is not 0`);
+    const brokerId = product.brokers[0]?.id;
+    if (!brokerId) die(`product ${product.id} has no broker`);
     const ruleset = phase.ruleset;
     const startBalance = phase.balance;
 
@@ -336,6 +323,7 @@ async function main() {
     for (let i = 0; i < profile.accounts; i++) {
         const bought = await client.POST("/products/{id}/buy", {
             params: { path: { id: product.id } },
+            body: { brokerId },
         });
         if (bought.error || !bought.data)
             die(`buy failed: ${JSON.stringify(bought.error)}`);
@@ -343,6 +331,11 @@ async function main() {
             .object({ id: z.string() })
             .safeParse(bought.data.tradingAccount);
         if (!acc.success) die("buy returned no trading account");
+        const seeded = await seedBooks(client, [acc.data.id]).catch((err) =>
+            die(String(err)),
+        );
+        const mock = seeded.get(acc.data.id);
+        if (!mock) die(`seed ${acc.data.id} missing`);
         const behavior = pickBehavior(profile.mix);
         assigned[behavior]++;
         const path: Path = planPath({
@@ -352,13 +345,12 @@ async function main() {
             originTs,
         });
         books.push({
-            id: acc.data.id,
+            mock,
             behavior,
             queue: path.steps,
             lastEquity: path.lastEquity,
             lastBalance: path.lastBalance,
             lastTs: path.lastTs,
-            seq: 0,
         });
     }
 

@@ -8,6 +8,7 @@ const meSchema = z.object({
     id: z.string(),
     email: z.string(),
     role: z.string(),
+    firmId: z.string().nullable(),
 });
 
 type Deps = { auth: Auth };
@@ -41,6 +42,7 @@ export function mountAuth(app: OpenAPIHono, deps: Deps) {
                     id: session.user.id,
                     email: session.user.email,
                     role: roleOf(session.user),
+                    firmId: session.user.firmId ?? null,
                 },
                 200,
             );

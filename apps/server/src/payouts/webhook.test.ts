@@ -4,6 +4,7 @@ import { createWebhookBridge } from "./webhook.ts";
 
 const account: TradingAccount = {
     id: "a1",
+    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,
@@ -15,6 +16,9 @@ const account: TradingAccount = {
     dailyStartEquity: 53_000,
     tradingDayKey: "2026-01-15",
     tradingDays: [],
+    brokerId: "loopback",
+    brokerLogin: "a1",
+    brokerPassword: "loopback",
 };
 
 describe("webhookBridge", () => {
@@ -74,6 +78,36 @@ describe("webhookBridge", () => {
         ).toEqual({ "content-type": "application/json" });
     });
 
+    it("freeze posts without applyPayout", async () => {
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue(new Response(null, { status: 204 }));
+        vi.stubGlobal("fetch", fetchMock);
+        const bridge = createWebhookBridge(
+            "https://bridge.example/hook",
+            "secret",
+        );
+        await bridge.freeze(account);
+        expect(account.equity).toBe(53_000);
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
+            action: "freeze",
+            accountId: "a1",
+        });
+    });
+
+    it("unfreeze posts without applyPayout", async () => {
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue(new Response(null, { status: 204 }));
+        vi.stubGlobal("fetch", fetchMock);
+        const bridge = createWebhookBridge("https://bridge.example/hook");
+        await bridge.unfreeze(account);
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
+            action: "unfreeze",
+            accountId: "a1",
+        });
+    });
+
     it("does not applyPayout on non-2xx", async () => {
         vi.stubGlobal(
             "fetch",
@@ -89,5 +123,35 @@ describe("webhookBridge", () => {
         vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
         const bridge = createWebhookBridge("https://bridge.example/hook");
         await expect(bridge.withdraw(account, 2400)).rejects.toThrow("offline");
+    });
+
+    it("provision returns login", async () => {
+        const fetchMock = vi.fn().mockResolvedValue(
+            new Response(JSON.stringify({ login: "mt5", password: "pw" }), {
+                status: 200,
+            }),
+        );
+        vi.stubGlobal("fetch", fetchMock);
+        const bridge = createWebhookBridge("https://bridge.example/hook");
+        await expect(bridge.provision(account, 50_000)).resolves.toEqual({
+            login: "mt5",
+            password: "pw",
+        });
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
+            action: "provision",
+            accountId: "a1",
+            balance: 50_000,
+        });
+    });
+
+    it("provision rejects bad body", async () => {
+        vi.stubGlobal(
+            "fetch",
+            vi.fn().mockResolvedValue(new Response("{}", { status: 200 })),
+        );
+        const bridge = createWebhookBridge("https://bridge.example/hook");
+        await expect(bridge.provision(account, 50_000)).rejects.toThrow(
+            "bridge bad provision",
+        );
     });
 });

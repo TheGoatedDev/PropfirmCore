@@ -4,6 +4,7 @@ import { loopbackBridge } from "./loopback.ts";
 
 const account: TradingAccount = {
     id: "a1",
+    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,
@@ -15,6 +16,9 @@ const account: TradingAccount = {
     dailyStartEquity: 53_000,
     tradingDayKey: "2026-01-15",
     tradingDays: [],
+    brokerId: "loopback",
+    brokerLogin: "a1",
+    brokerPassword: "loopback",
 };
 
 describe("loopbackBridge", () => {
@@ -25,5 +29,17 @@ describe("loopbackBridge", () => {
         const up = await loopbackBridge.deposit(down, 2400);
         expect(up.equity).toBe(53_000);
         expect(up.dailyStartEquity).toBe(53_000);
+    });
+
+    it("freeze and unfreeze are no-ops", async () => {
+        await loopbackBridge.freeze(account);
+        await loopbackBridge.unfreeze(account);
+        expect(account.equity).toBe(53_000);
+    });
+
+    it("provision returns loopback creds", async () => {
+        await expect(
+            loopbackBridge.provision(account, 50_000),
+        ).resolves.toEqual({ login: "a1", password: "loopback" });
     });
 });

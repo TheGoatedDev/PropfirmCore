@@ -9,8 +9,17 @@ import type { IngestPublish } from "./bus.ts";
 vi.mock("../trading-accounts/service.ts", () => ({
     getById: vi.fn(),
 }));
+vi.mock("../payouts/service.ts", async (importOriginal) => {
+    const actual =
+        await importOriginal<typeof import("../payouts/service.ts")>();
+    return {
+        ...actual,
+        fillsFrozenForAccount: vi.fn(async () => false),
+    };
+});
 
 const { getById } = await import("../trading-accounts/service.ts");
+const { fillsFrozenForAccount } = await import("../payouts/service.ts");
 
 const auth = {
     handler: () => new Response("not found", { status: 404 }),
@@ -31,6 +40,7 @@ const firm = loadFirmConfig(
 
 const account = {
     id: "acc_1",
+    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 0,
@@ -42,6 +52,9 @@ const account = {
     dailyStartEquity: 50_000,
     tradingDayKey: "2026-01-01",
     tradingDays: [] as string[],
+    brokerId: "loopback",
+    brokerLogin: "acc_1",
+    brokerPassword: "loopback",
 };
 
 const snapshot = {
@@ -68,7 +81,7 @@ const fill = {
 
 function app(publish: IngestPublish) {
     return createApp({
-        apiKey: "secret",
+        ingestKeys: { loopback: "secret" },
         firm,
         db: {} as Db,
         auth,
@@ -145,6 +158,68 @@ describe("ingest http", () => {
             accountId: "acc_1",
             fills: [fill],
         });
+    });
+
+    it("409 fills when frozen does not publish", async () => {
+        vi.mocked(getById).mockResolvedValue(account);
+        vi.mocked(fillsFrozenForAccount).mockResolvedValueOnce(true);
+        const publish: IngestPublish = {
+            snapshot: vi.fn(),
+            fills: vi.fn(),
+        };
+        const res = await app(publish).request(
+            "/ingest/trading-accounts/acc_1/fills",
+            {
+                method: "POST",
+                headers: { ...key, "content-type": "application/json" },
+                body: JSON.stringify({ fills: [fill] }),
+            },
+        );
+        expect(res.status).toBe(409);
+        expect(publish.fills).not.toHaveBeenCalled();
+    });
+
+    it("202 snapshot when frozen", async () => {
+        vi.mocked(getById).mockResolvedValue(account);
+        vi.mocked(fillsFrozenForAccount).mockResolvedValueOnce(true);
+        const publish: IngestPublish = {
+            snapshot: vi.fn(),
+            fills: vi.fn(),
+        };
+        const res = await app(publish).request(
+            "/ingest/trading-accounts/acc_1/snapshot",
+            {
+                method: "POST",
+                headers: { ...key, "content-type": "application/json" },
+                body: JSON.stringify(snapshot),
+            },
+        );
+        expect(res.status).toBe(202);
+        expect(publish.snapshot).toHaveBeenCalled();
+    });
+
+    it("404 when key is other broker", async () => {
+        vi.mocked(getById).mockResolvedValue(account);
+        const publish: IngestPublish = {
+            snapshot: vi.fn(),
+            fills: vi.fn(),
+        };
+        const res = await createApp({
+            ingestKeys: { loopback: "secret", mock: "other" },
+            firm,
+            db: {} as Db,
+            auth,
+            publish,
+        }).request("/ingest/trading-accounts/acc_1/snapshot", {
+            method: "POST",
+            headers: {
+                "x-api-key": "other",
+                "content-type": "application/json",
+            },
+            body: JSON.stringify(snapshot),
+        });
+        expect(res.status).toBe(404);
+        expect(publish.snapshot).not.toHaveBeenCalled();
     });
 
     it("503 when publish throws", async () => {

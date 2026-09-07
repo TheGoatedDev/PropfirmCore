@@ -20,6 +20,7 @@ const paymentSchema = z.object({
     provider: z.string(),
     providerRef: z.string().nullable(),
     status: z.enum(["pending", "paid", "failed", "canceled"]),
+    brokerId: z.string(),
     tradingAccountId: z.string().nullable(),
 });
 
@@ -31,7 +32,19 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             method: "post",
             path: "/products/{id}/buy",
             tags: [tags.products],
-            request: { params: z.object({ id: z.string().min(1) }) },
+            request: {
+                params: z.object({ id: z.string().min(1) }),
+                body: {
+                    content: {
+                        "application/json": {
+                            schema: z.object({
+                                brokerId: z.string().min(1),
+                            }),
+                        },
+                    },
+                    required: true,
+                },
+            },
             responses: {
                 200: {
                     description:
@@ -62,9 +75,11 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const { id } = c.req.valid("param");
+            const { brokerId } = c.req.valid("json");
             const result = await startCheckout(deps.db, deps.firm, {
                 userId: session.user.id,
                 productId: id,
+                brokerId,
             });
             if (!result.ok) {
                 return c.json({ error: result.error }, 400);

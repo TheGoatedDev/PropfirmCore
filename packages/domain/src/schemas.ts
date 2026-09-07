@@ -70,6 +70,7 @@ export const payoutReasonSchema = z.enum(payoutReasons);
 
 export const payoutSchema = z.object({
     id: z.string().min(1),
+    firmId: z.string().min(1),
     userId: z.string().min(1),
     tradingAccountId: z.string().min(1),
     amount: z.number().positive(),
@@ -80,6 +81,7 @@ export const payoutSchema = z.object({
 
 export const tradingAccountSchema = z.object({
     id: z.string().min(1),
+    firmId: z.string().min(1),
     userId: z.string().min(1),
     productId: z.string().min(1),
     phaseIndex: z.number().int(),
@@ -91,6 +93,10 @@ export const tradingAccountSchema = z.object({
     dailyStartEquity: z.number(),
     tradingDayKey: z.string(),
     tradingDays: z.array(z.string()),
+    brokerId: z.string().min(1),
+    brokerLogin: z.string(),
+    // ponytail: plaintext; encrypt at rest if credentials leave this box
+    brokerPassword: z.string(),
 });
 
 export type AssetClass = z.infer<typeof assetClassSchema>;

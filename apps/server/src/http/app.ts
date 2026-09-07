@@ -5,6 +5,7 @@ import type { Auth } from "../auth/auth.ts";
 import { mountAuth } from "../auth/http.ts";
 import { mountCheckout } from "../checkout/http.ts";
 import type { Db } from "../db/db.ts";
+import { mountFirm } from "../firm/http.ts";
 import type { IngestPublish } from "../ingest/bus.ts";
 import { mountIngest } from "../ingest/http.ts";
 import { log } from "../logger.ts";
@@ -12,9 +13,15 @@ import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
 import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
 
+export type FirmHolder = {
+    current: FirmConfig;
+    ingestKeys: Record<string, string>;
+};
+
 export type AppDeps = {
-    apiKey: string;
+    ingestKeys: Record<string, string>;
     firm: FirmConfig;
+    holder?: FirmHolder;
     db: Db;
     auth: Auth;
     publish: IngestPublish;
@@ -52,6 +59,7 @@ export function createApp(deps: AppDeps) {
     app.get("/health", (c) => c.json({ ok: true }));
 
     mountAuth(app, deps);
+    if (deps.holder) mountFirm(app, { ...deps, holder: deps.holder });
     mountCheckout(app, deps);
     mountTradingAccounts(app, deps);
     mountPayouts(app, deps);

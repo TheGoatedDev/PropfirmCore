@@ -11,6 +11,32 @@ export async function bootstrapAdmin(
     const existing = await db
         .select({ id: user.id })
         .from(user)
+        .where(eq(user.role, "operator"))
+        .limit(1);
+    if (existing[0]) return;
+    const res = await auth.api.signUpEmail({
+        body: {
+            email: creds.email,
+            password: creds.password,
+            name: creds.name ?? "Operator",
+        },
+    });
+    if (!res.user) throw new Error("bootstrap operator signup failed");
+    await db
+        .update(user)
+        .set({ role: "operator", firmId: null })
+        .where(eq(user.id, res.user.id));
+}
+
+export async function bootstrapFirmAdmin(
+    db: Db,
+    auth: Auth,
+    creds: { email: string; password: string; name?: string },
+    firmId: string,
+): Promise<void> {
+    const existing = await db
+        .select({ id: user.id })
+        .from(user)
         .where(eq(user.role, "admin"))
         .limit(1);
     if (existing[0]) return;
@@ -21,9 +47,9 @@ export async function bootstrapAdmin(
             name: creds.name ?? "Admin",
         },
     });
-    if (!res.user) throw new Error("bootstrap admin signup failed");
+    if (!res.user) throw new Error("bootstrap firm admin signup failed");
     await db
         .update(user)
-        .set({ role: "admin" })
+        .set({ role: "admin", firmId })
         .where(eq(user.id, res.user.id));
 }

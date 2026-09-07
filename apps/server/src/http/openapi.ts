@@ -30,6 +30,7 @@ export const openApiInfo = {
 export const tags = {
     authentication: "Authentication",
     authenticationAdmin: "Authentication - Admin",
+    firm: "Firm",
     products: "Products",
     tradingAccounts: "Trading Accounts",
     payments: "Payments",
@@ -38,6 +39,7 @@ export const tags = {
 } as const;
 
 const tagMeta: Record<string, string> = {
+    [tags.firm]: "Live Firm config. Admin and operator only.",
     [tags.authentication]:
         "Sign-up, sign-in, session, password, and linked accounts.",
     [tags.authenticationAdmin]:

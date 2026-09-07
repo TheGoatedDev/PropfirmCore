@@ -25,6 +25,16 @@ export function availablePayout(
     );
 }
 
+export function fillsFrozen(
+    mode: string | undefined,
+    payouts: Pick<Payout, "status">[],
+): boolean {
+    return (
+        mode === "freezeUntilApproved" &&
+        payouts.some((p) => p.status === "pending")
+    );
+}
+
 export function applyPayout(
     account: TradingAccount,
     amount: number,

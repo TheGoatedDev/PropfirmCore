@@ -8,4 +8,9 @@ export const loopbackBridge: Bridge = {
     async deposit(account, amount) {
         return applyPayout(account, -amount);
     },
+    async freeze() {},
+    async unfreeze() {},
+    async provision(account) {
+        return { login: account.id, password: "loopback" };
+    },
 };

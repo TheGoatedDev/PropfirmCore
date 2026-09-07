@@ -62,7 +62,18 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            return c.json(deps.firm.products, 200);
+            return c.json(
+                deps.firm.products.map((p) => ({
+                    ...p,
+                    brokers: p.brokers.map((id) => ({
+                        id,
+                        name:
+                            deps.firm.brokers.find((b) => b.id === id)?.name ??
+                            id,
+                    })),
+                })),
+                200,
+            );
         },
     );
 

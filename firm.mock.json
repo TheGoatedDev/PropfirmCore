@@ -1,0 +1,97 @@
+{
+    "id": "acme",
+    "name": "Acme",
+    "dailyClose": { "tz": "America/New_York", "time": "17:00" },
+    "modules": { "affiliates": false, "kyc": false, "multiBrand": false },
+    "payout": { "onUncoverable": "failApprove" },
+    "brokers": [
+        {
+            "id": "mock",
+            "name": "Mock",
+            "bridge": { "provider": "webhook", "url": "http://localhost:4000/" }
+        }
+    ],
+    "products": [
+        {
+            "id": "50k",
+            "name": "50k one-step",
+            "brokers": ["mock"],
+            "payout": { "split": 0.8, "mode": "debitOnApprove" },
+            "phases": [
+                {
+                    "name": "eval",
+                    "kind": "eval",
+                    "balance": 50000,
+                    "fee": 99,
+                    "ruleset": {
+                        "profitTarget": 3000,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 4
+                    }
+                },
+                {
+                    "name": "funded",
+                    "kind": "funded",
+                    "balance": 50000,
+                    "ruleset": {
+                        "profitTarget": 0,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 0
+                    }
+                }
+            ]
+        },
+        {
+            "id": "50k-freeze",
+            "name": "50k freeze until approved",
+            "brokers": ["mock"],
+            "payout": { "split": 0.8, "mode": "freezeUntilApproved" },
+            "phases": [
+                {
+                    "name": "eval",
+                    "kind": "eval",
+                    "balance": 50000,
+                    "fee": 99,
+                    "ruleset": {
+                        "profitTarget": 3000,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 4
+                    }
+                },
+                {
+                    "name": "funded",
+                    "kind": "funded",
+                    "balance": 50000,
+                    "ruleset": {
+                        "profitTarget": 0,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 0
+                    }
+                }
+            ]
+        },
+        {
+            "id": "load",
+            "name": "load eval",
+            "brokers": ["mock"],
+            "phases": [
+                {
+                    "name": "eval",
+                    "kind": "eval",
+                    "balance": 50000,
+                    "fee": 0,
+                    "ruleset": {
+                        "profitTarget": 3000,
+                        "maxDrawdown": 2500,
+                        "dailyDrawdown": 1000,
+                        "minTradingDays": 4
+                    }
+                }
+            ]
+        }
+    ]
+}

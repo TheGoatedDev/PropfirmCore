@@ -19,6 +19,7 @@ export const user = pgTable("user", {
         .$onUpdate(() => new Date())
         .notNull(),
     role: text("role").default("trader"),
+    firmId: text("firm_id"),
     banned: boolean("banned").default(false),
     banReason: text("ban_reason"),
     banExpires: timestamp("ban_expires"),

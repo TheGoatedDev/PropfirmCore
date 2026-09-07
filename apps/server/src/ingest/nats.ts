@@ -59,7 +59,7 @@ export function natsPublish(nc: Nc): IngestPublish {
 export async function runIngestWorker(
     nc: Nc,
     db: Db,
-    firm: FirmConfig,
+    getFirm: () => FirmConfig,
 ): Promise<void> {
     const js = jetstream(nc);
     const consumer = await js.consumers.get(ingestStream, ingestConsumer);
@@ -67,6 +67,7 @@ export async function runIngestWorker(
     log.info("worker ready");
     for await (const m of messages) {
         try {
+            const firm = getFirm();
             if (m.subject === ingestSnapshotSubject) {
                 const msg = decodeSnapshot(m.data);
                 await ingestSnapshot(db, firm, msg.accountId, msg);

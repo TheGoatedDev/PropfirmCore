@@ -3,9 +3,12 @@ import { betterAuth } from "better-auth";
 import { admin, bearer, openAPI } from "better-auth/plugins";
 import type { Db } from "../db/db.ts";
 import * as authSchema from "./auth-schema.ts";
-import { ac, admin as adminRole, trader } from "./permissions.ts";
+import { ac, admin as adminRole, operator, trader } from "./permissions.ts";
 
-export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
+export function createAuth(
+    db: Db,
+    opts: { secret: string; baseURL: string; liveFirmId: () => string },
+) {
     return betterAuth({
         secret: opts.secret,
         baseURL: opts.baseURL,
@@ -15,19 +18,34 @@ export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
             schema: authSchema,
         }),
         emailAndPassword: { enabled: true },
+        user: {
+            additionalFields: {
+                firmId: { type: "string", required: false, input: false },
+            },
+        },
+        databaseHooks: {
+            user: {
+                create: {
+                    before: async (u) => ({
+                        data: { ...u, firmId: opts.liveFirmId() },
+                    }),
+                },
+            },
+        },
         trustedOrigins: [
             "http://localhost",
             "http://localhost:3000",
             "http://localhost:5173",
             "http://localhost:5174",
+            "http://localhost:5175",
             "http://localhost:8081",
         ],
         plugins: [
             admin({
                 ac,
                 defaultRole: "trader",
-                adminRoles: ["admin"],
-                roles: { trader, admin: adminRole },
+                adminRoles: ["admin", "operator"],
+                roles: { trader, admin: adminRole, operator },
             }),
             bearer(),
             openAPI({ disableDefaultReference: true }),

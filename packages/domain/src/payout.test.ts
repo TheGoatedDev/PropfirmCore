@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { applyPayout, availablePayout, reservedAmount } from "./payout.ts";
+import {
+    applyPayout,
+    availablePayout,
+    fillsFrozen,
+    reservedAmount,
+} from "./payout.ts";
 import type { TradingAccount } from "./schemas.ts";
 
 const account: TradingAccount = {
     id: "a1",
+    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,
@@ -15,6 +21,9 @@ const account: TradingAccount = {
     dailyStartEquity: 53_000,
     tradingDayKey: "2026-01-15",
     tradingDays: [],
+    brokerId: "loopback",
+    brokerLogin: "a1",
+    brokerPassword: "loopback",
 };
 
 describe("availablePayout", () => {
@@ -66,6 +75,20 @@ describe("reservedAmount", () => {
                 "1",
             ),
         ).toBe(50);
+    });
+});
+
+describe("fillsFrozen", () => {
+    it("is true only for freezeUntilApproved while pending", () => {
+        const pending = [{ id: "1", status: "pending" as const, amount: 1 }];
+        expect(fillsFrozen("freezeUntilApproved", pending)).toBe(true);
+        expect(
+            fillsFrozen("freezeUntilApproved", [
+                { id: "1", status: "approved", amount: 1 },
+            ]),
+        ).toBe(false);
+        expect(fillsFrozen("debitOnApprove", pending)).toBe(false);
+        expect(fillsFrozen(undefined, pending)).toBe(false);
     });
 });
 

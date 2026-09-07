@@ -1,6 +1,7 @@
 import { type FirmConfig, onUncoverableFor } from "@propfirmcore/config";
 import {
     availablePayout,
+    fillsFrozen,
     onFundedPhase,
     type Payout,
     reservedAmount,
@@ -75,46 +76,70 @@ function availableFor(
     return availablePayout(account, spec.split, reservedAmount(open, exceptId));
 }
 
+export async function fillsFrozenForAccount(
+    db: Exec,
+    firm: FirmConfig,
+    account: TradingAccount,
+): Promise<boolean> {
+    const spec = productPayout(firm, account.productId);
+    if (!spec) return false;
+    const open = await loadOpen(db, account.id);
+    return fillsFrozen(spec.mode, open);
+}
+
 export async function requestPayout(
     db: Db,
     firm: FirmConfig,
     input: { userId: string; tradingAccountId: string; amount: number },
 ): Promise<Ok | Err> {
-    const account = await loadAccount(db, input.tradingAccountId);
-    if (!account) return { ok: false, error: "not found" };
-    if (account.userId !== input.userId)
-        return { ok: false, error: "forbidden" };
-    const product = firm.products.find((p) => p.id === account.productId);
-    if (
-        !product ||
-        account.status !== "active" ||
-        !onFundedPhase(account, product)
-    ) {
-        return { ok: false, error: "not funded" };
-    }
-    const spec = productPayout(firm, account.productId);
-    if (!spec) return { ok: false, error: "not funded" };
-    const open = await loadOpen(db, account.id);
-    const available = availableFor(account, firm, open);
-    if (input.amount > available)
-        return { ok: false, error: "amount too high" };
-    const payout: Payout = {
-        id: crypto.randomUUID(),
-        userId: account.userId,
-        tradingAccountId: account.id,
-        amount: input.amount,
-        currency: firm.checkout.currency,
-        status: "pending",
-        reason: null,
-    };
-    await db.insert(payouts).values(payout);
-    log.info({
-        payoutId: payout.id,
-        tradingAccountId: payout.tradingAccountId,
-        amount: payout.amount,
-        status: payout.status,
+    return db.transaction(async (tx) => {
+        const account = await loadAccount(tx, input.tradingAccountId, true);
+        if (!account) return { ok: false, error: "not found" };
+        if (account.userId !== input.userId)
+            return { ok: false, error: "forbidden" };
+        const product = firm.products.find((p) => p.id === account.productId);
+        if (
+            !product ||
+            account.status !== "active" ||
+            !onFundedPhase(account, product)
+        ) {
+            return { ok: false, error: "not funded" };
+        }
+        const spec = productPayout(firm, account.productId);
+        if (!spec) return { ok: false, error: "not funded" };
+        const open = await loadOpen(tx, account.id);
+        const available = availableFor(account, firm, open);
+        if (input.amount > available)
+            return { ok: false, error: "amount too high" };
+        if (spec.mode === "freezeUntilApproved") {
+            const bridge = getBridge(firm, account.brokerId);
+            if (!bridge) return { ok: false, error: "unknown bridge" };
+            try {
+                await bridge.freeze(account);
+            } catch (err) {
+                log.error({ err, tradingAccountId: account.id });
+                return { ok: false, error: "bridge failed" };
+            }
+        }
+        const payout: Payout = {
+            id: crypto.randomUUID(),
+            firmId: account.firmId,
+            userId: account.userId,
+            tradingAccountId: account.id,
+            amount: input.amount,
+            currency: firm.checkout.currency,
+            status: "pending",
+            reason: null,
+        };
+        await tx.insert(payouts).values(payout);
+        log.info({
+            payoutId: payout.id,
+            tradingAccountId: payout.tradingAccountId,
+            amount: payout.amount,
+            status: payout.status,
+        });
+        return { ok: true, payout, tradingAccount: account };
     });
-    return { ok: true, payout, tradingAccount: account };
 }
 
 export async function approvePayout(
@@ -122,8 +147,6 @@ export async function approvePayout(
     firm: FirmConfig,
     payoutId: string,
 ): Promise<Ok | Err> {
-    const bridge = getBridge(firm.bridge);
-    if (!bridge) return { ok: false, error: "unknown bridge" };
     // ponytail: row lock held during bridge HTTP, outbox/NAK if payout volume hurts
     return db.transaction(async (tx) => {
         const payout = await lockPayout(tx, payoutId);
@@ -132,12 +155,22 @@ export async function approvePayout(
             return { ok: false, error: "not pending" };
         const account = await loadAccount(tx, payout.tradingAccountId, true);
         if (!account) return { ok: false, error: "not found" };
+        const bridge = getBridge(firm, account.brokerId);
+        if (!bridge) return { ok: false, error: "unknown bridge" };
         const product = firm.products.find((p) => p.id === account.productId);
         if (!product) return { ok: false, error: "unknown product" };
         const open = await loadOpen(tx, account.id);
         const available = availableFor(account, firm, open, payout.id);
         if (payout.amount > available) {
             if (onUncoverableFor(firm, product) === "autoReject") {
+                if (product.payout?.mode === "freezeUntilApproved") {
+                    try {
+                        await bridge.unfreeze(account);
+                    } catch (err) {
+                        log.error({ err, payoutId });
+                        return { ok: false, error: "bridge failed" };
+                    }
+                }
                 const rejected: Payout = {
                     ...payout,
                     status: "rejected",
@@ -178,6 +211,13 @@ export async function approvePayout(
             .update(tradingAccounts)
             .set(tradingAccountToRow(nextAccount))
             .where(eq(tradingAccounts.id, account.id));
+        if (product.payout?.mode === "freezeUntilApproved") {
+            try {
+                await bridge.unfreeze(nextAccount);
+            } catch (err) {
+                log.error({ err, payoutId });
+            }
+        }
         log.info({
             payoutId,
             tradingAccountId: payout.tradingAccountId,
@@ -204,6 +244,23 @@ export async function rejectPayout(
             return { ok: true, payout, tradingAccount: account };
         }
         if (payout.status === "pending") {
+            const account = await loadAccount(
+                tx,
+                payout.tradingAccountId,
+                true,
+            );
+            if (!account) return { ok: false, error: "not found" };
+            const spec = productPayout(firm, account.productId);
+            if (spec?.mode === "freezeUntilApproved") {
+                const bridge = getBridge(firm, account.brokerId);
+                if (!bridge) return { ok: false, error: "unknown bridge" };
+                try {
+                    await bridge.unfreeze(account);
+                } catch (err) {
+                    log.error({ err, payoutId });
+                    return { ok: false, error: "bridge failed" };
+                }
+            }
             const next: Payout = {
                 ...payout,
                 status: "rejected",
@@ -213,7 +270,6 @@ export async function rejectPayout(
                 .update(payouts)
                 .set({ status: "rejected", reason: "admin" })
                 .where(eq(payouts.id, payoutId));
-            const account = await loadAccount(tx, payout.tradingAccountId);
             log.info({
                 payoutId,
                 tradingAccountId: payout.tradingAccountId,
@@ -225,7 +281,7 @@ export async function rejectPayout(
         }
         const account = await loadAccount(tx, payout.tradingAccountId, true);
         if (!account) return { ok: false, error: "not found" };
-        const bridge = getBridge(firm.bridge);
+        const bridge = getBridge(firm, account.brokerId);
         if (!bridge) return { ok: false, error: "unknown bridge" };
         let nextAccount: TradingAccount;
         try {

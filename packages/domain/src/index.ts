@@ -22,7 +22,12 @@ export {
     openTradingAccount,
     settle,
 } from "./engine.ts";
-export { applyPayout, availablePayout, reservedAmount } from "./payout.ts";
+export {
+    applyPayout,
+    availablePayout,
+    fillsFrozen,
+    reservedAmount,
+} from "./payout.ts";
 export type { Rule, RuleContext, RuleResult } from "./rules.ts";
 export {
     builtinRules,

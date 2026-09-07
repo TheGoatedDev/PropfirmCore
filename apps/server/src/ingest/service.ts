@@ -3,6 +3,7 @@ import {
     applyFills,
     applySnapshot,
     type Fill,
+    fillsFrozen,
     type Snapshot,
     type TradingAccount,
 } from "@propfirmcore/domain";
@@ -11,6 +12,7 @@ import {
     type Db,
     fills,
     fillToRow,
+    payouts,
     snapshots,
     tradingAccountFromRow,
     tradingAccounts,
@@ -88,7 +90,7 @@ export async function ingestFills(
     incoming: Fill[],
 ): Promise<
     | { ok: true; account: TradingAccount }
-    | { ok: false; error: "not found" | "unknown product" }
+    | { ok: false; error: "not found" | "unknown product" | "frozen" }
 > {
     return db.transaction(async (tx) => {
         const rows = await tx
@@ -110,6 +112,13 @@ export async function ingestFills(
         if (newFills.length === 0) return { ok: true, account };
         const product = productOrNull(firm, account.productId);
         if (!product) return { ok: false, error: "unknown product" };
+        const open = await tx
+            .select()
+            .from(payouts)
+            .where(eq(payouts.tradingAccountId, id));
+        if (fillsFrozen(product.payout?.mode, open)) {
+            return { ok: false, error: "frozen" };
+        }
         const next = applyFills(
             account,
             newFills,

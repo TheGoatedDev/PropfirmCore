@@ -67,9 +67,13 @@ it("approve debit then net snapshot stays active", async () => {
     expect(signup.ok).toBe(true);
     const trader = { cookie: cookie(signup) };
 
-    const buy = await post("/products/50k/buy", undefined, {
-        cookie: trader.cookie,
-    });
+    const buy = await post(
+        "/products/50k/buy",
+        { brokerId: "loopback" },
+        {
+            cookie: trader.cookie,
+        },
+    );
     expect(buy.ok).toBe(true);
     const bought = (await buy.json()) as { payment: { id: string } };
 

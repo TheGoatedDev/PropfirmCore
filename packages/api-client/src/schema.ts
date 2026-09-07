@@ -30,6 +30,7 @@ export interface paths {
                             id: string;
                             email: string;
                             role: string;
+                            firmId: string | null;
                         };
                     };
                 };
@@ -55,6 +56,379 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/firm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The live Firm config. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            dailyClose: {
+                                tz: string;
+                                time: string;
+                            };
+                            /**
+                             * @default {
+                             *       "affiliates": false,
+                             *       "kyc": false,
+                             *       "multiBrand": false
+                             *     }
+                             */
+                            modules: {
+                                /** @default false */
+                                affiliates: boolean;
+                                /** @default false */
+                                kyc: boolean;
+                                /** @default false */
+                                multiBrand: boolean;
+                            };
+                            /**
+                             * @default {
+                             *       "provider": "manual",
+                             *       "currency": "usd"
+                             *     }
+                             */
+                            checkout: {
+                                /** @default manual */
+                                provider: string;
+                                /** @default usd */
+                                currency: string;
+                            };
+                            /**
+                             * @default {
+                             *       "onUncoverable": "failApprove"
+                             *     }
+                             */
+                            payout: {
+                                /**
+                                 * @default failApprove
+                                 * @enum {string}
+                                 */
+                                onUncoverable: "failApprove" | "autoReject";
+                            };
+                            brokers: {
+                                id: string;
+                                name: string;
+                                bridge: {
+                                    /** @default loopback */
+                                    provider: string;
+                                    /** Format: uri */
+                                    url?: string;
+                                };
+                            }[];
+                            products: {
+                                id: string;
+                                name: string;
+                                brokers: string[];
+                                phases: {
+                                    name: string;
+                                    /** @enum {string} */
+                                    kind: "eval" | "funded";
+                                    balance: number;
+                                    fee?: number;
+                                    ruleset: {
+                                        profitTarget: number;
+                                        maxDrawdown: number;
+                                        dailyDrawdown: number;
+                                        minTradingDays: number;
+                                    };
+                                }[];
+                                payout?: {
+                                    /** @default 0.8 */
+                                    split: number;
+                                    /**
+                                     * @default debitOnApprove
+                                     * @enum {string}
+                                     */
+                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    /** @enum {string} */
+                                    onUncoverable?: "failApprove" | "autoReject";
+                                };
+                            }[];
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        id: string;
+                        name: string;
+                        dailyClose: {
+                            tz: string;
+                            time: string;
+                        };
+                        /**
+                         * @default {
+                         *       "affiliates": false,
+                         *       "kyc": false,
+                         *       "multiBrand": false
+                         *     }
+                         */
+                        modules?: {
+                            /** @default false */
+                            affiliates?: boolean;
+                            /** @default false */
+                            kyc?: boolean;
+                            /** @default false */
+                            multiBrand?: boolean;
+                        };
+                        /**
+                         * @default {
+                         *       "provider": "manual",
+                         *       "currency": "usd"
+                         *     }
+                         */
+                        checkout?: {
+                            /** @default manual */
+                            provider?: string;
+                            /** @default usd */
+                            currency?: string;
+                        };
+                        /**
+                         * @default {
+                         *       "onUncoverable": "failApprove"
+                         *     }
+                         */
+                        payout?: {
+                            /**
+                             * @default failApprove
+                             * @enum {string}
+                             */
+                            onUncoverable?: "failApprove" | "autoReject";
+                        };
+                        brokers: {
+                            id: string;
+                            name: string;
+                            bridge: {
+                                /** @default loopback */
+                                provider?: string;
+                                /** Format: uri */
+                                url?: string;
+                            };
+                        }[];
+                        products: {
+                            id: string;
+                            name: string;
+                            brokers: string[];
+                            phases: {
+                                name: string;
+                                /** @enum {string} */
+                                kind: "eval" | "funded";
+                                balance: number;
+                                fee?: number;
+                                ruleset: {
+                                    profitTarget: number;
+                                    maxDrawdown: number;
+                                    dailyDrawdown: number;
+                                    minTradingDays: number;
+                                };
+                            }[];
+                            payout?: {
+                                /** @default 0.8 */
+                                split?: number;
+                                /**
+                                 * @default debitOnApprove
+                                 * @enum {string}
+                                 */
+                                mode?: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                /** @enum {string} */
+                                onUncoverable?: "failApprove" | "autoReject";
+                            };
+                        }[];
+                    };
+                };
+            };
+            responses: {
+                /** @description The live Firm config after replace. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            name: string;
+                            dailyClose: {
+                                tz: string;
+                                time: string;
+                            };
+                            /**
+                             * @default {
+                             *       "affiliates": false,
+                             *       "kyc": false,
+                             *       "multiBrand": false
+                             *     }
+                             */
+                            modules: {
+                                /** @default false */
+                                affiliates: boolean;
+                                /** @default false */
+                                kyc: boolean;
+                                /** @default false */
+                                multiBrand: boolean;
+                            };
+                            /**
+                             * @default {
+                             *       "provider": "manual",
+                             *       "currency": "usd"
+                             *     }
+                             */
+                            checkout: {
+                                /** @default manual */
+                                provider: string;
+                                /** @default usd */
+                                currency: string;
+                            };
+                            /**
+                             * @default {
+                             *       "onUncoverable": "failApprove"
+                             *     }
+                             */
+                            payout: {
+                                /**
+                                 * @default failApprove
+                                 * @enum {string}
+                                 */
+                                onUncoverable: "failApprove" | "autoReject";
+                            };
+                            brokers: {
+                                id: string;
+                                name: string;
+                                bridge: {
+                                    /** @default loopback */
+                                    provider: string;
+                                    /** Format: uri */
+                                    url?: string;
+                                };
+                            }[];
+                            products: {
+                                id: string;
+                                name: string;
+                                brokers: string[];
+                                phases: {
+                                    name: string;
+                                    /** @enum {string} */
+                                    kind: "eval" | "funded";
+                                    balance: number;
+                                    fee?: number;
+                                    ruleset: {
+                                        profitTarget: number;
+                                        maxDrawdown: number;
+                                        dailyDrawdown: number;
+                                        minTradingDays: number;
+                                    };
+                                }[];
+                                payout?: {
+                                    /** @default 0.8 */
+                                    split: number;
+                                    /**
+                                     * @default debitOnApprove
+                                     * @enum {string}
+                                     */
+                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    /** @enum {string} */
+                                    onUncoverable?: "failApprove" | "autoReject";
+                                };
+                            }[];
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/products/{id}/buy": {
         parameters: {
             query?: never;
@@ -73,7 +447,13 @@ export interface paths {
                 };
                 cookie?: never;
             };
-            requestBody?: never;
+            requestBody: {
+                content: {
+                    "application/json": {
+                        brokerId: string;
+                    };
+                };
+            };
             responses: {
                 /** @description Checkout started. Follow redirectUrl if set; free products return a trading account immediately. */
                 200: {
@@ -92,6 +472,7 @@ export interface paths {
                                 providerRef: string | null;
                                 /** @enum {string} */
                                 status: "pending" | "paid" | "failed" | "canceled";
+                                brokerId: string;
                                 tradingAccountId: string | null;
                             } | null;
                             tradingAccount?: unknown;
@@ -168,6 +549,7 @@ export interface paths {
                                 providerRef: string | null;
                                 /** @enum {string} */
                                 status: "pending" | "paid" | "failed" | "canceled";
+                                brokerId: string;
                                 tradingAccountId: string | null;
                             };
                             tradingAccount?: unknown;
@@ -252,6 +634,7 @@ export interface paths {
                             providerRef: string | null;
                             /** @enum {string} */
                             status: "pending" | "paid" | "failed" | "canceled";
+                            brokerId: string;
                             tradingAccountId: string | null;
                         };
                     };
@@ -380,6 +763,7 @@ export interface paths {
                         "application/json": {
                             items: {
                                 id: string;
+                                firmId: string;
                                 userId: string;
                                 productId: string;
                                 phaseIndex: number;
@@ -392,6 +776,9 @@ export interface paths {
                                 dailyStartEquity: number;
                                 tradingDayKey: string;
                                 tradingDays: string[];
+                                brokerId: string;
+                                brokerLogin: string;
+                                brokerPassword: string;
                             }[];
                             total: number;
                         };
@@ -445,6 +832,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -457,6 +845,9 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
                         };
                     };
                 };
@@ -680,6 +1071,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -692,6 +1084,9 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
                         };
                     };
                 };
@@ -767,6 +1162,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -779,6 +1175,9 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
                         };
                     };
                 };
@@ -852,6 +1251,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -927,6 +1327,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1018,6 +1419,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1077,6 +1479,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1162,6 +1565,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1257,6 +1661,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1352,6 +1757,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1445,6 +1851,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
+                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -1457,6 +1864,9 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
                         };
                     };
                 };
@@ -1679,6 +2089,18 @@ export interface paths {
                 };
                 /** @description Nothing exists at this id. */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Trading is frozen until the pending payout is approved or rejected. */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3880,6 +4302,7 @@ export interface components {
             readonly banReason?: string;
             /** Format: date-time */
             readonly banExpires?: string;
+            readonly firmId?: string;
         };
         Session: {
             readonly id: string;

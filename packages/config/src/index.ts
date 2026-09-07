@@ -9,9 +9,11 @@ export const rulesetSchema = z.object({
     minTradingDays: z.number().int().nonnegative(),
 });
 
+export const phaseKinds = ["eval", "funded"] as const;
+
 export const phaseSchema = z.object({
     name: z.string().min(1),
-    kind: z.enum(["eval", "funded"]),
+    kind: z.enum(phaseKinds),
     balance: z.number().positive(),
     fee: z.number().nonnegative().optional(),
     ruleset: rulesetSchema,
@@ -19,7 +21,7 @@ export const phaseSchema = z.object({
 
 export const payoutModes = [
     "debitOnApprove",
-    "freezeUntilPaid",
+    "freezeUntilApproved",
     "debitOnPaid",
 ] as const;
 
@@ -34,7 +36,7 @@ export const productPayoutSchema = z
         onUncoverable: onUncoverableSchema.optional(),
     })
     .superRefine((val, ctx) => {
-        if (val.mode !== "debitOnApprove") {
+        if (val.mode === "debitOnPaid") {
             ctx.addIssue({
                 code: "custom",
                 message: `payout mode ${val.mode} is not implemented`,
@@ -66,6 +68,7 @@ export const productSchema = z
     .object({
         id: z.string().min(1),
         name: z.string().min(1),
+        brokers: z.array(z.string().min(1)).min(1),
         phases: z.array(phaseSchema).min(1),
         payout: productPayoutSchema.optional(),
     })
@@ -103,22 +106,56 @@ export const checkoutSchema = z.object({
     currency: z.string().min(1).default("usd"),
 });
 
-export const firmConfigSchema = z.object({
+export const brokerSchema = z.object({
+    id: z.string().min(1),
     name: z.string().min(1),
-    dailyClose: dailyCloseSchema,
-    modules: modulesSchema.default({
-        affiliates: false,
-        kyc: false,
-        multiBrand: false,
-    }),
-    checkout: checkoutSchema.default({
-        provider: "manual",
-        currency: "usd",
-    }),
-    payout: firmPayoutSchema.default({ onUncoverable: "failApprove" }),
-    bridge: bridgeSchema.default({ provider: "loopback" }),
-    products: z.array(productSchema).min(1),
+    bridge: bridgeSchema,
 });
+
+export const firmIdSchema = z.string().regex(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/);
+
+export const firmConfigSchema = z
+    .object({
+        id: firmIdSchema,
+        name: z.string().min(1),
+        dailyClose: dailyCloseSchema,
+        modules: modulesSchema.default({
+            affiliates: false,
+            kyc: false,
+            multiBrand: false,
+        }),
+        checkout: checkoutSchema.default({
+            provider: "manual",
+            currency: "usd",
+        }),
+        payout: firmPayoutSchema.default({ onUncoverable: "failApprove" }),
+        brokers: z.array(brokerSchema).min(1),
+        products: z.array(productSchema).min(1),
+    })
+    .superRefine((val, ctx) => {
+        const ids = new Set<string>();
+        for (const [i, b] of val.brokers.entries()) {
+            if (ids.has(b.id)) {
+                ctx.addIssue({
+                    code: "custom",
+                    message: "duplicate broker id",
+                    path: ["brokers", i, "id"],
+                });
+            }
+            ids.add(b.id);
+        }
+        for (const [pi, p] of val.products.entries()) {
+            for (const [bi, id] of p.brokers.entries()) {
+                if (!ids.has(id)) {
+                    ctx.addIssue({
+                        code: "custom",
+                        message: "unknown broker",
+                        path: ["products", pi, "brokers", bi],
+                    });
+                }
+            }
+        }
+    });
 
 export type Ruleset = z.infer<typeof rulesetSchema>;
 export type Phase = z.infer<typeof phaseSchema>;
@@ -129,9 +166,22 @@ export type Checkout = z.infer<typeof checkoutSchema>;
 export type ProductPayout = z.infer<typeof productPayoutSchema>;
 export type FirmPayout = z.infer<typeof firmPayoutSchema>;
 export type Bridge = z.infer<typeof bridgeSchema>;
+export type Broker = z.infer<typeof brokerSchema>;
 export type PayoutMode = (typeof payoutModes)[number];
 export type OnUncoverable = (typeof onUncoverablePolicies)[number];
 export type FirmConfig = z.infer<typeof firmConfigSchema>;
+
+export function ingestKeyEnvName(brokerId: string): string {
+    return `INGEST_API_KEY_${brokerId.replace(/[^A-Za-z0-9]+/g, "_").toUpperCase()}`;
+}
+
+export function bridgeKeyEnvName(brokerId: string): string {
+    return `BRIDGE_WEBHOOK_KEY_${brokerId.replace(/[^A-Za-z0-9]+/g, "_").toUpperCase()}`;
+}
+
+export function brokerOf(firm: FirmConfig, id: string): Broker | undefined {
+    return firm.brokers.find((b) => b.id === id);
+}
 
 export function onUncoverableFor(
     firm: FirmConfig,
