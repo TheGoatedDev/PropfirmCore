@@ -13,5 +13,5 @@ export const loopbackBridge: Bridge = {
     async provision(account) {
         return { login: account.id, password: "loopback" };
     },
-    async close() {},
+    async closePosition() {},
 };

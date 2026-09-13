@@ -84,7 +84,7 @@ async function runCloses(
     for (const c of closes) {
         if (seen.has(c.positionId)) continue;
         seen.add(c.positionId);
-        await bridge.close(account, c.positionId);
+        await bridge.closePosition(account, c.positionId);
     }
 }
 

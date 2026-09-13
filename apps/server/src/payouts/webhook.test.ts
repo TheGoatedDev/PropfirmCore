@@ -115,15 +115,15 @@ describe("webhookBridge", () => {
         });
     });
 
-    it("close posts position id", async () => {
+    it("closePosition posts position id", async () => {
         const fetchMock = vi
             .fn()
             .mockResolvedValue(new Response(null, { status: 204 }));
         vi.stubGlobal("fetch", fetchMock);
         const bridge = createWebhookBridge("https://bridge.example/hook");
-        await bridge.close(account, "p1");
+        await bridge.closePosition(account, "p1");
         expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
-            action: "close",
+            action: "closePosition",
             accountId: "a1",
             positionId: "p1",
         });

@@ -5,7 +5,7 @@ type Body =
     | { action: "withdraw" | "deposit"; accountId: string; amount: number }
     | { action: "freeze" | "unfreeze"; accountId: string }
     | { action: "provision"; accountId: string; balance: number }
-    | { action: "close"; accountId: string; positionId: string };
+    | { action: "closePosition"; accountId: string; positionId: string };
 
 async function post(url: string, key: string | undefined, body: Body) {
     const headers: Record<string, string> = {
@@ -74,9 +74,9 @@ export function createWebhookBridge(url: string, key?: string): Bridge {
             }
             return { login: json.login, password: json.password };
         },
-        async close(account, positionId) {
+        async closePosition(account, positionId) {
             await post(url, key, {
-                action: "close",
+                action: "closePosition",
                 accountId: account.id,
                 positionId,
             });

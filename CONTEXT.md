@@ -89,8 +89,8 @@ Optional rule. A fill whose time is Saturday or Sunday in the firm's daily close
 **Max lot**:
 Optional rule. An open position's quantity meets the number. Quantity is the snapshot qty, not a converted FX lot.
 
-**Close trade**:
-Optional follow-on after a breach: the Broker is told to close that position. Loopback does nothing.
+**Close position**:
+Optional follow-on after a breach: the Broker is told to close that position, not the trading account. Loopback does nothing.
 
 ### Book
 

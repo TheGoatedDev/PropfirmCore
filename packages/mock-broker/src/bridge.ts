@@ -31,7 +31,7 @@ export const bridgeActionSchema: z.ZodType<BridgeAction> = z.union([
         balance: z.number(),
     }),
     z.object({
-        action: z.literal("close"),
+        action: z.literal("closePosition"),
         accountId: z.string().min(1),
         positionId: z.string().min(1),
     }),

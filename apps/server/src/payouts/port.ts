@@ -8,5 +8,5 @@ export type Bridge = {
     freeze(account: TradingAccount): Promise<void>;
     unfreeze(account: TradingAccount): Promise<void>;
     provision(account: TradingAccount, balance: number): Promise<Provisioned>;
-    close(account: TradingAccount, positionId: string): Promise<void>;
+    closePosition(account: TradingAccount, positionId: string): Promise<void>;
 };

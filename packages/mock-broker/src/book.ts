@@ -12,7 +12,7 @@ export type BridgeAction =
     | { action: "freeze"; accountId: string }
     | { action: "unfreeze"; accountId: string }
     | { action: "provision"; accountId: string; balance: number }
-    | { action: "close"; accountId: string; positionId: string };
+    | { action: "closePosition"; accountId: string; positionId: string };
 
 export function provisionBook(accountId: string, balance: number): MockBook {
     return {
@@ -62,7 +62,7 @@ export function applyAction(book: MockBook, body: BridgeAction): void {
             return;
         case "provision":
             return;
-        case "close":
+        case "closePosition":
             return;
     }
 }
