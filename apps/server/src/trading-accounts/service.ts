@@ -1,12 +1,15 @@
+import type { Product } from "@propfirmcore/config";
 import {
     forceFail,
     forcePass,
+    resyncRuleset,
     type TradingAccount,
 } from "@propfirmcore/domain";
 import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { roleHasPermission } from "../auth/permissions.ts";
 import {
     type Db,
+    ruleBreaches,
     tradingAccountFromRow,
     tradingAccounts,
     tradingAccountToRow,
@@ -107,4 +110,32 @@ export async function forcePassAccount(
         .where(eq(tradingAccounts.id, id));
     log.info({ accountId: id, status: next.status });
     return next;
+}
+
+export async function resyncAccountRuleset(
+    db: Db,
+    id: string,
+    product: Product,
+): Promise<TradingAccount | null> {
+    const account = await getById(db, id);
+    if (!account) return null;
+    const next = resyncRuleset(account, product);
+    await db
+        .update(tradingAccounts)
+        .set(tradingAccountToRow(next))
+        .where(eq(tradingAccounts.id, id));
+    log.info({ accountId: id, resync: true });
+    return next;
+}
+
+export async function listBreaches(
+    db: Db,
+    accountId: string,
+    includeFlags: boolean,
+) {
+    const rows = await db
+        .select()
+        .from(ruleBreaches)
+        .where(eq(ruleBreaches.tradingAccountId, accountId));
+    return includeFlags ? rows : rows.filter((r) => r.severity === "warn");
 }

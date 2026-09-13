@@ -13,6 +13,8 @@ import {
     forcePassAccount,
     getById,
     listAccounts,
+    listBreaches,
+    resyncAccountRuleset,
 } from "./service.ts";
 
 const idParam = z.object({ id: z.string().min(1) });
@@ -342,6 +344,129 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             );
             if (!account) return c.json({ error: "not found" }, 404);
             return c.json(account, 200);
+        },
+    );
+
+    const breachSchema = z.object({
+        phaseIndex: z.number().int(),
+        ruleId: z.string(),
+        severity: z.enum(["warn", "flag"]),
+        subjectId: z.string(),
+        positionId: z.string().nullable(),
+        ts: z.string(),
+    });
+
+    app.openapi(
+        createRoute({
+            method: "get",
+            path: "/trading-accounts/{id}/breaches",
+            tags: [tags.tradingAccounts],
+            request: { params: idParam },
+            responses: {
+                200: {
+                    description: "Rule breaches on this trading account.",
+                    content: {
+                        "application/json": {
+                            schema: z.array(breachSchema),
+                        },
+                    },
+                },
+                401: {
+                    description: httpDesc.unauthorized,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                403: {
+                    description: httpDesc.forbidden,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                404: {
+                    description: httpDesc.notFound,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+            },
+        }),
+        async (c) => {
+            const session = await deps.auth.api.getSession({
+                headers: c.req.raw.headers,
+            });
+            if (!session) return c.json({ error: "unauthorized" }, 401);
+            const account = await getById(deps.db, c.req.valid("param").id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            const who = actorOf(session.user);
+            if (!canRead(who, account)) {
+                return c.json({ error: "forbidden" }, 403);
+            }
+            const staff = roleHasPermission(who.role, "tradingAccount", "read");
+            const rows = await listBreaches(deps.db, account.id, staff);
+            return c.json(
+                rows.map((r) => ({
+                    phaseIndex: r.phaseIndex,
+                    ruleId: r.ruleId,
+                    severity: r.severity,
+                    subjectId: r.subjectId,
+                    positionId: r.positionId,
+                    ts: r.ts,
+                })),
+                200,
+            );
+        },
+    );
+
+    app.openapi(
+        createRoute({
+            method: "post",
+            path: "/trading-accounts/{id}/resync-ruleset",
+            tags: [tags.tradingAccounts],
+            request: { params: idParam },
+            responses: {
+                200: {
+                    description:
+                        "Pinned ruleset replaced from the current product phase.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
+                },
+                401: {
+                    description: httpDesc.unauthorized,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                403: {
+                    description: httpDesc.forbidden,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                404: {
+                    description: httpDesc.notFound,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+            },
+        }),
+        async (c) => {
+            const session = await deps.auth.api.getSession({
+                headers: c.req.raw.headers,
+            });
+            if (!session) return c.json({ error: "unauthorized" }, 401);
+            if (
+                !roleHasPermission(
+                    actorOf(session.user).role,
+                    "tradingAccount",
+                    "resync",
+                )
+            ) {
+                return c.json({ error: "forbidden" }, 403);
+            }
+            const account = await getById(deps.db, c.req.valid("param").id);
+            if (!account) return c.json({ error: "not found" }, 404);
+            const product = deps.firm.products.find(
+                (p) => p.id === account.productId,
+            );
+            if (!product) return c.json({ error: "not found" }, 404);
+            const next = await resyncAccountRuleset(
+                deps.db,
+                account.id,
+                product,
+            );
+            if (!next) return c.json({ error: "not found" }, 404);
+            return c.json(next, 200);
         },
     );
 }

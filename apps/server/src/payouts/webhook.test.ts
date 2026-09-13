@@ -16,6 +16,13 @@ const account: TradingAccount = {
     dailyStartEquity: 53_000,
     tradingDayKey: "2026-01-15",
     tradingDays: [],
+    dailyPnls: [],
+    ruleset: {
+        profitTarget: 0,
+        maxDrawdown: 1,
+        dailyDrawdown: 1,
+        minTradingDays: 0,
+    },
     brokerId: "loopback",
     brokerLogin: "a1",
     brokerPassword: "loopback",
@@ -105,6 +112,20 @@ describe("webhookBridge", () => {
         expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
             action: "unfreeze",
             accountId: "a1",
+        });
+    });
+
+    it("close posts position id", async () => {
+        const fetchMock = vi
+            .fn()
+            .mockResolvedValue(new Response(null, { status: 204 }));
+        vi.stubGlobal("fetch", fetchMock);
+        const bridge = createWebhookBridge("https://bridge.example/hook");
+        await bridge.close(account, "p1");
+        expect(JSON.parse(fetchMock.mock.calls[0][1].body as string)).toEqual({
+            action: "close",
+            accountId: "a1",
+            positionId: "p1",
         });
     });
 

@@ -4,6 +4,7 @@ import {
     onUncoverablePolicies,
     payoutModes,
     phaseKinds,
+    type Ruleset,
 } from "@propfirmcore/config";
 import {
     assetClasses,
@@ -126,6 +127,10 @@ export const phases = pgTable(
         maxDrawdown: doublePrecision("max_drawdown").notNull(),
         dailyDrawdown: doublePrecision("daily_drawdown").notNull(),
         minTradingDays: integer("min_trading_days").notNull(),
+        maxWarnings: integer("max_warnings"),
+        consistency: jsonb("consistency").$type<Ruleset["consistency"]>(),
+        weekend: jsonb("weekend").$type<Ruleset["weekend"]>(),
+        maxLot: jsonb("max_lot").$type<Ruleset["maxLot"]>(),
     },
     (t) => [primaryKey({ columns: [t.firmId, t.productId, t.idx] })],
 );
@@ -148,6 +153,10 @@ export const tradingAccounts = pgTable("trading_accounts", {
     dailyStartEquity: doublePrecision("daily_start_equity").notNull(),
     tradingDayKey: text("trading_day_key").notNull(),
     tradingDays: jsonb("trading_days").$type<string[]>().notNull(),
+    dailyPnls: jsonb("daily_pnls")
+        .$type<TradingAccount["dailyPnls"]>()
+        .notNull(),
+    ruleset: jsonb("ruleset").$type<Ruleset>().notNull(),
     brokerId: text("broker_id").notNull(),
     brokerLogin: text("broker_login").notNull(),
     brokerPassword: text("broker_password").notNull(),
@@ -201,6 +210,29 @@ export const payments = pgTable("payments", {
     ),
 });
 
+export const breachSeverities = ["warn", "flag"] as const;
+export const breachSeverityEnum = pgEnum("breach_severity", breachSeverities);
+
+export const ruleBreaches = pgTable(
+    "rule_breaches",
+    {
+        tradingAccountId: text("trading_account_id")
+            .notNull()
+            .references(() => tradingAccounts.id),
+        phaseIndex: integer("phase_index").notNull(),
+        ruleId: text("rule_id").notNull(),
+        severity: breachSeverityEnum("severity").notNull(),
+        subjectId: text("subject_id").notNull(),
+        positionId: text("position_id"),
+        ts: text("ts").notNull(),
+    },
+    (t) => [
+        primaryKey({
+            columns: [t.tradingAccountId, t.phaseIndex, t.ruleId, t.subjectId],
+        }),
+    ],
+);
+
 export const payouts = pgTable("payouts", {
     id: text("id").primaryKey(),
     firmId: text("firm_id")
@@ -244,6 +276,7 @@ export function createDb(url: string) {
             snapshots,
             payments,
             payouts,
+            ruleBreaches,
         },
     });
     return { db, sql };

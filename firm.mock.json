@@ -24,9 +24,9 @@
                     "balance": 50000,
                     "fee": 99,
                     "ruleset": {
-                        "profitTarget": 3000,
-                        "maxDrawdown": 2500,
-                        "dailyDrawdown": 1000,
+                        "profitTarget": 0.06,
+                        "maxDrawdown": 0.05,
+                        "dailyDrawdown": 0.02,
                         "minTradingDays": 4
                     }
                 },
@@ -36,8 +36,8 @@
                     "balance": 50000,
                     "ruleset": {
                         "profitTarget": 0,
-                        "maxDrawdown": 2500,
-                        "dailyDrawdown": 1000,
+                        "maxDrawdown": 0.05,
+                        "dailyDrawdown": 0.02,
                         "minTradingDays": 0
                     }
                 }
@@ -55,9 +55,9 @@
                     "balance": 50000,
                     "fee": 99,
                     "ruleset": {
-                        "profitTarget": 3000,
-                        "maxDrawdown": 2500,
-                        "dailyDrawdown": 1000,
+                        "profitTarget": 0.06,
+                        "maxDrawdown": 0.05,
+                        "dailyDrawdown": 0.02,
                         "minTradingDays": 4
                     }
                 },
@@ -67,8 +67,8 @@
                     "balance": 50000,
                     "ruleset": {
                         "profitTarget": 0,
-                        "maxDrawdown": 2500,
-                        "dailyDrawdown": 1000,
+                        "maxDrawdown": 0.05,
+                        "dailyDrawdown": 0.02,
                         "minTradingDays": 0
                     }
                 }
@@ -85,9 +85,9 @@
                     "balance": 50000,
                     "fee": 0,
                     "ruleset": {
-                        "profitTarget": 3000,
-                        "maxDrawdown": 2500,
-                        "dailyDrawdown": 1000,
+                        "profitTarget": 0.06,
+                        "maxDrawdown": 0.05,
+                        "dailyDrawdown": 0.02,
                         "minTradingDays": 4
                     }
                 }

@@ -4,7 +4,7 @@ import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 export const statement = {
     ...defaultStatements,
     payment: ["complete", "read"],
-    tradingAccount: ["read", "list", "fail", "pass"],
+    tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
 } as const;
@@ -16,7 +16,7 @@ export const trader = ac.newRole({});
 const staff = {
     ...adminAc.statements,
     payment: ["complete", "read"],
-    tradingAccount: ["read", "list", "fail", "pass"],
+    tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
 } as const;

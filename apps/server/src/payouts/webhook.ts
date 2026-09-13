@@ -4,7 +4,8 @@ import type { Bridge } from "./port.ts";
 type Body =
     | { action: "withdraw" | "deposit"; accountId: string; amount: number }
     | { action: "freeze" | "unfreeze"; accountId: string }
-    | { action: "provision"; accountId: string; balance: number };
+    | { action: "provision"; accountId: string; balance: number }
+    | { action: "close"; accountId: string; positionId: string };
 
 async function post(url: string, key: string | undefined, body: Body) {
     const headers: Record<string, string> = {
@@ -72,6 +73,13 @@ export function createWebhookBridge(url: string, key?: string): Bridge {
                 throw new Error("bridge bad provision");
             }
             return { login: json.login, password: json.password };
+        },
+        async close(account, positionId) {
+            await post(url, key, {
+                action: "close",
+                accountId: account.id,
+                positionId,
+            });
         },
     };
 }

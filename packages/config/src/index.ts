@@ -2,11 +2,40 @@ import { z } from "zod";
 
 const hhmm = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/);
 
+const fraction = z.number().min(0).max(1);
+
+export const onBreachModes = ["fail", "warn", "flag"] as const;
+export const consistencyModes = ["bestDay", "bestTrade"] as const;
+
+export const onBreachSchema = z.enum(onBreachModes);
+
+export const optionalBreachSchema = z.object({
+    onBreach: onBreachSchema,
+    closeTrade: z.boolean().default(false),
+});
+
+export const consistencySchema = z.object({
+    mode: z.enum(consistencyModes),
+    threshold: fraction,
+    onBreach: onBreachSchema,
+    closeTrade: z.boolean().default(false),
+});
+
+export const maxLotSchema = z.object({
+    qty: z.number().positive(),
+    onBreach: onBreachSchema,
+    closeTrade: z.boolean().default(false),
+});
+
 export const rulesetSchema = z.object({
-    profitTarget: z.number().nonnegative(),
-    maxDrawdown: z.number().nonnegative(),
-    dailyDrawdown: z.number().nonnegative(),
+    profitTarget: fraction,
+    maxDrawdown: fraction,
+    dailyDrawdown: fraction,
     minTradingDays: z.number().int().nonnegative(),
+    maxWarnings: z.number().int().positive().optional(),
+    consistency: consistencySchema.optional(),
+    weekend: optionalBreachSchema.optional(),
+    maxLot: maxLotSchema.optional(),
 });
 
 export const phaseKinds = ["eval", "funded"] as const;
@@ -143,6 +172,8 @@ export const firmConfigSchema = z
         }
     });
 
+export type OnBreach = (typeof onBreachModes)[number];
+export type ConsistencyMode = (typeof consistencyModes)[number];
 export type Ruleset = z.infer<typeof rulesetSchema>;
 export type Phase = z.infer<typeof phaseSchema>;
 export type Product = z.infer<typeof productSchema>;

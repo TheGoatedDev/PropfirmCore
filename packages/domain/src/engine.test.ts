@@ -8,6 +8,7 @@ import {
     forcePass,
     onFundedPhase,
     openTradingAccount,
+    resyncRuleset,
 } from "./engine.ts";
 import { applyPayout } from "./payout.ts";
 import type { Fill, Snapshot } from "./schemas.ts";
@@ -24,9 +25,9 @@ const oneStep: Product = {
             kind: "eval",
             balance: 50_000,
             ruleset: {
-                profitTarget: 3000,
-                maxDrawdown: 2500,
-                dailyDrawdown: 1000,
+                profitTarget: 0.06,
+                maxDrawdown: 0.05,
+                dailyDrawdown: 0.02,
                 minTradingDays: 2,
             },
         },
@@ -43,9 +44,9 @@ const twoStep: Product = {
             kind: "eval",
             balance: 50_000,
             ruleset: {
-                profitTarget: 3000,
-                maxDrawdown: 2500,
-                dailyDrawdown: 1000,
+                profitTarget: 0.06,
+                maxDrawdown: 0.05,
+                dailyDrawdown: 0.02,
                 minTradingDays: 0,
             },
         },
@@ -54,9 +55,9 @@ const twoStep: Product = {
             kind: "funded",
             balance: 50_000,
             ruleset: {
-                profitTarget: 3000,
-                maxDrawdown: 2500,
-                dailyDrawdown: 1000,
+                profitTarget: 0.06,
+                maxDrawdown: 0.05,
+                dailyDrawdown: 0.02,
                 minTradingDays: 0,
             },
         },
@@ -129,7 +130,12 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const next = applySnapshot(a, snap(47_500), oneStep, dailyClose);
+        const next = applySnapshot(
+            a,
+            snap(47_500),
+            oneStep,
+            dailyClose,
+        ).account;
         expect(next.status).toBe("failed");
     });
 
@@ -143,7 +149,12 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const next = applySnapshot(a, snap(49_000), oneStep, dailyClose);
+        const next = applySnapshot(
+            a,
+            snap(49_000),
+            oneStep,
+            dailyClose,
+        ).account;
         expect(next.status).toBe("failed");
     });
 
@@ -157,9 +168,20 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const rich = applySnapshot(a, snap(53_000), oneStep, dailyClose);
+        const rich = applySnapshot(
+            a,
+            snap(53_000),
+            oneStep,
+            dailyClose,
+        ).account;
         expect(rich.status).toBe("active");
-        const d1 = applyFills(rich, [fill(t0, "f1")], oneStep, dailyClose, t0);
+        const d1 = applyFills(
+            rich,
+            [fill(t0, "f1")],
+            oneStep,
+            dailyClose,
+            t0,
+        ).account;
         expect(d1.status).toBe("active");
         const d2 = applyFills(
             d1,
@@ -167,7 +189,7 @@ describe("engine", () => {
             oneStep,
             dailyClose,
             "2026-01-16T16:00:00.000Z",
-        );
+        ).account;
         expect(d2.status).toBe("passed");
     });
 
@@ -181,7 +203,12 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const next = applySnapshot(a, snap(53_000), twoStep, dailyClose);
+        const next = applySnapshot(
+            a,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
         expect(next.status).toBe("active");
         expect(next.phaseIndex).toBe(1);
         expect(next.equity).toBe(50_000);
@@ -198,8 +225,18 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
-        const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
+        const funded = applySnapshot(
+            a,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
+        const rich = applySnapshot(
+            funded,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
         expect(rich.status).toBe("active");
         expect(rich.phaseIndex).toBe(1);
     });
@@ -214,7 +251,12 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const day1 = applySnapshot(a, snap(49_500, t0), oneStep, dailyClose);
+        const day1 = applySnapshot(
+            a,
+            snap(49_500, t0),
+            oneStep,
+            dailyClose,
+        ).account;
         expect(day1.status).toBe("active");
         expect(day1.dailyStartEquity).toBe(50_000);
         const day2 = applySnapshot(
@@ -222,7 +264,7 @@ describe("engine", () => {
             snap(49_500, "2026-01-15T22:00:00.000Z"),
             oneStep,
             dailyClose,
-        );
+        ).account;
         expect(day2.status).toBe("active");
         expect(day2.dailyStartEquity).toBe(49_500);
     });
@@ -243,7 +285,7 @@ describe("engine", () => {
             snap(53_000),
             twoStep,
             dailyClose,
-        );
+        ).account;
         expect(onFundedPhase(funded, twoStep)).toBe(true);
         expect(onFundedPhase(funded, oneStep)).toBe(false);
     });
@@ -258,20 +300,30 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
-        const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
+        const funded = applySnapshot(
+            a,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
+        const rich = applySnapshot(
+            funded,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
         const peak = applySnapshot(
             rich,
             snap(53_000, "2026-01-15T22:00:00.000Z"),
             twoStep,
             dailyClose,
-        );
+        ).account;
         const next = applySnapshot(
             peak,
             snap(50_600, "2026-01-15T22:00:00.000Z"),
             twoStep,
             dailyClose,
-        );
+        ).account;
         expect(next.status).toBe("failed");
     });
 
@@ -285,23 +337,213 @@ describe("engine", () => {
             "loopback",
             "acme",
         );
-        const funded = applySnapshot(a, snap(53_000), twoStep, dailyClose);
-        const rich = applySnapshot(funded, snap(53_000), twoStep, dailyClose);
+        const funded = applySnapshot(
+            a,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
+        const rich = applySnapshot(
+            funded,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+        ).account;
         const peak = applySnapshot(
             rich,
             snap(53_000, "2026-01-15T22:00:00.000Z"),
             twoStep,
             dailyClose,
-        );
+        ).account;
         const debited = applyPayout(peak, 2400);
         const next = applySnapshot(
             debited,
             snap(50_600, "2026-01-15T22:00:00.000Z"),
             twoStep,
             dailyClose,
-        );
+        ).account;
         expect(next.status).toBe("active");
         expect(next.dailyStartEquity).toBe(50_600);
+    });
+
+    it("pins ruleset; product edit does not apply", () => {
+        const product: Product = {
+            ...oneStep,
+            phases: [
+                {
+                    ...oneStep.phases[0],
+                    ruleset: {
+                        profitTarget: 0,
+                        maxDrawdown: 0.05,
+                        dailyDrawdown: 1,
+                        minTradingDays: 0,
+                    },
+                },
+            ],
+        };
+        const a = openTradingAccount(
+            "a1",
+            product,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
+        const tight: Product = {
+            ...product,
+            phases: [
+                {
+                    ...product.phases[0],
+                    ruleset: {
+                        ...product.phases[0].ruleset,
+                        maxDrawdown: 0.01,
+                    },
+                },
+            ],
+        };
+        expect(
+            applySnapshot(a, snap(49_000), tight, dailyClose).account.status,
+        ).toBe("active");
+        const resynced = resyncRuleset(a, tight);
+        expect(resynced.ruleset.maxDrawdown).toBe(0.01);
+        expect(
+            applySnapshot(resynced, snap(49_000), tight, dailyClose).account
+                .status,
+        ).toBe("failed");
+    });
+
+    it("weekend fill with warn does not fail or block pass", () => {
+        const product: Product = {
+            ...oneStep,
+            phases: [
+                {
+                    ...oneStep.phases[0],
+                    ruleset: {
+                        ...oneStep.phases[0].ruleset,
+                        minTradingDays: 0,
+                        weekend: { onBreach: "warn", closeTrade: true },
+                    },
+                },
+            ],
+        };
+        const a = openTradingAccount(
+            "a1",
+            product,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
+        const sat = "2026-01-17T16:00:00.000Z";
+        const filled = applyFills(
+            a,
+            [fill(sat, "f1")],
+            product,
+            dailyClose,
+            sat,
+        );
+        expect(filled.account.status).toBe("active");
+        expect(filled.breaches).toEqual([
+            {
+                ruleId: "weekend",
+                severity: "warn",
+                subjectId: "f1",
+                positionId: "f1",
+            },
+        ]);
+        expect(filled.closes).toEqual([{ positionId: "f1" }]);
+        const rich = applySnapshot(
+            filled.account,
+            snap(53_000, sat),
+            product,
+            dailyClose,
+        );
+        expect(rich.account.status).toBe("passed");
+    });
+
+    it("max lot fail closes overweight position", () => {
+        const product: Product = {
+            ...oneStep,
+            phases: [
+                {
+                    ...oneStep.phases[0],
+                    ruleset: {
+                        ...oneStep.phases[0].ruleset,
+                        minTradingDays: 0,
+                        maxLot: { qty: 2, onBreach: "fail", closeTrade: true },
+                    },
+                },
+            ],
+        };
+        const a = openTradingAccount(
+            "a1",
+            product,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
+        const result = applySnapshot(
+            a,
+            {
+                ...snap(50_000),
+                positions: [
+                    {
+                        id: "p1",
+                        symbol: "EURUSD",
+                        class: "fx",
+                        qty: 2,
+                        avgPrice: 1.1,
+                        openedAt: t0,
+                        closedAt: null,
+                    },
+                ],
+            },
+            product,
+            dailyClose,
+        );
+        expect(result.account.status).toBe("failed");
+        expect(result.closes).toEqual([{ positionId: "p1" }]);
+    });
+
+    it("consistency bestDay warn; maxWarnings fails", () => {
+        const product: Product = {
+            ...oneStep,
+            phases: [
+                {
+                    ...oneStep.phases[0],
+                    ruleset: {
+                        profitTarget: 0,
+                        maxDrawdown: 1,
+                        dailyDrawdown: 1,
+                        minTradingDays: 0,
+                        maxWarnings: 1,
+                        consistency: {
+                            mode: "bestDay",
+                            threshold: 0.4,
+                            onBreach: "warn",
+                            closeTrade: false,
+                        },
+                    },
+                },
+            ],
+        };
+        const a = openTradingAccount(
+            "a1",
+            product,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
+        const rich = applySnapshot(a, snap(53_000), product, dailyClose);
+        expect(rich.account.status).toBe("failed");
+        expect(rich.breaches[0]?.ruleId).toBe("consistency");
+        expect(rich.breaches[0]?.severity).toBe("warn");
     });
 
     it("force fail and pass", () => {

@@ -11,7 +11,8 @@ export type BridgeAction =
     | { action: "deposit"; accountId: string; amount: number }
     | { action: "freeze"; accountId: string }
     | { action: "unfreeze"; accountId: string }
-    | { action: "provision"; accountId: string; balance: number };
+    | { action: "provision"; accountId: string; balance: number }
+    | { action: "close"; accountId: string; positionId: string };
 
 export function provisionBook(accountId: string, balance: number): MockBook {
     return {
@@ -29,6 +30,13 @@ export function provisionBook(accountId: string, balance: number): MockBook {
             dailyStartEquity: balance,
             tradingDayKey: "",
             tradingDays: [],
+            dailyPnls: [],
+            ruleset: {
+                profitTarget: 0,
+                maxDrawdown: 1,
+                dailyDrawdown: 1,
+                minTradingDays: 0,
+            },
             brokerId: "mock",
             brokerLogin: accountId,
             brokerPassword: "mock",
@@ -53,6 +61,8 @@ export function applyAction(book: MockBook, body: BridgeAction): void {
             book.account = applyPayout(book.account, -body.amount);
             return;
         case "provision":
+            return;
+        case "close":
             return;
     }
 }

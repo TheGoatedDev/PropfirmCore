@@ -13,3 +13,9 @@ export function tradingDayKey(iso: string, dailyClose: DailyClose): string {
     }
     return date;
 }
+
+export function isWeekend(iso: string, tz: string): boolean {
+    const dt = DateTime.fromISO(iso, { zone: tz });
+    if (!dt.isValid) throw new Error(`bad ts: ${iso}`);
+    return dt.weekday >= 6;
+}
