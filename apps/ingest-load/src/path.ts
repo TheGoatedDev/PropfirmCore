@@ -58,13 +58,13 @@ export function planPath(input: {
             steps.push(snap(startBalance, ts));
         }
         const ts = addDays(originTs, Math.max(days - 1, 0));
-        steps.push(snap(startBalance + ruleset.profitTarget, ts));
+        steps.push(snap(startBalance * (1 + ruleset.profitTarget), ts));
     } else if (behavior === "blowMaxDd") {
         steps.push({ kind: "fills", ts: originTs });
-        steps.push(snap(startBalance - ruleset.maxDrawdown, originTs));
+        steps.push(snap(startBalance * (1 - ruleset.maxDrawdown), originTs));
     } else {
         steps.push({ kind: "fills", ts: originTs });
-        steps.push(snap(startBalance - ruleset.dailyDrawdown, originTs));
+        steps.push(snap(startBalance * (1 - ruleset.dailyDrawdown), originTs));
     }
 
     const last = lastSnapshot(steps);

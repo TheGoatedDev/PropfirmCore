@@ -27,6 +27,9 @@ describe("roleHasPermission", () => {
     });
 
     it("admin can list trading accounts", () => {
+        expect(roleHasPermission("admin", "tradingAccount", "resync")).toBe(
+            true,
+        );
         expect(roleHasPermission("admin", "tradingAccount", "list")).toBe(true);
     });
 

@@ -21,6 +21,13 @@ const account: TradingAccount = {
     dailyStartEquity: 53_000,
     tradingDayKey: "2026-01-15",
     tradingDays: [],
+    dailyPnls: [],
+    ruleset: {
+        profitTarget: 0,
+        maxDrawdown: 1,
+        dailyDrawdown: 1,
+        minTradingDays: 0,
+    },
     brokerId: "loopback",
     brokerLogin: "a1",
     brokerPassword: "loopback",

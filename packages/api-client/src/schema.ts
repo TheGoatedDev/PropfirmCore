@@ -149,6 +149,29 @@ export interface paths {
                                         maxDrawdown: number;
                                         dailyDrawdown: number;
                                         minTradingDays: number;
+                                        maxWarnings?: number;
+                                        consistency?: {
+                                            /** @enum {string} */
+                                            mode: "bestDay" | "bestTrade";
+                                            threshold: number;
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
+                                        weekend?: {
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
+                                        maxLot?: {
+                                            qty: number;
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
                                     };
                                 }[];
                                 payout?: {
@@ -158,7 +181,7 @@ export interface paths {
                                      * @default debitOnApprove
                                      * @enum {string}
                                      */
-                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    mode: "debitOnApprove" | "freezeUntilApproved";
                                     /** @enum {string} */
                                     onUncoverable?: "failApprove" | "autoReject";
                                 };
@@ -272,6 +295,29 @@ export interface paths {
                                     maxDrawdown: number;
                                     dailyDrawdown: number;
                                     minTradingDays: number;
+                                    maxWarnings?: number;
+                                    consistency?: {
+                                        /** @enum {string} */
+                                        mode: "bestDay" | "bestTrade";
+                                        threshold: number;
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade?: boolean;
+                                    };
+                                    weekend?: {
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade?: boolean;
+                                    };
+                                    maxLot?: {
+                                        qty: number;
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade?: boolean;
+                                    };
                                 };
                             }[];
                             payout?: {
@@ -281,7 +327,7 @@ export interface paths {
                                  * @default debitOnApprove
                                  * @enum {string}
                                  */
-                                mode?: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                mode?: "debitOnApprove" | "freezeUntilApproved";
                                 /** @enum {string} */
                                 onUncoverable?: "failApprove" | "autoReject";
                             };
@@ -367,6 +413,29 @@ export interface paths {
                                         maxDrawdown: number;
                                         dailyDrawdown: number;
                                         minTradingDays: number;
+                                        maxWarnings?: number;
+                                        consistency?: {
+                                            /** @enum {string} */
+                                            mode: "bestDay" | "bestTrade";
+                                            threshold: number;
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
+                                        weekend?: {
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
+                                        maxLot?: {
+                                            qty: number;
+                                            /** @enum {string} */
+                                            onBreach: "fail" | "warn" | "flag";
+                                            /** @default false */
+                                            closeTrade: boolean;
+                                        };
                                     };
                                 }[];
                                 payout?: {
@@ -376,7 +445,7 @@ export interface paths {
                                      * @default debitOnApprove
                                      * @enum {string}
                                      */
-                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    mode: "debitOnApprove" | "freezeUntilApproved";
                                     /** @enum {string} */
                                     onUncoverable?: "failApprove" | "autoReject";
                                 };
@@ -776,6 +845,39 @@ export interface paths {
                                 dailyStartEquity: number;
                                 tradingDayKey: string;
                                 tradingDays: string[];
+                                dailyPnls: {
+                                    day: string;
+                                    pnl: number;
+                                }[];
+                                ruleset: {
+                                    profitTarget: number;
+                                    maxDrawdown: number;
+                                    dailyDrawdown: number;
+                                    minTradingDays: number;
+                                    maxWarnings?: number;
+                                    consistency?: {
+                                        /** @enum {string} */
+                                        mode: "bestDay" | "bestTrade";
+                                        threshold: number;
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade: boolean;
+                                    };
+                                    weekend?: {
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade: boolean;
+                                    };
+                                    maxLot?: {
+                                        qty: number;
+                                        /** @enum {string} */
+                                        onBreach: "fail" | "warn" | "flag";
+                                        /** @default false */
+                                        closeTrade: boolean;
+                                    };
+                                };
                                 brokerId: string;
                                 brokerLogin: string;
                                 brokerPassword: string;
@@ -845,6 +947,39 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
                             brokerId: string;
                             brokerLogin: string;
                             brokerPassword: string;
@@ -1084,6 +1219,39 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
                             brokerId: string;
                             brokerLogin: string;
                             brokerPassword: string;
@@ -1175,6 +1343,244 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trading-accounts/{id}/breaches": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Rule breaches on this trading account. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            phaseIndex: number;
+                            ruleId: string;
+                            /** @enum {string} */
+                            severity: "warn" | "flag";
+                            subjectId: string;
+                            positionId: string | null;
+                            ts: string;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trading-accounts/{id}/resync-ruleset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Pinned ruleset replaced from the current product phase. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            firmId: string;
+                            userId: string;
+                            productId: string;
+                            phaseIndex: number;
+                            /** @enum {string} */
+                            status: "active" | "passed" | "failed";
+                            startBalance: number;
+                            equity: number;
+                            balance: number;
+                            peakEquity: number;
+                            dailyStartEquity: number;
+                            tradingDayKey: string;
+                            tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
                             brokerId: string;
                             brokerLogin: string;
                             brokerPassword: string;
@@ -1864,6 +2270,39 @@ export interface paths {
                             dailyStartEquity: number;
                             tradingDayKey: string;
                             tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
                             brokerId: string;
                             brokerLogin: string;
                             brokerPassword: string;
@@ -1938,6 +2377,7 @@ export interface paths {
                             avgPrice: number;
                             openedAt: string;
                             closedAt: string | null;
+                            realizedPnl?: number;
                         }[];
                     };
                 };

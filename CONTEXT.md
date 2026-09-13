@@ -49,28 +49,53 @@ Cash price to open a trading account on a Product.
 _Avoid_: subscription, tuition
 
 **Ruleset**:
-The numbers on a Phase: profit target, max drawdown, daily drawdown, min trading days.
+The checks on a Phase: profit target, max drawdown, daily drawdown, min trading days. Optional: consistency, weekend, max lot, max warnings.
 
 **Rule**:
-One check on a trading account against a ruleset. Result is `pass`, `fail`, or `continue`.
+One check on a trading account against a ruleset. Result is `pass`, `fail`, `continue`, `warn`, or `flag`.
 _Avoid_: constraint, metric, objective
 
 **Profit target**:
-Goal rule. Pass when equity minus start balance meets the number. Else continue.
+Goal rule. Pass when (equity minus start balance) / start balance meets the fraction. Else continue.
 
 **Max drawdown**:
-Fail rule. Fail when start balance minus equity meets the number. From start balance, not peak.
+Fail rule. Fail when (start balance minus equity) / start balance meets the fraction. From start balance, not peak.
 
 **Daily drawdown**:
-Fail rule. Fail when daily start equity minus equity meets the number.
+Fail rule. Fail when (daily start equity minus equity) / daily start equity meets the fraction.
 
 **Min trading days**:
 Goal rule. Pass when the book has at least that many trading days. Else continue.
 
+**On breach**:
+What an optional rule does when it fires: `fail`, `warn`, or `flag`. Not used on profit target, drawdowns, or min trading days.
+
+**Warning**:
+A recorded optional-rule breach. Trader-visible. Account stays active. Does not block pass. Counts toward max warnings.
+
+**Flag**:
+A recorded optional-rule breach. Admin-visible. Account stays active. Does not block pass. Does not count toward max warnings.
+
+**Max warnings**:
+Fail rule. Fail when this phase's warning count meets the number.
+
+**Consistency**:
+Optional rule. Best day's profit, or best trade's profit, over total profit, versus a threshold. Fires on breach.
+_Avoid_: volume consistency
+
+**Weekend**:
+Optional rule. A fill whose time is Saturday or Sunday in the firm's daily close timezone.
+
+**Max lot**:
+Optional rule. An open position's quantity meets the number. Quantity is the snapshot qty, not a converted FX lot.
+
+**Close position**:
+Optional follow-on after a breach: the Broker is told to close that position, not the trading account. Loopback does nothing.
+
 ### Book
 
 **Trading account**:
-A book that walks a Product's phases. Always owned by a User. Status is `active`, `passed`, or `failed`. A new paid Payment opens a new book; a failed book is not reused.
+A book that walks a Product's phases. Always owned by a User. Status is `active`, `passed`, or `failed`. A new paid Payment opens a new book; a failed book is not reused. Holds the ruleset copied when this phase opened. Product edits do not change it unless an admin overwrites.
 _Avoid_: Account, challenge account, reset, restart
 
 **Active**:
@@ -153,7 +178,7 @@ _Avoid_: Withdrawal, profit split, disbursement
 Trader share of sim profit, 0 to 1, on the product.
 
 **Payout mode**:
-When sim money moves, and whether fills freeze while a payout is pending. `debitOnApprove` withdraws on approve. `freezeUntilApproved` also freezes fills until approve. `debitOnPaid` is reserved.
+When sim money moves, and whether fills freeze while a payout is pending. `debitOnApprove` withdraws on approve. `freezeUntilApproved` also freezes fills until approve.
 _Avoid_: Debit on request
 
 **Frozen**:

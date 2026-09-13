@@ -30,8 +30,6 @@ import {
 } from "@propfirmcore/ui/components/select";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
-const implementedPayoutModes = payoutModes.filter((m) => m !== "debitOnPaid");
-
 function emptyPhase(): FirmConfig["products"][0]["phases"][0] {
     return {
         name: "eval",
@@ -39,9 +37,9 @@ function emptyPhase(): FirmConfig["products"][0]["phases"][0] {
         balance: 50_000,
         fee: 0,
         ruleset: {
-            profitTarget: 0,
-            maxDrawdown: 0,
-            dailyDrawdown: 0,
+            profitTarget: 0.06,
+            maxDrawdown: 0.05,
+            dailyDrawdown: 0.02,
             minTradingDays: 0,
         },
     };
@@ -575,7 +573,7 @@ function ProductFields({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {implementedPayoutModes.map((m) => (
+                                    {payoutModes.map((m) => (
                                         <SelectItem key={m} value={m}>
                                             {m}
                                         </SelectItem>
@@ -679,12 +677,12 @@ function ProductFields({
                     />
                     {(
                         [
-                            ["profitTarget", "Profit target"],
-                            ["maxDrawdown", "Max drawdown"],
-                            ["dailyDrawdown", "Daily drawdown"],
-                            ["minTradingDays", "Min trading days"],
+                            ["profitTarget", "Profit target", "0.01"],
+                            ["maxDrawdown", "Max drawdown", "0.01"],
+                            ["dailyDrawdown", "Daily drawdown", "0.01"],
+                            ["minTradingDays", "Min trading days", "1"],
                         ] as const
-                    ).map(([key, label]) => (
+                    ).map(([key, label, step]) => (
                         <FormField
                             key={key}
                             control={form.control}
@@ -695,6 +693,7 @@ function ProductFields({
                                     <NumInput
                                         value={field.value}
                                         onChange={field.onChange}
+                                        step={step}
                                     />
                                     <FormMessage>
                                         {fieldState.error?.message}

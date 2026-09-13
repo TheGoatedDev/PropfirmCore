@@ -1,7 +1,32 @@
 import type { DailyClose, Phase, Product } from "@propfirmcore/config";
 import { tradingDayKey } from "./calendar.ts";
-import { builtinRules } from "./rules.ts";
-import type { Fill, Snapshot, TradingAccount } from "./schemas.ts";
+import { builtinRules, type ExistingBreach, type RuleEval } from "./rules.ts";
+import type { Fill, Position, Snapshot, TradingAccount } from "./schemas.ts";
+
+export type RuleBreach = {
+    ruleId: string;
+    severity: "warn" | "flag";
+    subjectId: string;
+    positionId?: string;
+};
+
+export type SettleClose = { positionId: string };
+
+export type SettleResult = {
+    account: TradingAccount;
+    breaches: RuleBreach[];
+    closes: SettleClose[];
+};
+
+export type SettleInput = {
+    positions?: Position[];
+    fills?: Fill[];
+    existing?: ExistingBreach[];
+};
+
+function emptyResult(account: TradingAccount): SettleResult {
+    return { account, breaches: [], closes: [] };
+}
 
 function resetToPhase(
     account: TradingAccount,
@@ -25,6 +50,8 @@ function resetToPhase(
         dailyStartEquity: phase.balance,
         tradingDayKey: key,
         tradingDays: [],
+        dailyPnls: [],
+        ruleset: phase.ruleset,
         brokerId: account.brokerId,
         brokerLogin: account.brokerLogin,
         brokerPassword: account.brokerPassword,
@@ -62,6 +89,8 @@ export function openTradingAccount(
             dailyStartEquity: 0,
             tradingDayKey: "",
             tradingDays: [],
+            dailyPnls: [],
+            ruleset: product.phases[0].ruleset,
             brokerId,
             brokerLogin: "",
             brokerPassword: "",
@@ -73,32 +102,121 @@ export function openTradingAccount(
     );
 }
 
+export function resyncRuleset(
+    account: TradingAccount,
+    product: Product,
+): TradingAccount {
+    const phase = product.phases[account.phaseIndex];
+    if (!phase) return account;
+    return { ...account, ruleset: phase.ruleset };
+}
+
+function collect(
+    ruleId: string,
+    evals: RuleEval[],
+    existing: ExistingBreach[],
+): {
+    fail: boolean;
+    continue: boolean;
+    breaches: RuleBreach[];
+    closes: SettleClose[];
+} {
+    const breaches: RuleBreach[] = [];
+    const closes: SettleClose[] = [];
+    let fail = false;
+    let cont = false;
+    for (const e of evals) {
+        if (e.result === "fail") fail = true;
+        if (e.result === "continue") cont = true;
+        if (
+            (e.result === "warn" || e.result === "flag") &&
+            e.subjectId &&
+            !existing.some(
+                (x) => x.ruleId === ruleId && x.subjectId === e.subjectId,
+            )
+        ) {
+            breaches.push({
+                ruleId,
+                severity: e.result,
+                subjectId: e.subjectId,
+                positionId: e.positionId,
+            });
+        }
+        if (e.close && e.positionId) {
+            closes.push({ positionId: e.positionId });
+        }
+    }
+    return { fail, continue: cont, breaches, closes };
+}
+
 export function settle(
     account: TradingAccount,
     product: Product,
     dailyClose: DailyClose,
     now: string,
-): TradingAccount {
+    input: SettleInput = {},
+): SettleResult {
     if (account.status === "failed" || account.status === "passed") {
-        return account;
+        return emptyResult(account);
     }
     const phase = product.phases[account.phaseIndex];
-    const ctx = { tradingAccount: account, ruleset: phase.ruleset };
-    const results = builtinRules.map((r) => r.evaluate(ctx));
-    if (results.includes("fail")) return { ...account, status: "failed" };
-    if (!results.every((r) => r === "pass")) return account;
-    if (phase.kind === "funded") return account;
+    const existing = input.existing ?? [];
+    const ctx = {
+        tradingAccount: account,
+        ruleset: account.ruleset,
+        dailyClose,
+        positions: input.positions ?? [],
+        fills: input.fills ?? [],
+        existing,
+    };
+    const breaches: RuleBreach[] = [];
+    const closes: SettleClose[] = [];
+    let failed = false;
+    let blocked = false;
+    for (const rule of builtinRules) {
+        const got = collect(rule.id, rule.evaluate(ctx), existing);
+        failed = failed || got.fail;
+        blocked = blocked || got.continue;
+        breaches.push(...got.breaches);
+        closes.push(...got.closes);
+    }
+    const warnCount =
+        existing.filter((e) => e.severity === "warn").length +
+        breaches.filter((b) => b.severity === "warn").length;
+    if (
+        account.ruleset.maxWarnings != null &&
+        warnCount >= account.ruleset.maxWarnings
+    ) {
+        failed = true;
+    }
+    if (failed) {
+        return {
+            account: { ...account, status: "failed" },
+            breaches,
+            closes,
+        };
+    }
+    if (blocked) return { account, breaches, closes };
+    if (phase.kind === "funded") return { account, breaches, closes };
     const nextIndex = account.phaseIndex + 1;
     if (nextIndex < product.phases.length) {
-        return resetToPhase(
-            account,
-            product.phases[nextIndex],
-            nextIndex,
-            dailyClose,
-            now,
-        );
+        return {
+            account: resetToPhase(
+                account,
+                product.phases[nextIndex],
+                nextIndex,
+                dailyClose,
+                now,
+            ),
+            breaches,
+            closes,
+        };
     }
-    return { ...account, status: "passed" };
+    return {
+        account: { ...account, status: "passed" },
+        breaches,
+        closes,
+    };
 }
 
 export function forceFail(account: TradingAccount): TradingAccount {
@@ -114,9 +232,19 @@ export function applySnapshot(
     snapshot: Snapshot,
     product: Product,
     dailyClose: DailyClose,
-): TradingAccount {
+    existing: ExistingBreach[] = [],
+): SettleResult {
     const key = tradingDayKey(snapshot.ts, dailyClose);
     const rolled = key !== account.tradingDayKey;
+    const dailyPnls = rolled
+        ? [
+              ...account.dailyPnls,
+              {
+                  day: account.tradingDayKey,
+                  pnl: account.equity - account.dailyStartEquity,
+              },
+          ]
+        : account.dailyPnls;
     return settle(
         {
             ...account,
@@ -127,10 +255,12 @@ export function applySnapshot(
             dailyStartEquity: rolled
                 ? snapshot.equity
                 : account.dailyStartEquity,
+            dailyPnls,
         },
         product,
         dailyClose,
         snapshot.ts,
+        { positions: snapshot.positions, existing },
     );
 }
 
@@ -140,8 +270,9 @@ export function applyFills(
     product: Product,
     dailyClose: DailyClose,
     now: string,
-): TradingAccount {
-    if (fills.length === 0) return account;
+    existing: ExistingBreach[] = [],
+): SettleResult {
+    if (fills.length === 0) return emptyResult(account);
     const days = new Set(account.tradingDays);
     for (const fill of fills) days.add(tradingDayKey(fill.ts, dailyClose));
     return settle(
@@ -149,5 +280,6 @@ export function applyFills(
         product,
         dailyClose,
         now,
+        { fills, existing },
     );
 }

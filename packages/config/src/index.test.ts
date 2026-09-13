@@ -21,9 +21,9 @@ const valid = {
                     balance: 50_000,
                     fee: 99,
                     ruleset: {
-                        profitTarget: 3000,
-                        maxDrawdown: 2500,
-                        dailyDrawdown: 1000,
+                        profitTarget: 0.06,
+                        maxDrawdown: 0.05,
+                        dailyDrawdown: 0.02,
                         minTradingDays: 4,
                     },
                 },
@@ -42,8 +42,8 @@ const fundedProduct = {
             balance: 50_000,
             ruleset: {
                 profitTarget: 0,
-                maxDrawdown: 2500,
-                dailyDrawdown: 1000,
+                maxDrawdown: 0.05,
+                dailyDrawdown: 0.02,
                 minTradingDays: 0,
             },
         },
@@ -137,7 +137,7 @@ describe("parseFirmConfig", () => {
         expect(cfg.products[0].payout?.mode).toBe("freezeUntilApproved");
     });
 
-    it("rejects unimplemented payout mode", () => {
+    it("rejects unknown payout mode", () => {
         expect(() =>
             parseFirmConfig({
                 ...valid,

@@ -12,7 +12,13 @@ export type {
     ProductPayout,
     Ruleset,
 } from "@propfirmcore/config";
-export { tradingDayKey } from "./calendar.ts";
+export { isWeekend, tradingDayKey } from "./calendar.ts";
+export type {
+    RuleBreach,
+    SettleClose,
+    SettleInput,
+    SettleResult,
+} from "./engine.ts";
 export {
     applyFills,
     applySnapshot,
@@ -20,6 +26,7 @@ export {
     forcePass,
     onFundedPhase,
     openTradingAccount,
+    resyncRuleset,
     settle,
 } from "./engine.ts";
 export {
@@ -28,13 +35,22 @@ export {
     fillsFrozen,
     reservedAmount,
 } from "./payout.ts";
-export type { Rule, RuleContext, RuleResult } from "./rules.ts";
+export type {
+    ExistingBreach,
+    Rule,
+    RuleContext,
+    RuleEval,
+    RuleResult,
+} from "./rules.ts";
 export {
     builtinRules,
+    consistency,
     dailyDrawdown,
     maxDrawdown,
+    maxLot,
     minTradingDays,
     profitTarget,
+    weekend,
 } from "./rules.ts";
 export type {
     AssetClass,

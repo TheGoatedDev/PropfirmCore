@@ -1,3 +1,4 @@
+import { rulesetSchema } from "@propfirmcore/config";
 import { z } from "zod";
 
 export const assetClasses = ["fx", "futures", "crypto", "equity"] as const;
@@ -31,6 +32,7 @@ export const positionSchema = z.object({
     avgPrice: z.number(),
     openedAt: z.string().min(1),
     closedAt: z.string().min(1).nullable(),
+    realizedPnl: z.number().optional(),
 });
 
 export const fillSideSchema = z.enum(fillSides);
@@ -93,6 +95,13 @@ export const tradingAccountSchema = z.object({
     dailyStartEquity: z.number(),
     tradingDayKey: z.string(),
     tradingDays: z.array(z.string()),
+    dailyPnls: z.array(
+        z.object({
+            day: z.string().min(1),
+            pnl: z.number(),
+        }),
+    ),
+    ruleset: rulesetSchema,
     brokerId: z.string().min(1),
     brokerLogin: z.string(),
     // ponytail: plaintext; encrypt at rest if credentials leave this box

@@ -125,6 +125,14 @@ export function assembleFirm(input: {
                             maxDrawdown: ph.maxDrawdown,
                             dailyDrawdown: ph.dailyDrawdown,
                             minTradingDays: ph.minTradingDays,
+                            ...(ph.maxWarnings != null
+                                ? { maxWarnings: ph.maxWarnings }
+                                : {}),
+                            ...(ph.consistency
+                                ? { consistency: ph.consistency }
+                                : {}),
+                            ...(ph.weekend ? { weekend: ph.weekend } : {}),
+                            ...(ph.maxLot ? { maxLot: ph.maxLot } : {}),
                         },
                     })),
             };
@@ -268,6 +276,10 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
                         maxDrawdown: ph.ruleset.maxDrawdown,
                         dailyDrawdown: ph.ruleset.dailyDrawdown,
                         minTradingDays: ph.ruleset.minTradingDays,
+                        maxWarnings: ph.ruleset.maxWarnings ?? null,
+                        consistency: ph.ruleset.consistency ?? null,
+                        weekend: ph.ruleset.weekend ?? null,
+                        maxLot: ph.ruleset.maxLot ?? null,
                     })),
                 ),
             );

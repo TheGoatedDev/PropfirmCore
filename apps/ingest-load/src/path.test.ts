@@ -4,9 +4,9 @@ import { planPath } from "./path.ts";
 const origin = "2026-01-15T16:00:00.000Z";
 const start = 50_000;
 const ruleset = {
-    profitTarget: 3000,
-    maxDrawdown: 2500,
-    dailyDrawdown: 1000,
+    profitTarget: 0.06,
+    maxDrawdown: 0.05,
+    dailyDrawdown: 0.02,
     minTradingDays: 4,
 };
 
