@@ -158,7 +158,7 @@ export interface paths {
                                      * @default debitOnApprove
                                      * @enum {string}
                                      */
-                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    mode: "debitOnApprove" | "freezeUntilApproved";
                                     /** @enum {string} */
                                     onUncoverable?: "failApprove" | "autoReject";
                                 };
@@ -281,7 +281,7 @@ export interface paths {
                                  * @default debitOnApprove
                                  * @enum {string}
                                  */
-                                mode?: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                mode?: "debitOnApprove" | "freezeUntilApproved";
                                 /** @enum {string} */
                                 onUncoverable?: "failApprove" | "autoReject";
                             };
@@ -376,7 +376,7 @@ export interface paths {
                                      * @default debitOnApprove
                                      * @enum {string}
                                      */
-                                    mode: "debitOnApprove" | "freezeUntilApproved" | "debitOnPaid";
+                                    mode: "debitOnApprove" | "freezeUntilApproved";
                                     /** @enum {string} */
                                     onUncoverable?: "failApprove" | "autoReject";
                                 };

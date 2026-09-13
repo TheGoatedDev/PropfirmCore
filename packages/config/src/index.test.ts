@@ -137,7 +137,7 @@ describe("parseFirmConfig", () => {
         expect(cfg.products[0].payout?.mode).toBe("freezeUntilApproved");
     });
 
-    it("rejects unimplemented payout mode", () => {
+    it("rejects unknown payout mode", () => {
         expect(() =>
             parseFirmConfig({
                 ...valid,

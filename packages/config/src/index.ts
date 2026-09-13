@@ -19,31 +19,17 @@ export const phaseSchema = z.object({
     ruleset: rulesetSchema,
 });
 
-export const payoutModes = [
-    "debitOnApprove",
-    "freezeUntilApproved",
-    "debitOnPaid",
-] as const;
+export const payoutModes = ["debitOnApprove", "freezeUntilApproved"] as const;
 
 export const onUncoverablePolicies = ["failApprove", "autoReject"] as const;
 
 export const onUncoverableSchema = z.enum(onUncoverablePolicies);
 
-export const productPayoutSchema = z
-    .object({
-        split: z.number().min(0).max(1).default(0.8),
-        mode: z.enum(payoutModes).default("debitOnApprove"),
-        onUncoverable: onUncoverableSchema.optional(),
-    })
-    .superRefine((val, ctx) => {
-        if (val.mode === "debitOnPaid") {
-            ctx.addIssue({
-                code: "custom",
-                message: `payout mode ${val.mode} is not implemented`,
-                path: ["mode"],
-            });
-        }
-    });
+export const productPayoutSchema = z.object({
+    split: z.number().min(0).max(1).default(0.8),
+    mode: z.enum(payoutModes).default("debitOnApprove"),
+    onUncoverable: onUncoverableSchema.optional(),
+});
 
 export const firmPayoutSchema = z.object({
     onUncoverable: onUncoverableSchema.default("failApprove"),

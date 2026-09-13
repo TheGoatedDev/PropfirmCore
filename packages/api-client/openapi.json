@@ -522,8 +522,7 @@
                                                                 "type": "string",
                                                                 "enum": [
                                                                     "debitOnApprove",
-                                                                    "freezeUntilApproved",
-                                                                    "debitOnPaid"
+                                                                    "freezeUntilApproved"
                                                                 ],
                                                                 "default": "debitOnApprove"
                                                             },
@@ -823,8 +822,7 @@
                                                             "type": "string",
                                                             "enum": [
                                                                 "debitOnApprove",
-                                                                "freezeUntilApproved",
-                                                                "debitOnPaid"
+                                                                "freezeUntilApproved"
                                                             ],
                                                             "default": "debitOnApprove"
                                                         },
@@ -1081,8 +1079,7 @@
                                                                 "type": "string",
                                                                 "enum": [
                                                                     "debitOnApprove",
-                                                                    "freezeUntilApproved",
-                                                                    "debitOnPaid"
+                                                                    "freezeUntilApproved"
                                                                 ],
                                                                 "default": "debitOnApprove"
                                                             },

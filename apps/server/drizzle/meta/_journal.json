@@ -43,6 +43,13 @@
       "when": 1788728176369,
       "tag": "0005_lonely_garia",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789326865496,
+      "tag": "0006_numerous_crystal",
+      "breakpoints": true
     }
   ]
 }

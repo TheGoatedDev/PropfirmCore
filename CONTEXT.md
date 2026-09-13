@@ -153,7 +153,7 @@ _Avoid_: Withdrawal, profit split, disbursement
 Trader share of sim profit, 0 to 1, on the product.
 
 **Payout mode**:
-When sim money moves, and whether fills freeze while a payout is pending. `debitOnApprove` withdraws on approve. `freezeUntilApproved` also freezes fills until approve. `debitOnPaid` is reserved.
+When sim money moves, and whether fills freeze while a payout is pending. `debitOnApprove` withdraws on approve. `freezeUntilApproved` also freezes fills until approve.
 _Avoid_: Debit on request
 
 **Frozen**:

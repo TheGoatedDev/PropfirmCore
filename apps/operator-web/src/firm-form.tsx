@@ -30,8 +30,6 @@ import {
 } from "@propfirmcore/ui/components/select";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 
-const implementedPayoutModes = payoutModes.filter((m) => m !== "debitOnPaid");
-
 function emptyPhase(): FirmConfig["products"][0]["phases"][0] {
     return {
         name: "eval",
@@ -575,7 +573,7 @@ function ProductFields({
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    {implementedPayoutModes.map((m) => (
+                                    {payoutModes.map((m) => (
                                         <SelectItem key={m} value={m}>
                                             {m}
                                         </SelectItem>
