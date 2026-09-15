@@ -51,6 +51,12 @@ Runner: Playwright. `pnpm test:e2e` boots postgres+NATS (Testcontainers) then AP
 
 `pnpm test` = unit then int then e2e.
 
+## Bugs
+
+Confirmed bug → write a failing test that reproduces it, then fix. The test must fail on unfixed code.
+
+Pick the layer that would have caught it: unit for parse/domain, int for HTTP/db/worker, e2e only if the contract is the browser.
+
 ## Default
 
 If unsure: unit. Then integration. E2e last.
