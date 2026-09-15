@@ -105,9 +105,16 @@ export const productSchema = z
         }
     });
 
+export const kycGates = ["payout", "funded"] as const;
+
+export const kycModuleSchema = z.object({
+    enabled: z.boolean().default(false),
+    gate: z.enum(kycGates).default("payout"),
+});
+
 export const modulesSchema = z.object({
     affiliates: z.boolean().default(false),
-    kyc: z.boolean().default(false),
+    kyc: kycModuleSchema.default({ enabled: false, gate: "payout" }),
     multiBrand: z.boolean().default(false),
 });
 
@@ -136,7 +143,7 @@ export const firmConfigSchema = z
         dailyClose: dailyCloseSchema,
         modules: modulesSchema.default({
             affiliates: false,
-            kyc: false,
+            kyc: { enabled: false, gate: "payout" },
             multiBrand: false,
         }),
         checkout: checkoutSchema.default({
@@ -177,6 +184,8 @@ export type ConsistencyMode = (typeof consistencyModes)[number];
 export type Ruleset = z.infer<typeof rulesetSchema>;
 export type Phase = z.infer<typeof phaseSchema>;
 export type Product = z.infer<typeof productSchema>;
+export type KycGate = (typeof kycGates)[number];
+export type KycModule = z.infer<typeof kycModuleSchema>;
 export type Modules = z.infer<typeof modulesSchema>;
 export type DailyClose = z.infer<typeof dailyCloseSchema>;
 export type Checkout = z.infer<typeof checkoutSchema>;

@@ -40,6 +40,7 @@ type Account = {
     userId: string;
     status: string;
     brokerId: string;
+    kycVerified?: boolean;
 };
 
 const col = createDataTableColumnHelper<Account>();
@@ -145,6 +146,18 @@ function AdminHome() {
         },
         onSuccess: invalidate,
         onError: (error) => setError(failMsg(error, "Action failed")),
+    });
+
+    const setKyc = useMutation({
+        mutationFn: async (input: { id: string; verified: boolean }) => {
+            const { error } = await api.POST("/users/{id}/kyc", {
+                params: { path: { id: input.id } },
+                body: { verified: input.verified },
+            });
+            if (error) throw error;
+        },
+        onSuccess: invalidate,
+        onError: (error) => setError(failMsg(error, "KYC failed")),
     });
 
     const force = useMutation({
@@ -316,6 +329,23 @@ function AdminHome() {
                             enableSorting: false,
                             cell: ({ row }) => (
                                 <div className="space-x-2">
+                                    <Button
+                                        size="sm"
+                                        variant="outline"
+                                        data-testid={`kyc-verify-${row.original.userId}`}
+                                        onClick={() => {
+                                            setError(null);
+                                            setKyc.mutate({
+                                                id: row.original.userId,
+                                                verified:
+                                                    !row.original.kycVerified,
+                                            });
+                                        }}
+                                    >
+                                        {row.original.kycVerified
+                                            ? "Unverify"
+                                            : "Verify"}
+                                    </Button>
                                     <Button
                                         size="sm"
                                         variant="outline"

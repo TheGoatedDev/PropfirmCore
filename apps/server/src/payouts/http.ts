@@ -308,6 +308,6 @@ export function mountPayouts(app: OpenAPIHono, deps: Deps) {
         "pay",
         "pay",
         "Payout marked paid. Cash sent outside the system.",
-        (db, _firm, id) => markPayoutPaid(db, id),
+        markPayoutPaid,
     );
 }

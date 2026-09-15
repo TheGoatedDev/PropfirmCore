@@ -58,4 +58,12 @@ describe("roleHasPermission", () => {
     it("trader cannot write firm", () => {
         expect(roleHasPermission("trader", "firm", "write")).toBe(false);
     });
+
+    it("admin can write kyc", () => {
+        expect(roleHasPermission("admin", "kyc", "write")).toBe(true);
+    });
+
+    it("trader cannot write kyc", () => {
+        expect(roleHasPermission("trader", "kyc", "write")).toBe(false);
+    });
 });

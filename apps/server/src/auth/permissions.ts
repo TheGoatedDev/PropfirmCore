@@ -7,6 +7,7 @@ export const statement = {
     tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
+    kyc: ["write"],
 } as const;
 
 export const ac = createAccessControl(statement);
@@ -19,6 +20,7 @@ const staff = {
     tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
+    kyc: ["write"],
 } as const;
 
 export const admin = ac.newRole(staff);

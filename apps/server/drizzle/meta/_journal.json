@@ -57,6 +57,13 @@
       "when": 1789330378309,
       "tag": "0007_tired_omega_sentinel",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789497605684,
+      "tag": "0008_shocking_blindfold",
+      "breakpoints": true
     }
   ]
 }

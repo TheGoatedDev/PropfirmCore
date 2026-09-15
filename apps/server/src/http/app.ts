@@ -8,6 +8,7 @@ import type { Db } from "../db/db.ts";
 import { mountFirm } from "../firm/http.ts";
 import type { IngestPublish } from "../ingest/bus.ts";
 import { mountIngest } from "../ingest/http.ts";
+import { mountKyc } from "../kyc/http.ts";
 import { log } from "../logger.ts";
 import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
@@ -63,6 +64,7 @@ export function createApp(deps: AppDeps) {
     mountCheckout(app, deps);
     mountTradingAccounts(app, deps);
     mountPayouts(app, deps);
+    mountKyc(app, deps);
     mountIngest(app, deps);
 
     app.get("/openapi.json", async (c) => {

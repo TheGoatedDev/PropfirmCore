@@ -81,7 +81,10 @@ export function assembleFirm(input: {
         },
         modules: {
             affiliates: input.firm.modulesAffiliates,
-            kyc: input.firm.modulesKyc,
+            kyc: {
+                enabled: input.firm.modulesKyc,
+                gate: input.firm.modulesKycGate,
+            },
             multiBrand: input.firm.modulesMultiBrand,
         },
         checkout: {
@@ -206,7 +209,8 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
                 dailyCloseTz: cfg.dailyClose.tz,
                 dailyCloseTime: cfg.dailyClose.time,
                 modulesAffiliates: cfg.modules.affiliates,
-                modulesKyc: cfg.modules.kyc,
+                modulesKyc: cfg.modules.kyc.enabled,
+                modulesKycGate: cfg.modules.kyc.gate,
                 modulesMultiBrand: cfg.modules.multiBrand,
                 checkoutProvider: cfg.checkout.provider,
                 checkoutCurrency: cfg.checkout.currency,
@@ -219,7 +223,8 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
                     dailyCloseTz: cfg.dailyClose.tz,
                     dailyCloseTime: cfg.dailyClose.time,
                     modulesAffiliates: cfg.modules.affiliates,
-                    modulesKyc: cfg.modules.kyc,
+                    modulesKyc: cfg.modules.kyc.enabled,
+                    modulesKycGate: cfg.modules.kyc.gate,
                     modulesMultiBrand: cfg.modules.multiBrand,
                     checkoutProvider: cfg.checkout.provider,
                     checkoutCurrency: cfg.checkout.currency,
@@ -303,7 +308,41 @@ export async function ensureFirm(
             .from(products)
             .where(eq(products.firmId, rows[0].id))
             .limit(1);
-        if (product) return loadFirm(db, rows[0].id);
+        if (product) {
+            // ponytail: leftover pre-ADR 0005/0009 rows; drop when all DBs reseeded
+            await db.execute(sql`
+                UPDATE phases SET
+                    profit_target = profit_target / balance,
+                    max_drawdown = max_drawdown / balance,
+                    daily_drawdown = daily_drawdown / balance
+                WHERE balance > 0 AND (
+                    profit_target > 1 OR max_drawdown > 1 OR daily_drawdown > 1
+                )
+            `);
+            await db.execute(sql`
+                UPDATE trading_accounts ta SET broker_id = COALESCE(
+                    (
+                        SELECT pb.broker_id FROM product_brokers pb
+                        WHERE pb.firm_id = ta.firm_id AND pb.product_id = ta.product_id
+                        LIMIT 1
+                    ),
+                    (SELECT b.id FROM brokers b WHERE b.firm_id = ta.firm_id LIMIT 1)
+                )
+                WHERE ta.broker_id = ''
+            `);
+            await db.execute(sql`
+                UPDATE payments p SET broker_id = COALESCE(
+                    (
+                        SELECT pb.broker_id FROM product_brokers pb
+                        WHERE pb.firm_id = p.firm_id AND pb.product_id = p.product_id
+                        LIMIT 1
+                    ),
+                    (SELECT b.id FROM brokers b WHERE b.firm_id = p.firm_id LIMIT 1)
+                )
+                WHERE p.broker_id = ''
+            `);
+            return loadFirm(db, rows[0].id);
+        }
     }
     await replaceFirm(db, cfg);
     return cfg;

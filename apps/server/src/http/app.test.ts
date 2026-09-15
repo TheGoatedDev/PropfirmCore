@@ -99,6 +99,7 @@ describe("api", () => {
         expect(spec.paths["/products"]).toBeTruthy();
         expect(spec.paths["/firm"]).toBeTruthy();
         expect(spec.paths["/auth/me"]).toBeTruthy();
+        expect(spec.paths["/users/{id}/kyc"]).toBeTruthy();
         expect(spec.paths["/me"]).toBeUndefined();
         expect(spec.paths["/auth/sign-in/email"]).toBeTruthy();
     });

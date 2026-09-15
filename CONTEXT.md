@@ -22,7 +22,15 @@ A User who buys products, trades, and requests payouts.
 _Avoid_: customer, client, account holder
 
 **Admin**:
-A User who operates a Firm: complete payments, force pass or fail, approve reject or pay payouts.
+A User who operates a Firm: complete payments, force pass or fail, approve reject or pay payouts, set KYC.
+
+**KYC**:
+The Firm's check that a User is verified. Off = no check.
+_Avoid_: identity, verification, AML, onboarding
+
+**KYC gate**:
+When KYC is on: `payout` blocks sending cash; `funded` also blocks entering a funded phase.
+_Avoid_: KYC mode, KYC stage
 
 **Role**:
 A permission set for Users on one Firm. Builtins are trader and admin. A Firm Admin may add more. Operator is not a Role.

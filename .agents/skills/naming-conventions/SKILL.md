@@ -21,6 +21,10 @@ Put tag names in `tags` in `apps/server/src/http/openapi.ts`. Do not hardcode a 
 
 Every tag needs a description (full sentence) in `tagMeta`.
 
+Each Firm module (`modules.*`) gets its own tag. Do not fold module routes into Authentication, Firm, or Trading Accounts.
+
+Yes: `KYC`
+
 ## More rules
 
 Add them here when they exist. Do not invent extra conventions.

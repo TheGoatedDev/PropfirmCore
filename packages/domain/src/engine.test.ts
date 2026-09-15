@@ -215,6 +215,29 @@ describe("engine", () => {
         expect(next.tradingDays).toEqual([]);
     });
 
+    it("mayAdvance false keeps eval after profit target", () => {
+        const a = openTradingAccount(
+            "a1",
+            twoStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+            "acme",
+        );
+        const next = applySnapshot(
+            a,
+            snap(53_000),
+            twoStep,
+            dailyClose,
+            [],
+            false,
+        ).account;
+        expect(next.status).toBe("active");
+        expect(next.phaseIndex).toBe(0);
+        expect(next.equity).toBe(53_000);
+    });
+
     it("stays on funded phase when profit target hits", () => {
         const a = openTradingAccount(
             "a1",

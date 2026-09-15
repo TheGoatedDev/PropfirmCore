@@ -1,5 +1,6 @@
 import {
     type FirmConfig,
+    kycGates,
     onUncoverablePolicies,
     parseFirmConfig,
     payoutModes,
@@ -256,7 +257,7 @@ export function FirmForm({
                         />
                         <div className="space-y-2 sm:col-span-2">
                             <FormLabel>Modules</FormLabel>
-                            {(["affiliates", "kyc", "multiBrand"] as const).map(
+                            {(["affiliates", "multiBrand"] as const).map(
                                 (key) => (
                                     <FormField
                                         key={key}
@@ -283,6 +284,57 @@ export function FirmForm({
                                     />
                                 ),
                             )}
+                            <FormField
+                                control={form.control}
+                                name="modules.kyc.enabled"
+                                render={({ field }) => (
+                                    <div className="flex items-center gap-2 text-sm">
+                                        <Checkbox
+                                            id="mod-kyc"
+                                            data-testid="modules-kyc-enabled"
+                                            checked={field.value}
+                                            onCheckedChange={(v) =>
+                                                field.onChange(v === true)
+                                            }
+                                        />
+                                        <FormLabel htmlFor="mod-kyc">
+                                            kyc
+                                        </FormLabel>
+                                    </div>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="modules.kyc.gate"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel htmlFor="mod-kyc-gate">
+                                            KYC gate
+                                        </FormLabel>
+                                        <Select
+                                            value={field.value}
+                                            onValueChange={field.onChange}
+                                        >
+                                            <SelectTrigger
+                                                id="mod-kyc-gate"
+                                                data-testid="modules-kyc-gate"
+                                            >
+                                                <SelectValue />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {kycGates.map((g) => (
+                                                    <SelectItem
+                                                        key={g}
+                                                        value={g}
+                                                    >
+                                                        {g}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                     </CardContent>
                 </Card>

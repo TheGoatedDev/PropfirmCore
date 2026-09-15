@@ -1,8 +1,9 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import type { FirmConfig } from "@propfirmcore/config";
 import { tradingAccountSchema } from "@propfirmcore/domain";
-import { eq } from "drizzle-orm";
+import { eq, inArray } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
+import { user } from "../auth/auth-schema.ts";
 import { roleHasPermission } from "../auth/permissions.ts";
 import { type Db, fills, snapshots } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
@@ -25,8 +26,11 @@ const listQuery = z.object({
     sort: z.enum(["id", "status", "equity", "productId", "userId"]).optional(),
     order: z.enum(["asc", "desc"]).default("asc"),
 });
+const accountOutSchema = tradingAccountSchema.extend({
+    kycVerified: z.boolean().optional(),
+});
 const listSchema = z.object({
-    items: z.array(tradingAccountSchema),
+    items: z.array(accountOutSchema),
     total: z.number().int(),
 });
 
@@ -38,6 +42,20 @@ function canRead(
 ) {
     if (account.userId === who.id) return true;
     return roleHasPermission(who.role, "tradingAccount", "read");
+}
+
+function canSeeKyc(role: string) {
+    return roleHasPermission(role, "kyc", "write");
+}
+
+async function kycByUserIds(db: Db, userIds: string[]) {
+    const ids = [...new Set(userIds)];
+    if (ids.length === 0) return new Map<string, boolean>();
+    const rows = await db
+        .select({ id: user.id, kycVerified: user.kycVerified })
+        .from(user)
+        .where(inArray(user.id, ids));
+    return new Map(rows.map((r) => [r.id, r.kycVerified]));
 }
 
 export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
@@ -106,11 +124,26 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const query = c.req.valid("query");
+            const who = actorOf(session.user);
             const listed = await listAccounts(deps.db, {
-                who: actorOf(session.user),
+                who,
                 ...query,
             });
-            return c.json(listed, 200);
+            if (!canSeeKyc(who.role)) return c.json(listed, 200);
+            const kyc = await kycByUserIds(
+                deps.db,
+                listed.items.map((a) => a.userId),
+            );
+            return c.json(
+                {
+                    items: listed.items.map((a) => ({
+                        ...a,
+                        kycVerified: kyc.get(a.userId) ?? false,
+                    })),
+                    total: listed.total,
+                },
+                200,
+            );
         },
     );
 
@@ -124,7 +157,7 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                 200: {
                     description: "The trading account.",
                     content: {
-                        "application/json": { schema: tradingAccountSchema },
+                        "application/json": { schema: accountOutSchema },
                     },
                 },
                 401: {
@@ -148,10 +181,16 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const account = await getById(deps.db, c.req.valid("param").id);
             if (!account) return c.json({ error: "not found" }, 404);
-            if (!canRead(actorOf(session.user), account)) {
+            const who = actorOf(session.user);
+            if (!canRead(who, account)) {
                 return c.json({ error: "forbidden" }, 403);
             }
-            return c.json(account, 200);
+            if (!canSeeKyc(who.role)) return c.json(account, 200);
+            const kyc = await kycByUserIds(deps.db, [account.userId]);
+            return c.json(
+                { ...account, kycVerified: kyc.get(account.userId) ?? false },
+                200,
+            );
         },
     );
 

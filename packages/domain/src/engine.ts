@@ -22,6 +22,7 @@ export type SettleInput = {
     positions?: Position[];
     fills?: Fill[];
     existing?: ExistingBreach[];
+    mayAdvance?: boolean;
 };
 
 function emptyResult(account: TradingAccount): SettleResult {
@@ -198,6 +199,7 @@ export function settle(
     }
     if (blocked) return { account, breaches, closes };
     if (phase.kind === "funded") return { account, breaches, closes };
+    if (input.mayAdvance === false) return { account, breaches, closes };
     const nextIndex = account.phaseIndex + 1;
     if (nextIndex < product.phases.length) {
         return {
@@ -233,6 +235,7 @@ export function applySnapshot(
     product: Product,
     dailyClose: DailyClose,
     existing: ExistingBreach[] = [],
+    mayAdvance = true,
 ): SettleResult {
     const key = tradingDayKey(snapshot.ts, dailyClose);
     const rolled = key !== account.tradingDayKey;
@@ -260,7 +263,7 @@ export function applySnapshot(
         product,
         dailyClose,
         snapshot.ts,
-        { positions: snapshot.positions, existing },
+        { positions: snapshot.positions, existing, mayAdvance },
     );
 }
 
@@ -271,6 +274,7 @@ export function applyFills(
     dailyClose: DailyClose,
     now: string,
     existing: ExistingBreach[] = [],
+    mayAdvance = true,
 ): SettleResult {
     if (fills.length === 0) return emptyResult(account);
     const days = new Set(account.tradingDays);
@@ -280,6 +284,6 @@ export function applyFills(
         product,
         dailyClose,
         now,
-        { fills, existing },
+        { fills, existing, mayAdvance },
     );
 }

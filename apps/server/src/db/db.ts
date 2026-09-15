@@ -1,6 +1,7 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+    kycGates,
     onUncoverablePolicies,
     payoutModes,
     phaseKinds,
@@ -60,6 +61,7 @@ export const onUncoverableEnum = pgEnum(
     "on_uncoverable",
     onUncoverablePolicies,
 );
+export const kycGateEnum = pgEnum("kyc_gate", kycGates);
 
 export const firms = pgTable("firm", {
     id: text("id").primaryKey(),
@@ -68,6 +70,7 @@ export const firms = pgTable("firm", {
     dailyCloseTime: text("daily_close_time").notNull(),
     modulesAffiliates: boolean("modules_affiliates").notNull(),
     modulesKyc: boolean("modules_kyc").notNull(),
+    modulesKycGate: kycGateEnum("modules_kyc_gate").notNull().default("payout"),
     modulesMultiBrand: boolean("modules_multi_brand").notNull(),
     checkoutProvider: text("checkout_provider").notNull(),
     checkoutCurrency: text("checkout_currency").notNull(),

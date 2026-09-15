@@ -2,7 +2,11 @@
     "id": "acme",
     "name": "Acme",
     "dailyClose": { "tz": "America/New_York", "time": "17:00" },
-    "modules": { "affiliates": false, "kyc": false, "multiBrand": false },
+    "modules": {
+        "affiliates": false,
+        "kyc": { "enabled": false, "gate": "payout" },
+        "multiBrand": false
+    },
     "payout": { "onUncoverable": "failApprove" },
     "brokers": [
         {

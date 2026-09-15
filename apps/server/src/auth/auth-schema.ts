@@ -20,6 +20,7 @@ export const user = pgTable("user", {
         .notNull(),
     role: text("role").default("trader"),
     firmId: text("firm_id"),
+    kycVerified: boolean("kyc_verified").default(false).notNull(),
     banned: boolean("banned").default(false),
     banReason: text("ban_reason"),
     banExpires: timestamp("ban_expires"),

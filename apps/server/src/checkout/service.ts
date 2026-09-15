@@ -9,6 +9,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { kycBlocksInstantFunded, kycVerifiedOf } from "../kyc.ts";
 import { log } from "../logger.ts";
 import { getBridge } from "../payouts/adapters.ts";
 import { getAdapter } from "./adapters.ts";
@@ -48,6 +49,15 @@ export async function completePayment(
     }
     const product = firm.products.find((p) => p.id === payment.productId);
     if (!product) return { ok: false as const, error: "unknown product" };
+    if (
+        kycBlocksInstantFunded(
+            firm,
+            await kycVerifiedOf(db, payment.userId),
+            product,
+        )
+    ) {
+        return { ok: false as const, error: "kyc required" };
+    }
     const now = DateTime.utc().toISO();
     if (!now) throw new Error("bad now");
     const bridge = getBridge(firm, payment.brokerId);
@@ -107,6 +117,15 @@ export async function startCheckout(
     const product = firm.products.find((p) => p.id === input.productId);
     if (!product?.brokers.includes(input.brokerId)) {
         return { ok: false as const, error: "unknown broker" };
+    }
+    if (
+        kycBlocksInstantFunded(
+            firm,
+            await kycVerifiedOf(db, input.userId),
+            product,
+        )
+    ) {
+        return { ok: false as const, error: "kyc required" };
     }
     const provider = firm.checkout.provider;
     const adapter = getAdapter(provider);

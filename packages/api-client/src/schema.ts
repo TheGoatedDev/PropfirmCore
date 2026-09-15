@@ -31,6 +31,12 @@ export interface paths {
                             email: string;
                             role: string;
                             firmId: string | null;
+                            kycVerified: boolean;
+                            kyc: {
+                                enabled: boolean;
+                                /** @enum {string} */
+                                gate: "payout" | "funded";
+                            } | null;
                         };
                     };
                 };
@@ -88,15 +94,31 @@ export interface paths {
                             /**
                              * @default {
                              *       "affiliates": false,
-                             *       "kyc": false,
+                             *       "kyc": {
+                             *         "enabled": false,
+                             *         "gate": "payout"
+                             *       },
                              *       "multiBrand": false
                              *     }
                              */
                             modules: {
                                 /** @default false */
                                 affiliates: boolean;
-                                /** @default false */
-                                kyc: boolean;
+                                /**
+                                 * @default {
+                                 *       "enabled": false,
+                                 *       "gate": "payout"
+                                 *     }
+                                 */
+                                kyc: {
+                                    /** @default false */
+                                    enabled: boolean;
+                                    /**
+                                     * @default payout
+                                     * @enum {string}
+                                     */
+                                    gate: "payout" | "funded";
+                                };
                                 /** @default false */
                                 multiBrand: boolean;
                             };
@@ -234,15 +256,31 @@ export interface paths {
                         /**
                          * @default {
                          *       "affiliates": false,
-                         *       "kyc": false,
+                         *       "kyc": {
+                         *         "enabled": false,
+                         *         "gate": "payout"
+                         *       },
                          *       "multiBrand": false
                          *     }
                          */
                         modules?: {
                             /** @default false */
                             affiliates?: boolean;
-                            /** @default false */
-                            kyc?: boolean;
+                            /**
+                             * @default {
+                             *       "enabled": false,
+                             *       "gate": "payout"
+                             *     }
+                             */
+                            kyc?: {
+                                /** @default false */
+                                enabled?: boolean;
+                                /**
+                                 * @default payout
+                                 * @enum {string}
+                                 */
+                                gate?: "payout" | "funded";
+                            };
                             /** @default false */
                             multiBrand?: boolean;
                         };
@@ -352,15 +390,31 @@ export interface paths {
                             /**
                              * @default {
                              *       "affiliates": false,
-                             *       "kyc": false,
+                             *       "kyc": {
+                             *         "enabled": false,
+                             *         "gate": "payout"
+                             *       },
                              *       "multiBrand": false
                              *     }
                              */
                             modules: {
                                 /** @default false */
                                 affiliates: boolean;
-                                /** @default false */
-                                kyc: boolean;
+                                /**
+                                 * @default {
+                                 *       "enabled": false,
+                                 *       "gate": "payout"
+                                 *     }
+                                 */
+                                kyc: {
+                                    /** @default false */
+                                    enabled: boolean;
+                                    /**
+                                     * @default payout
+                                     * @enum {string}
+                                     */
+                                    gate: "payout" | "funded";
+                                };
                                 /** @default false */
                                 multiBrand: boolean;
                             };
@@ -881,6 +935,7 @@ export interface paths {
                                 brokerId: string;
                                 brokerLogin: string;
                                 brokerPassword: string;
+                                kycVerified?: boolean;
                             }[];
                             total: number;
                         };
@@ -983,6 +1038,7 @@ export interface paths {
                             brokerId: string;
                             brokerLogin: string;
                             brokerPassword: string;
+                            kycVerified?: boolean;
                         };
                     };
                 };
@@ -2184,6 +2240,88 @@ export interface paths {
                         "application/json": {
                             /** @description What went wrong, in plain language. */
                             error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/kyc": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        verified: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description KYC flag on the User. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            kycVerified: boolean;
                         };
                     };
                 };
@@ -4743,6 +4881,8 @@ export interface components {
             /** Format: date-time */
             readonly banExpires?: string;
             readonly firmId?: string;
+            /** @default false */
+            readonly kycVerified: boolean;
         };
         Session: {
             readonly id: string;

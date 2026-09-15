@@ -22,6 +22,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { kycBlocksFundedEntry, kycVerifiedOf } from "../kyc.ts";
 import { log } from "../logger.ts";
 import { getBridge } from "../payouts/adapters.ts";
 
@@ -136,12 +137,17 @@ export async function ingestSnapshot(
             return { ok: false as const, error: "unknown product" as const };
         }
         const existing = await loadExisting(tx, id, account.phaseIndex);
+        const mayAdvance = !kycBlocksFundedEntry(
+            firm,
+            await kycVerifiedOf(tx, account.userId),
+        );
         const settled = applySnapshot(
             account,
             body,
             product,
             firm.dailyClose,
             existing,
+            mayAdvance,
         );
         await tx.insert(snapshots).values({
             externalId: body.externalId,
@@ -217,6 +223,10 @@ export async function ingestFills(
             return { ok: false as const, error: "frozen" as const };
         }
         const prior = await loadExisting(tx, id, account.phaseIndex);
+        const mayAdvance = !kycBlocksFundedEntry(
+            firm,
+            await kycVerifiedOf(tx, account.userId),
+        );
         const settled = applyFills(
             account,
             newFills,
@@ -224,6 +234,7 @@ export async function ingestFills(
             firm.dailyClose,
             newFills[newFills.length - 1].ts,
             prior,
+            mayAdvance,
         );
         await tx.insert(fills).values(newFills.map((f) => fillToRow(id, f)));
         await tx

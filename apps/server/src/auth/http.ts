@@ -1,7 +1,10 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import type { FirmConfig } from "@propfirmcore/config";
+import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { roleOf } from "../http/session.ts";
+import { kycForMe, kycVerifiedOf } from "../kyc.ts";
 import type { Auth } from "./auth.ts";
 
 const meSchema = z.object({
@@ -9,9 +12,16 @@ const meSchema = z.object({
     email: z.string(),
     role: z.string(),
     firmId: z.string().nullable(),
+    kycVerified: z.boolean(),
+    kyc: z
+        .object({
+            enabled: z.boolean(),
+            gate: z.enum(["payout", "funded"]),
+        })
+        .nullable(),
 });
 
-type Deps = { auth: Auth };
+type Deps = { auth: Auth; db: Db; firm: FirmConfig };
 
 export function mountAuth(app: OpenAPIHono, deps: Deps) {
     app.openapi(
@@ -43,6 +53,8 @@ export function mountAuth(app: OpenAPIHono, deps: Deps) {
                     email: session.user.email,
                     role: roleOf(session.user),
                     firmId: session.user.firmId ?? null,
+                    kycVerified: await kycVerifiedOf(deps.db, session.user.id),
+                    kyc: kycForMe(deps.firm),
                 },
                 200,
             );

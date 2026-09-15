@@ -15,6 +15,7 @@ import {
     tradingAccounts,
     tradingAccountToRow,
 } from "../db/db.ts";
+import { kycBlocksCash, kycVerifiedOf } from "../kyc.ts";
 import { log } from "../logger.ts";
 import { getBridge } from "./adapters.ts";
 
@@ -97,6 +98,9 @@ export async function requestPayout(
         if (!account) return { ok: false, error: "not found" };
         if (account.userId !== input.userId)
             return { ok: false, error: "forbidden" };
+        if (kycBlocksCash(firm, await kycVerifiedOf(tx, input.userId))) {
+            return { ok: false, error: "kyc required" };
+        }
         const product = firm.products.find((p) => p.id === account.productId);
         if (
             !product ||
@@ -153,6 +157,9 @@ export async function approvePayout(
         if (!payout) return { ok: false, error: "not found" };
         if (payout.status !== "pending")
             return { ok: false, error: "not pending" };
+        if (kycBlocksCash(firm, await kycVerifiedOf(tx, payout.userId))) {
+            return { ok: false, error: "kyc required" };
+        }
         const account = await loadAccount(tx, payout.tradingAccountId, true);
         if (!account) return { ok: false, error: "not found" };
         const bridge = getBridge(firm, account.brokerId);
@@ -312,6 +319,7 @@ export async function rejectPayout(
 
 export async function markPayoutPaid(
     db: Db,
+    firm: FirmConfig,
     payoutId: string,
 ): Promise<Ok | Err> {
     const rows = await db
@@ -327,6 +335,9 @@ export async function markPayoutPaid(
     }
     if (payout.status !== "approved")
         return { ok: false, error: "not approved" };
+    if (kycBlocksCash(firm, await kycVerifiedOf(db, payout.userId))) {
+        return { ok: false, error: "kyc required" };
+    }
     const next: Payout = { ...payout, status: "paid" };
     await db
         .update(payouts)

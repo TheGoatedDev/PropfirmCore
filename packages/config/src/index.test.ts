@@ -52,11 +52,23 @@ const fundedProduct = {
 };
 
 describe("parseFirmConfig", () => {
+    it("defaults kyc gate payout when enabled omitted", () => {
+        const cfg = parseFirmConfig({
+            ...valid,
+            modules: {
+                affiliates: false,
+                kyc: { enabled: true },
+                multiBrand: false,
+            },
+        });
+        expect(cfg.modules.kyc).toEqual({ enabled: true, gate: "payout" });
+    });
+
     it("defaults modules off", () => {
         const cfg = parseFirmConfig(valid);
         expect(cfg.modules).toEqual({
             affiliates: false,
-            kyc: false,
+            kyc: { enabled: false, gate: "payout" },
             multiBrand: false,
         });
         expect(cfg.checkout).toEqual({

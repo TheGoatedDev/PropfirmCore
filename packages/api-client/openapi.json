@@ -62,6 +62,11 @@
                     "firmId": {
                         "type": "string",
                         "readOnly": true
+                    },
+                    "kycVerified": {
+                        "type": "boolean",
+                        "default": false,
+                        "readOnly": true
                     }
                 },
                 "required": [
@@ -261,13 +266,38 @@
                                         "firmId": {
                                             "type": "string",
                                             "nullable": true
+                                        },
+                                        "kycVerified": {
+                                            "type": "boolean"
+                                        },
+                                        "kyc": {
+                                            "type": "object",
+                                            "nullable": true,
+                                            "properties": {
+                                                "enabled": {
+                                                    "type": "boolean"
+                                                },
+                                                "gate": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "payout",
+                                                        "funded"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "enabled",
+                                                "gate"
+                                            ]
                                         }
                                     },
                                     "required": [
                                         "id",
                                         "email",
                                         "role",
-                                        "firmId"
+                                        "firmId",
+                                        "kycVerified",
+                                        "kyc"
                                     ]
                                 }
                             }
@@ -341,8 +371,25 @@
                                                     "default": false
                                                 },
                                                 "kyc": {
-                                                    "type": "boolean",
-                                                    "default": false
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "enabled": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        },
+                                                        "gate": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "payout",
+                                                                "funded"
+                                                            ],
+                                                            "default": "payout"
+                                                        }
+                                                    },
+                                                    "default": {
+                                                        "enabled": false,
+                                                        "gate": "payout"
+                                                    }
                                                 },
                                                 "multiBrand": {
                                                     "type": "boolean",
@@ -351,7 +398,10 @@
                                             },
                                             "default": {
                                                 "affiliates": false,
-                                                "kyc": false,
+                                                "kyc": {
+                                                    "enabled": false,
+                                                    "gate": "payout"
+                                                },
                                                 "multiBrand": false
                                             }
                                         },
@@ -729,8 +779,25 @@
                                                 "default": false
                                             },
                                             "kyc": {
-                                                "type": "boolean",
-                                                "default": false
+                                                "type": "object",
+                                                "properties": {
+                                                    "enabled": {
+                                                        "type": "boolean",
+                                                        "default": false
+                                                    },
+                                                    "gate": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "payout",
+                                                            "funded"
+                                                        ],
+                                                        "default": "payout"
+                                                    }
+                                                },
+                                                "default": {
+                                                    "enabled": false,
+                                                    "gate": "payout"
+                                                }
                                             },
                                             "multiBrand": {
                                                 "type": "boolean",
@@ -739,7 +806,10 @@
                                         },
                                         "default": {
                                             "affiliates": false,
-                                            "kyc": false,
+                                            "kyc": {
+                                                "enabled": false,
+                                                "gate": "payout"
+                                            },
                                             "multiBrand": false
                                         }
                                     },
@@ -1074,8 +1144,25 @@
                                                     "default": false
                                                 },
                                                 "kyc": {
-                                                    "type": "boolean",
-                                                    "default": false
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "enabled": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        },
+                                                        "gate": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "payout",
+                                                                "funded"
+                                                            ],
+                                                            "default": "payout"
+                                                        }
+                                                    },
+                                                    "default": {
+                                                        "enabled": false,
+                                                        "gate": "payout"
+                                                    }
                                                 },
                                                 "multiBrand": {
                                                     "type": "boolean",
@@ -1084,7 +1171,10 @@
                                             },
                                             "default": {
                                                 "affiliates": false,
-                                                "kyc": false,
+                                                "kyc": {
+                                                    "enabled": false,
+                                                    "gate": "payout"
+                                                },
                                                 "multiBrand": false
                                             }
                                         },
@@ -2195,6 +2285,9 @@
                                                     },
                                                     "brokerPassword": {
                                                         "type": "string"
+                                                    },
+                                                    "kycVerified": {
+                                                        "type": "boolean"
                                                     }
                                                 },
                                                 "required": [
@@ -2471,6 +2564,9 @@
                                         },
                                         "brokerPassword": {
                                             "type": "string"
+                                        },
+                                        "kycVerified": {
+                                            "type": "boolean"
                                         }
                                     },
                                     "required": [
@@ -4752,6 +4848,123 @@
                                     },
                                     "required": [
                                         "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/kyc": {
+            "post": {
+                "tags": [
+                    "KYC"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "verified": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "verified"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "KYC flag on the User.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "kycVerified": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "kycVerified"
                                     ]
                                 }
                             }
@@ -13192,6 +13405,10 @@
         {
             "name": "Payouts",
             "description": "Payouts: trader request, admin approve or reject, mark paid."
+        },
+        {
+            "name": "KYC",
+            "description": "KYC: admin sets verified on a User."
         },
         {
             "name": "Ingest",

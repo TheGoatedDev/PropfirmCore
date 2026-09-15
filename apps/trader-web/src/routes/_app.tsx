@@ -80,6 +80,14 @@ function App() {
             crumbs={crumbs}
             onCrumb={(to) => void navigate({ to })}
         >
+            {me.kyc && !me.kycVerified ? (
+                <p
+                    className="mb-4 rounded-md border px-3 py-2 text-sm"
+                    data-testid="kyc-banner"
+                >
+                    KYC required
+                </p>
+            ) : null}
             <Outlet />
         </AppShell>
     );
