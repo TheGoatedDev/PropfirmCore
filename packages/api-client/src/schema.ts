@@ -2369,6 +2369,375 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/users": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    q?: string;
+                    sort?: "email" | "createdAt";
+                    order?: "asc" | "desc";
+                    role?: "trader" | "admin";
+                    banned?: "true" | "false";
+                    kind?: "operator" | "firmUser";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Users you can see. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                email: string;
+                                name: string;
+                                /** @enum {string} */
+                                kind: "operator" | "firmUser";
+                                /** @enum {string|null} */
+                                role: "trader" | "admin" | null;
+                                banned: boolean;
+                                createdAt: string;
+                            }[];
+                            total: number;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        kind: "operator";
+                        /** Format: email */
+                        email: string;
+                        name: string;
+                        password: string;
+                    } | {
+                        /** @enum {string} */
+                        kind: "firmUser";
+                        /** @enum {string} */
+                        role: "trader" | "admin";
+                        /** Format: email */
+                        email: string;
+                        name: string;
+                        password: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description The created User. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            email: string;
+                            name: string;
+                            /** @enum {string} */
+                            kind: "operator" | "firmUser";
+                            /** @enum {string|null} */
+                            role: "trader" | "admin" | null;
+                            banned: boolean;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description A resource with this id already exists. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/ban": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        banned: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description The User ban flag. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            email: string;
+                            name: string;
+                            /** @enum {string} */
+                            kind: "operator" | "firmUser";
+                            /** @enum {string|null} */
+                            role: "trader" | "admin" | null;
+                            banned: boolean;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/users/{id}/role": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        role: "trader" | "admin";
+                    };
+                };
+            };
+            responses: {
+                /** @description The User Role. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            email: string;
+                            name: string;
+                            /** @enum {string} */
+                            kind: "operator" | "firmUser";
+                            /** @enum {string|null} */
+                            role: "trader" | "admin" | null;
+                            banned: boolean;
+                            createdAt: string;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/ingest/trading-accounts/{id}": {
         parameters: {
             query?: never;

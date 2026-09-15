@@ -37,6 +37,7 @@ export const tags = {
     payouts: "Payouts",
     ingest: "Ingest",
     kyc: "KYC",
+    users: "Users",
 } as const;
 
 const tagMeta: Record<string, string> = {
@@ -54,6 +55,7 @@ const tagMeta: Record<string, string> = {
     [tags.ingest]:
         "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key.",
     [tags.kyc]: "KYC: admin sets verified on a User.",
+    [tags.users]: "Users: list, create, ban, and set Role.",
 };
 
 function authTag(path: string): string {

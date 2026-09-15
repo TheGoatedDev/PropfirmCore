@@ -5,6 +5,7 @@ export const api = createApiClient("/api", { credentials: "include" });
 export const keys = {
     me: ["me"] as const,
     firm: ["firm"] as const,
+    users: ["users"] as const,
 };
 
 export async function authPost(path: string, body?: Record<string, unknown>) {

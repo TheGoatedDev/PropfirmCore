@@ -5030,6 +5030,742 @@
                 }
             }
         },
+        "/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "default": 1
+                        },
+                        "required": false,
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 100,
+                            "default": 10
+                        },
+                        "required": false,
+                        "name": "pageSize",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string"
+                        },
+                        "required": false,
+                        "name": "q",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "email",
+                                "createdAt"
+                            ],
+                            "default": "createdAt"
+                        },
+                        "required": false,
+                        "name": "sort",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "asc",
+                                "desc"
+                            ],
+                            "default": "desc"
+                        },
+                        "required": false,
+                        "name": "order",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "trader",
+                                "admin"
+                            ]
+                        },
+                        "required": false,
+                        "name": "role",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "true",
+                                "false"
+                            ]
+                        },
+                        "required": false,
+                        "name": "banned",
+                        "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "operator",
+                                "firmUser"
+                            ]
+                        },
+                        "required": false,
+                        "name": "kind",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Users you can see.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "items": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string"
+                                                    },
+                                                    "email": {
+                                                        "type": "string"
+                                                    },
+                                                    "name": {
+                                                        "type": "string"
+                                                    },
+                                                    "kind": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "operator",
+                                                            "firmUser"
+                                                        ]
+                                                    },
+                                                    "role": {
+                                                        "type": "string",
+                                                        "nullable": true,
+                                                        "enum": [
+                                                            "trader",
+                                                            "admin",
+                                                            null
+                                                        ]
+                                                    },
+                                                    "banned": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "createdAt": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "id",
+                                                    "email",
+                                                    "name",
+                                                    "kind",
+                                                    "role",
+                                                    "banned",
+                                                    "createdAt"
+                                                ]
+                                            }
+                                        },
+                                        "total": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "items",
+                                        "total"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "oneOf": [
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "kind": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "operator"
+                                                ]
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "minLength": 8
+                                            }
+                                        },
+                                        "required": [
+                                            "kind",
+                                            "email",
+                                            "name",
+                                            "password"
+                                        ]
+                                    },
+                                    {
+                                        "type": "object",
+                                        "properties": {
+                                            "kind": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "firmUser"
+                                                ]
+                                            },
+                                            "role": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "trader",
+                                                    "admin"
+                                                ]
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email"
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "minLength": 1
+                                            },
+                                            "password": {
+                                                "type": "string",
+                                                "minLength": 8
+                                            }
+                                        },
+                                        "required": [
+                                            "kind",
+                                            "role",
+                                            "email",
+                                            "name",
+                                            "password"
+                                        ]
+                                    }
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The created User.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                                "operator",
+                                                "firmUser"
+                                            ]
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "trader",
+                                                "admin",
+                                                null
+                                            ]
+                                        },
+                                        "banned": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "email",
+                                        "name",
+                                        "kind",
+                                        "role",
+                                        "banned",
+                                        "createdAt"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "A resource with this id already exists.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/ban": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "banned": {
+                                        "type": "boolean"
+                                    }
+                                },
+                                "required": [
+                                    "banned"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The User ban flag.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                                "operator",
+                                                "firmUser"
+                                            ]
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "trader",
+                                                "admin",
+                                                null
+                                            ]
+                                        },
+                                        "banned": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "email",
+                                        "name",
+                                        "kind",
+                                        "role",
+                                        "banned",
+                                        "createdAt"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{id}/role": {
+            "post": {
+                "tags": [
+                    "Users"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "trader",
+                                            "admin"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "role"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The User Role.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string"
+                                        },
+                                        "email": {
+                                            "type": "string"
+                                        },
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "kind": {
+                                            "type": "string",
+                                            "enum": [
+                                                "operator",
+                                                "firmUser"
+                                            ]
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "nullable": true,
+                                            "enum": [
+                                                "trader",
+                                                "admin",
+                                                null
+                                            ]
+                                        },
+                                        "banned": {
+                                            "type": "boolean"
+                                        },
+                                        "createdAt": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "email",
+                                        "name",
+                                        "kind",
+                                        "role",
+                                        "banned",
+                                        "createdAt"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/ingest/trading-accounts/{id}": {
             "get": {
                 "tags": [
@@ -13409,6 +14145,10 @@
         {
             "name": "KYC",
             "description": "KYC: admin sets verified on a User."
+        },
+        {
+            "name": "Users",
+            "description": "Users: list, create, ban, and set Role."
         },
         {
             "name": "Ingest",

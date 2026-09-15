@@ -12,6 +12,7 @@ import { mountKyc } from "../kyc/http.ts";
 import { log } from "../logger.ts";
 import { mountPayouts } from "../payouts/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
+import { mountUsers } from "../users/http.ts";
 import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
 
 export type FirmHolder = {
@@ -65,6 +66,7 @@ export function createApp(deps: AppDeps) {
     mountTradingAccounts(app, deps);
     mountPayouts(app, deps);
     mountKyc(app, deps);
+    mountUsers(app, deps);
     mountIngest(app, deps);
 
     app.get("/openapi.json", async (c) => {

@@ -8,7 +8,7 @@ import {
     useMatches,
     useNavigate,
 } from "@tanstack/react-router";
-import { Building2, Cable, House, Package } from "lucide-react";
+import { Building2, Cable, House, Package, Users } from "lucide-react";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -89,6 +89,13 @@ function App() {
                         data-testid="nav-products"
                     >
                         <SidebarItem icon={<Package />}>Products</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/users"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-users"
+                    >
+                        <SidebarItem icon={<Users />}>Users</SidebarItem>
                     </Link>
                 </nav>
             }

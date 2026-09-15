@@ -6,6 +6,7 @@ export const keys = {
     me: ["me"] as const,
     accounts: ["trading-accounts"] as const,
     payouts: ["payouts"] as const,
+    users: ["users"] as const,
 };
 
 export async function authPost(path: string, body?: Record<string, unknown>) {

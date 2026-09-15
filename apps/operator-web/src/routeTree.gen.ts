@@ -13,6 +13,7 @@ import { Route as AppRouteImport } from './routes/_app'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppFirmRouteImport } from './routes/_app/firm'
+import { Route as AppUsersRouteImport } from './routes/_app/users'
 import { Route as GuestSigninRouteImport } from './routes/_guest/signin'
 import { Route as AppBrokersIndexRouteImport } from './routes/_app/brokers.index'
 import { Route as AppBrokersIdRouteImport } from './routes/_app/brokers.$id'
@@ -37,6 +38,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
 const AppFirmRoute = AppFirmRouteImport.update({
   id: '/firm',
   path: '/firm',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppUsersRoute = AppUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AppRoute,
 } as any)
 const GuestSigninRoute = GuestSigninRouteImport.update({
@@ -78,6 +84,7 @@ const AppProductsNewRoute = AppProductsNewRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
   '/firm': typeof AppFirmRoute
+  '/users': typeof AppUsersRoute
   '/signin': typeof GuestSigninRoute
   '/brokers/$id': typeof AppBrokersIdRoute
   '/brokers/new': typeof AppBrokersNewRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
   '/firm': typeof AppFirmRoute
+  '/users': typeof AppUsersRoute
   '/signin': typeof GuestSigninRoute
   '/brokers/$id': typeof AppBrokersIdRoute
   '/brokers/new': typeof AppBrokersNewRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
   '/_app/firm': typeof AppFirmRoute
+  '/_app/users': typeof AppUsersRoute
   '/_guest/signin': typeof GuestSigninRoute
   '/_app/': typeof AppIndexRoute
   '/_app/brokers/$id': typeof AppBrokersIdRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/firm'
+    | '/users'
     | '/signin'
     | '/brokers/$id'
     | '/brokers/new'
@@ -127,6 +137,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/firm'
+    | '/users'
     | '/signin'
     | '/brokers/$id'
     | '/brokers/new'
@@ -139,6 +150,7 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_guest'
     | '/_app/firm'
+    | '/_app/users'
     | '/_guest/signin'
     | '/_app/'
     | '/_app/brokers/$id'
@@ -182,6 +194,13 @@ declare module '@tanstack/react-router' {
       path: '/firm'
       fullPath: '/firm'
       preLoaderRoute: typeof AppFirmRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/users': {
+      id: '/_app/users'
+      path: '/users'
+      fullPath: '/users'
+      preLoaderRoute: typeof AppUsersRouteImport
       parentRoute: typeof AppRoute
     }
     '/_guest/signin': {
@@ -238,6 +257,7 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteChildren {
   AppFirmRoute: typeof AppFirmRoute
+  AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
   AppBrokersIdRoute: typeof AppBrokersIdRoute
   AppBrokersNewRoute: typeof AppBrokersNewRoute
@@ -249,6 +269,7 @@ interface AppRouteChildren {
 
 const AppRouteChildren: AppRouteChildren = {
   AppFirmRoute: AppFirmRoute,
+  AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
   AppBrokersIdRoute: AppBrokersIdRoute,
   AppBrokersNewRoute: AppBrokersNewRoute,
