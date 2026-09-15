@@ -8,7 +8,7 @@ import {
     useMatches,
     useNavigate,
 } from "@tanstack/react-router";
-import { House } from "lucide-react";
+import { Building2, Cable, House, Package } from "lucide-react";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -65,8 +65,30 @@ function App() {
                     <Link
                         to="/"
                         className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-home"
                     >
-                        <SidebarItem icon={<House />}>Firm</SidebarItem>
+                        <SidebarItem icon={<House />}>Home</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/firm"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-firm"
+                    >
+                        <SidebarItem icon={<Building2 />}>Firm</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/brokers"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-brokers"
+                    >
+                        <SidebarItem icon={<Cable />}>Brokers</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/products"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-products"
+                    >
+                        <SidebarItem icon={<Package />}>Products</SidebarItem>
                     </Link>
                 </nav>
             }

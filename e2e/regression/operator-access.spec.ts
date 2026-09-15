@@ -28,6 +28,6 @@ test("operator sees firm name", async ({ page }) => {
     await page.getByTestId("sign-in-email").fill("operator@example.com");
     await page.getByTestId("sign-in-password").fill("changeme");
     await page.getByTestId("sign-in-submit").click();
-    await expect(page.getByTestId("firm-heading")).toBeVisible();
-    await expect(page.getByTestId("firm-name")).toHaveValue("Acme");
+    await expect(page.getByTestId("home-heading")).toBeVisible();
+    await expect(page.getByTestId("home-firm-name")).toHaveText("Acme");
 });

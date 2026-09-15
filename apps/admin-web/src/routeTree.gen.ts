@@ -12,6 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
+import { Route as AppPayoutsRouteImport } from './routes/_app/payouts'
+import { Route as AppTradingAccountsRouteImport } from './routes/_app/trading-accounts'
 import { Route as GuestSigninRouteImport } from './routes/_guest/signin'
 
 const AppRoute = AppRouteImport.update({
@@ -27,6 +30,21 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppPaymentsRoute = AppPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppPayoutsRoute = AppPayoutsRouteImport.update({
+  id: '/payouts',
+  path: '/payouts',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppTradingAccountsRoute = AppTradingAccountsRouteImport.update({
+  id: '/trading-accounts',
+  path: '/trading-accounts',
+  getParentRoute: () => AppRoute,
+} as any)
 const GuestSigninRoute = GuestSigninRouteImport.update({
   id: '/signin',
   path: '/signin',
@@ -35,25 +53,42 @@ const GuestSigninRoute = GuestSigninRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/payments': typeof AppPaymentsRoute
+  '/payouts': typeof AppPayoutsRoute
+  '/trading-accounts': typeof AppTradingAccountsRoute
   '/signin': typeof GuestSigninRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/payments': typeof AppPaymentsRoute
+  '/payouts': typeof AppPayoutsRoute
+  '/trading-accounts': typeof AppTradingAccountsRoute
   '/signin': typeof GuestSigninRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
+  '/_app/payments': typeof AppPaymentsRoute
+  '/_app/payouts': typeof AppPayoutsRoute
+  '/_app/trading-accounts': typeof AppTradingAccountsRoute
   '/_guest/signin': typeof GuestSigninRoute
   '/_app/': typeof AppIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin'
+  fullPaths: '/' | '/payments' | '/payouts' | '/trading-accounts' | '/signin'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin'
-  id: '__root__' | '/_app' | '/_guest' | '/_guest/signin' | '/_app/'
+  to: '/' | '/payments' | '/payouts' | '/trading-accounts' | '/signin'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_guest'
+    | '/_app/payments'
+    | '/_app/payouts'
+    | '/_app/trading-accounts'
+    | '/_guest/signin'
+    | '/_app/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -84,6 +119,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/payments': {
+      id: '/_app/payments'
+      path: '/payments'
+      fullPath: '/payments'
+      preLoaderRoute: typeof AppPaymentsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/payouts': {
+      id: '/_app/payouts'
+      path: '/payouts'
+      fullPath: '/payouts'
+      preLoaderRoute: typeof AppPayoutsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/trading-accounts': {
+      id: '/_app/trading-accounts'
+      path: '/trading-accounts'
+      fullPath: '/trading-accounts'
+      preLoaderRoute: typeof AppTradingAccountsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_guest/signin': {
       id: '/_guest/signin'
       path: '/signin'
@@ -95,10 +151,16 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteChildren {
+  AppPaymentsRoute: typeof AppPaymentsRoute
+  AppPayoutsRoute: typeof AppPayoutsRoute
+  AppTradingAccountsRoute: typeof AppTradingAccountsRoute
   AppIndexRoute: typeof AppIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppPaymentsRoute: AppPaymentsRoute,
+  AppPayoutsRoute: AppPayoutsRoute,
+  AppTradingAccountsRoute: AppTradingAccountsRoute,
   AppIndexRoute: AppIndexRoute,
 }
 

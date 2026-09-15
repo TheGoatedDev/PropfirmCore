@@ -12,7 +12,14 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as GuestRouteImport } from './routes/_guest'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppFirmRouteImport } from './routes/_app/firm'
 import { Route as GuestSigninRouteImport } from './routes/_guest/signin'
+import { Route as AppBrokersIndexRouteImport } from './routes/_app/brokers.index'
+import { Route as AppBrokersIdRouteImport } from './routes/_app/brokers.$id'
+import { Route as AppBrokersNewRouteImport } from './routes/_app/brokers.new'
+import { Route as AppProductsIndexRouteImport } from './routes/_app/products.index'
+import { Route as AppProductsIdRouteImport } from './routes/_app/products.$id'
+import { Route as AppProductsNewRouteImport } from './routes/_app/products.new'
 
 const AppRoute = AppRouteImport.update({
   id: '/_app',
@@ -27,33 +34,119 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppFirmRoute = AppFirmRouteImport.update({
+  id: '/firm',
+  path: '/firm',
+  getParentRoute: () => AppRoute,
+} as any)
 const GuestSigninRoute = GuestSigninRouteImport.update({
   id: '/signin',
   path: '/signin',
   getParentRoute: () => GuestRoute,
 } as any)
+const AppBrokersIndexRoute = AppBrokersIndexRouteImport.update({
+  id: '/brokers/',
+  path: '/brokers/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBrokersIdRoute = AppBrokersIdRouteImport.update({
+  id: '/brokers/$id',
+  path: '/brokers/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppBrokersNewRoute = AppBrokersNewRouteImport.update({
+  id: '/brokers/new',
+  path: '/brokers/new',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProductsIndexRoute = AppProductsIndexRouteImport.update({
+  id: '/products/',
+  path: '/products/',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProductsIdRoute = AppProductsIdRouteImport.update({
+  id: '/products/$id',
+  path: '/products/$id',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProductsNewRoute = AppProductsNewRouteImport.update({
+  id: '/products/new',
+  path: '/products/new',
+  getParentRoute: () => AppRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AppIndexRoute
+  '/firm': typeof AppFirmRoute
   '/signin': typeof GuestSigninRoute
+  '/brokers/$id': typeof AppBrokersIdRoute
+  '/brokers/new': typeof AppBrokersNewRoute
+  '/products/$id': typeof AppProductsIdRoute
+  '/products/new': typeof AppProductsNewRoute
+  '/brokers/': typeof AppBrokersIndexRoute
+  '/products/': typeof AppProductsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof AppIndexRoute
+  '/firm': typeof AppFirmRoute
   '/signin': typeof GuestSigninRoute
+  '/brokers/$id': typeof AppBrokersIdRoute
+  '/brokers/new': typeof AppBrokersNewRoute
+  '/products/$id': typeof AppProductsIdRoute
+  '/products/new': typeof AppProductsNewRoute
+  '/brokers': typeof AppBrokersIndexRoute
+  '/products': typeof AppProductsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteWithChildren
   '/_guest': typeof GuestRouteWithChildren
+  '/_app/firm': typeof AppFirmRoute
   '/_guest/signin': typeof GuestSigninRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/brokers/$id': typeof AppBrokersIdRoute
+  '/_app/brokers/new': typeof AppBrokersNewRoute
+  '/_app/products/$id': typeof AppProductsIdRoute
+  '/_app/products/new': typeof AppProductsNewRoute
+  '/_app/brokers/': typeof AppBrokersIndexRoute
+  '/_app/products/': typeof AppProductsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/signin'
+  fullPaths:
+    | '/'
+    | '/firm'
+    | '/signin'
+    | '/brokers/$id'
+    | '/brokers/new'
+    | '/products/$id'
+    | '/products/new'
+    | '/brokers/'
+    | '/products/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/signin'
-  id: '__root__' | '/_app' | '/_guest' | '/_guest/signin' | '/_app/'
+  to:
+    | '/'
+    | '/firm'
+    | '/signin'
+    | '/brokers/$id'
+    | '/brokers/new'
+    | '/products/$id'
+    | '/products/new'
+    | '/brokers'
+    | '/products'
+  id:
+    | '__root__'
+    | '/_app'
+    | '/_guest'
+    | '/_app/firm'
+    | '/_guest/signin'
+    | '/_app/'
+    | '/_app/brokers/$id'
+    | '/_app/brokers/new'
+    | '/_app/products/$id'
+    | '/_app/products/new'
+    | '/_app/brokers/'
+    | '/_app/products/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -84,6 +177,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/firm': {
+      id: '/_app/firm'
+      path: '/firm'
+      fullPath: '/firm'
+      preLoaderRoute: typeof AppFirmRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_guest/signin': {
       id: '/_guest/signin'
       path: '/signin'
@@ -91,15 +191,71 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GuestSigninRouteImport
       parentRoute: typeof GuestRoute
     }
+    '/_app/brokers/': {
+      id: '/_app/brokers/'
+      path: '/brokers'
+      fullPath: '/brokers/'
+      preLoaderRoute: typeof AppBrokersIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/brokers/$id': {
+      id: '/_app/brokers/$id'
+      path: '/brokers/$id'
+      fullPath: '/brokers/$id'
+      preLoaderRoute: typeof AppBrokersIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/brokers/new': {
+      id: '/_app/brokers/new'
+      path: '/brokers/new'
+      fullPath: '/brokers/new'
+      preLoaderRoute: typeof AppBrokersNewRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/products/': {
+      id: '/_app/products/'
+      path: '/products'
+      fullPath: '/products/'
+      preLoaderRoute: typeof AppProductsIndexRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/products/$id': {
+      id: '/_app/products/$id'
+      path: '/products/$id'
+      fullPath: '/products/$id'
+      preLoaderRoute: typeof AppProductsIdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/products/new': {
+      id: '/_app/products/new'
+      path: '/products/new'
+      fullPath: '/products/new'
+      preLoaderRoute: typeof AppProductsNewRouteImport
+      parentRoute: typeof AppRoute
+    }
   }
 }
 
 interface AppRouteChildren {
+  AppFirmRoute: typeof AppFirmRoute
   AppIndexRoute: typeof AppIndexRoute
+  AppBrokersIdRoute: typeof AppBrokersIdRoute
+  AppBrokersNewRoute: typeof AppBrokersNewRoute
+  AppProductsIdRoute: typeof AppProductsIdRoute
+  AppProductsNewRoute: typeof AppProductsNewRoute
+  AppBrokersIndexRoute: typeof AppBrokersIndexRoute
+  AppProductsIndexRoute: typeof AppProductsIndexRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppFirmRoute: AppFirmRoute,
   AppIndexRoute: AppIndexRoute,
+  AppBrokersIdRoute: AppBrokersIdRoute,
+  AppBrokersNewRoute: AppBrokersNewRoute,
+  AppProductsIdRoute: AppProductsIdRoute,
+  AppProductsNewRoute: AppProductsNewRoute,
+  AppBrokersIndexRoute: AppBrokersIndexRoute,
+  AppProductsIndexRoute: AppProductsIndexRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

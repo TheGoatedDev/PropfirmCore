@@ -8,7 +8,7 @@ import {
     useMatches,
     useNavigate,
 } from "@tanstack/react-router";
-import { House } from "lucide-react";
+import { CreditCard, House, Landmark, Wallet } from "lucide-react";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -65,8 +65,34 @@ function App() {
                     <Link
                         to="/"
                         className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-home"
                     >
                         <SidebarItem icon={<House />}>Home</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/payments"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-payments"
+                    >
+                        <SidebarItem icon={<CreditCard />}>
+                            Payments
+                        </SidebarItem>
+                    </Link>
+                    <Link
+                        to="/payouts"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-payouts"
+                    >
+                        <SidebarItem icon={<Landmark />}>Payouts</SidebarItem>
+                    </Link>
+                    <Link
+                        to="/trading-accounts"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-trading-accounts"
+                    >
+                        <SidebarItem icon={<Wallet />}>
+                            Trading accounts
+                        </SidebarItem>
                     </Link>
                 </nav>
             }
