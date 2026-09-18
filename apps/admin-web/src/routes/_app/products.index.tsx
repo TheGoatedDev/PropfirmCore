@@ -18,7 +18,6 @@ const col = createDataTableColumnHelper<Row>();
 
 export const Route = createFileRoute("/_app/products/")({
     component: Products,
-    staticData: { crumb: "Products" },
 });
 
 function Products() {

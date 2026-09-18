@@ -84,7 +84,7 @@ export function AppShell({
     children: ReactNode;
 }) {
     const brand = logo ?? <h1 className="text-lg font-semibold">{title}</h1>;
-    const showCrumbs = Boolean(crumbs?.length);
+    const showCrumbs = crumbs && crumbs.length > 0;
     const scrollerRef = useRef<HTMLDivElement>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [island, setIsland] = useState(false);
