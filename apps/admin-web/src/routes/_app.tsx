@@ -65,7 +65,11 @@ function App() {
             error={error}
             onSignOut={() => void signOut()}
             logo={
-                <Link to="/" className="text-lg font-semibold">
+                <Link
+                    to="/"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                >
+                    <Building2 className="size-5" />
                     Admin
                 </Link>
             }

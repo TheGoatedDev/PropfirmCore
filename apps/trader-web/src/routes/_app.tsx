@@ -8,7 +8,7 @@ import {
     useMatches,
     useNavigate,
 } from "@tanstack/react-router";
-import { House } from "lucide-react";
+import { Building2, House } from "lucide-react";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -63,7 +63,11 @@ function App() {
             error={error}
             onSignOut={() => void signOut()}
             logo={
-                <Link to="/" className="text-lg font-semibold">
+                <Link
+                    to="/"
+                    className="flex items-center gap-2 text-lg font-semibold"
+                >
+                    <Building2 className="size-5" />
                     Trader
                 </Link>
             }
