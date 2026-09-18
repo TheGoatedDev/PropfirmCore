@@ -68,7 +68,7 @@ function App() {
                     className="flex items-center gap-2 text-lg font-semibold"
                 >
                     <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
-                        <Building2 className="size-4" />
+                        <Building2 className="size-5" />
                     </span>
                     <span>Trader</span>
                 </Link>
