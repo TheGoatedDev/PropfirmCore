@@ -15,6 +15,7 @@ React, Vite, TanStack Router, TanStack Query, Zustand, nuqs, Tailwind.
 - Zustand: client UI state only.
 - nuqs: URL search params. `NuqsAdapter` from `nuqs/adapters/tanstack-router` on the root route.
 - React Hook Form + `@hookform/resolvers` (zod) for nested/complex forms. Pair with shadcn form fields in `@propfirmcore/ui`. Not for server cache.
+- Page title is the breadcrumb (`staticData.crumb`). Do not add an `h1` (or equivalent) in the page body that repeats it.
 - No Formik, Final Form, or extra form libs.
 
 No: Next, React Router, Redux, SWR, Webpack, CRA.
