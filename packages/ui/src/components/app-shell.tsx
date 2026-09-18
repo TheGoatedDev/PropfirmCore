@@ -53,82 +53,88 @@ export function AppShell({
     onCrumb?: (to: string) => void;
     children: ReactNode;
 }) {
+    const brand = logo ?? <h1 className="text-lg font-semibold">{title}</h1>;
+    const showCrumbs = crumbs && crumbs.length > 1;
+
     return (
-        <div className="flex min-h-svh flex-col">
-            <header className="flex h-14 shrink-0 items-center justify-between border-b px-4">
-                <div className="flex items-center gap-3">
-                    {logo ?? <h1 className="text-lg font-semibold">{title}</h1>}
-                </div>
-                {user ? (
-                    <div className="flex items-center gap-3">
-                        <ModeToggle />
-                        <span className="text-sm text-muted-foreground">
-                            {user.email}
-                        </span>
-                        {onSignOut ? (
-                            <Button variant="outline" onClick={onSignOut}>
-                                Sign out
-                            </Button>
+        <div className="flex h-svh">
+            {sidebar ? (
+                <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-r">
+                    <div className="flex h-14 shrink-0 items-center border-b px-4">
+                        {brand}
+                    </div>
+                    <div className="p-4">{sidebar}</div>
+                </aside>
+            ) : null}
+            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
+                <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4">
+                    <div className="flex min-w-0 items-center gap-3">
+                        {sidebar ? null : brand}
+                        {showCrumbs ? (
+                            <Breadcrumb>
+                                <BreadcrumbList>
+                                    {crumbs.flatMap((c, i) => {
+                                        const last = i === crumbs.length - 1;
+                                        const key = `${c.to}-${c.label}`;
+                                        const item = last ? (
+                                            <BreadcrumbItem key={key}>
+                                                <BreadcrumbPage>
+                                                    {c.label}
+                                                </BreadcrumbPage>
+                                            </BreadcrumbItem>
+                                        ) : (
+                                            <BreadcrumbItem key={key}>
+                                                <BreadcrumbLink
+                                                    href={c.to}
+                                                    onClick={(
+                                                        e: MouseEvent<HTMLAnchorElement>,
+                                                    ) => {
+                                                        if (
+                                                            !onCrumb ||
+                                                            e.button !== 0 ||
+                                                            e.metaKey ||
+                                                            e.altKey ||
+                                                            e.ctrlKey ||
+                                                            e.shiftKey
+                                                        ) {
+                                                            return;
+                                                        }
+                                                        e.preventDefault();
+                                                        onCrumb(c.to);
+                                                    }}
+                                                >
+                                                    {c.label}
+                                                </BreadcrumbLink>
+                                            </BreadcrumbItem>
+                                        );
+                                        return i === 0
+                                            ? [item]
+                                            : [
+                                                  <BreadcrumbSeparator
+                                                      key={`${key}-sep`}
+                                                  />,
+                                                  item,
+                                              ];
+                                    })}
+                                </BreadcrumbList>
+                            </Breadcrumb>
                         ) : null}
                     </div>
-                ) : null}
-            </header>
-            <div className="flex min-h-0 flex-1">
-                {sidebar ? (
-                    <aside className="w-52 shrink-0 border-r p-4">
-                        {sidebar}
-                    </aside>
-                ) : null}
-                <div className="min-w-0 flex-1 space-y-6 p-6">
-                    {crumbs && crumbs.length > 1 ? (
-                        <Breadcrumb>
-                            <BreadcrumbList>
-                                {crumbs.flatMap((c, i) => {
-                                    const last = i === crumbs.length - 1;
-                                    const key = `${c.to}-${c.label}`;
-                                    const item = last ? (
-                                        <BreadcrumbItem key={key}>
-                                            <BreadcrumbPage>
-                                                {c.label}
-                                            </BreadcrumbPage>
-                                        </BreadcrumbItem>
-                                    ) : (
-                                        <BreadcrumbItem key={key}>
-                                            <BreadcrumbLink
-                                                href={c.to}
-                                                onClick={(
-                                                    e: MouseEvent<HTMLAnchorElement>,
-                                                ) => {
-                                                    if (
-                                                        !onCrumb ||
-                                                        e.button !== 0 ||
-                                                        e.metaKey ||
-                                                        e.altKey ||
-                                                        e.ctrlKey ||
-                                                        e.shiftKey
-                                                    ) {
-                                                        return;
-                                                    }
-                                                    e.preventDefault();
-                                                    onCrumb(c.to);
-                                                }}
-                                            >
-                                                {c.label}
-                                            </BreadcrumbLink>
-                                        </BreadcrumbItem>
-                                    );
-                                    return i === 0
-                                        ? [item]
-                                        : [
-                                              <BreadcrumbSeparator
-                                                  key={`${key}-sep`}
-                                              />,
-                                              item,
-                                          ];
-                                })}
-                            </BreadcrumbList>
-                        </Breadcrumb>
+                    {user ? (
+                        <div className="flex shrink-0 items-center gap-3">
+                            <ModeToggle />
+                            <span className="text-sm text-muted-foreground">
+                                {user.email}
+                            </span>
+                            {onSignOut ? (
+                                <Button variant="outline" onClick={onSignOut}>
+                                    Sign out
+                                </Button>
+                            ) : null}
+                        </div>
                     ) : null}
+                </header>
+                <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-6">
                     {error ? (
                         <Alert>
                             <AlertDescription>{error}</AlertDescription>
