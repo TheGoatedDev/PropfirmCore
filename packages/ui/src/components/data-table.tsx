@@ -152,7 +152,25 @@ export function DataTable<TData extends RowData>({
                     </TableBody>
                 </Table>
             </div>
-            <div className="flex items-center justify-end space-x-2 py-4">
+            <div className="flex items-center justify-end gap-2 py-4">
+                <select
+                    aria-label="Rows per page"
+                    className="h-8 rounded-lg border border-input bg-transparent px-2 text-sm"
+                    value={pagination.pageSize}
+                    onChange={(event) => {
+                        onPaginationChange({
+                            pageIndex: 0,
+                            pageSize: Number(event.target.value),
+                        });
+                    }}
+                    data-testid="table-page-size"
+                >
+                    {[10, 20, 50, 100].map((n) => (
+                        <option key={n} value={n}>
+                            {n}
+                        </option>
+                    ))}
+                </select>
                 <span
                     className="text-muted-foreground text-sm"
                     data-testid="table-page"

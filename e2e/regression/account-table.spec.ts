@@ -12,6 +12,7 @@ test("account table shows empty chrome and writes q", async ({ page }) => {
     await expect(page.getByTestId("accounts-heading")).toBeVisible();
 
     await expect(page.getByTestId("table-filter")).toBeVisible();
+    await expect(page.getByTestId("table-page-size")).toHaveValue("10");
     await expect(page.getByTestId("table-page")).toHaveText("Page 1 of 1");
     await expect(page.getByTestId("table-prev")).toBeDisabled();
     await expect(page.getByTestId("table-next")).toBeDisabled();

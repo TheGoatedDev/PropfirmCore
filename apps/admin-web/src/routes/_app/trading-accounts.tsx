@@ -16,6 +16,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import {
     parseAsIndex,
+    parseAsInteger,
     parseAsString,
     parseAsStringLiteral,
     useQueryStates,
@@ -37,6 +38,7 @@ const sortIds = ["id", "status", "equity", "productId", "userId"] as const;
 const accountSearch = {
     q: parseAsString.withDefault(""),
     page: parseAsIndex.withDefault(0),
+    pageSize: parseAsInteger.withDefault(10),
     sort: parseAsStringLiteral(sortIds),
     order: parseAsStringLiteral(["asc", "desc"]),
 };
@@ -49,9 +51,10 @@ export const Route = createFileRoute("/_app/trading-accounts")({
 function TradingAccounts() {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
-    const [{ q, page, sort, order }, setSearch] = useQueryStates(accountSearch);
+    const [{ q, page, pageSize, sort, order }, setSearch] =
+        useQueryStates(accountSearch);
     const [filter, setFilter] = useState(q);
-    const pagination: PaginationState = { pageIndex: page, pageSize: 10 };
+    const pagination: PaginationState = { pageIndex: page, pageSize };
     const sorting: SortingState = sort
         ? [{ id: sort, desc: order === "desc" }]
         : [];
@@ -71,7 +74,7 @@ function TradingAccounts() {
 
     const accountQuery = {
         page: page + 1,
-        pageSize: 10,
+        pageSize,
         q: q || undefined,
         sort: sort ?? undefined,
         order: sort ? (order ?? "asc") : undefined,
@@ -223,7 +226,10 @@ function TradingAccounts() {
                         typeof updater === "function"
                             ? updater(pagination)
                             : updater;
-                    void setSearch({ page: next.pageIndex });
+                    void setSearch({
+                        page: next.pageIndex,
+                        pageSize: next.pageSize,
+                    });
                 }}
                 sorting={sorting}
                 onSortingChange={(updater) => {

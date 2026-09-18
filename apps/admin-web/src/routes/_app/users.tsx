@@ -24,6 +24,7 @@ import {
 import { createFileRoute } from "@tanstack/react-router";
 import {
     parseAsIndex,
+    parseAsInteger,
     parseAsString,
     parseAsStringLiteral,
     useQueryStates,
@@ -48,6 +49,7 @@ const sortIds = ["email", "createdAt"] as const;
 const userSearch = {
     q: parseAsString.withDefault(""),
     page: parseAsIndex.withDefault(0),
+    pageSize: parseAsInteger.withDefault(10),
     sort: parseAsStringLiteral(sortIds).withDefault("createdAt"),
     order: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
     role: parseAsStringLiteral(["trader", "admin"]),
@@ -71,11 +73,11 @@ function Users() {
     const { me } = AppRoute.useRouteContext();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
-    const [{ q, page, sort, order, role, banned }, setSearch] =
+    const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
     const [filter, setFilter] = useState(q);
     const [creating, setCreating] = useState(false);
-    const pagination: PaginationState = { pageIndex: page, pageSize: 10 };
+    const pagination: PaginationState = { pageIndex: page, pageSize };
     const sorting: SortingState = [{ id: sort, desc: order === "desc" }];
 
     useEffect(() => {
@@ -93,7 +95,7 @@ function Users() {
 
     const userQuery = {
         page: page + 1,
-        pageSize: 10,
+        pageSize,
         q: q || undefined,
         sort,
         order,
@@ -390,7 +392,10 @@ function Users() {
                         typeof updater === "function"
                             ? updater(pagination)
                             : updater;
-                    void setSearch({ page: next.pageIndex });
+                    void setSearch({
+                        page: next.pageIndex,
+                        pageSize: next.pageSize,
+                    });
                 }}
                 sorting={sorting}
                 onSortingChange={(updater) => {
