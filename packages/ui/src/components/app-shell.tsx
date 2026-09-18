@@ -108,8 +108,8 @@ export function AppShell({
                 <aside
                     id="app-sidebar"
                     className={cn(
-                        "flex shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none [&_nav_a]:flex [&_nav_a]:h-8 [&_nav_a]:items-center [&_nav_a[aria-current=page]]:bg-muted",
-                        collapsed ? "w-14" : "w-52",
+                        "flex shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none [&_nav]:min-w-0 [&_nav_a]:flex [&_nav_a]:h-8 [&_nav_a]:min-w-0 [&_nav_a]:items-center [&_nav_a[aria-current=page]]:bg-muted",
+                        collapsed ? "w-16" : "w-52",
                     )}
                 >
                     <div
@@ -122,7 +122,7 @@ export function AppShell({
                     </div>
                     <SidebarCollapsedContext.Provider value={collapsed}>
                         <TooltipProvider delay={0}>
-                            <div className="p-4">{sidebar}</div>
+                            <div className="min-w-0 p-4">{sidebar}</div>
                         </TooltipProvider>
                     </SidebarCollapsedContext.Provider>
                 </aside>
