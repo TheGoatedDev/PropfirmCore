@@ -3,6 +3,7 @@ import {
     createContext,
     type MouseEvent,
     type ReactNode,
+    type TransitionEvent,
     useContext,
     useEffect,
     useRef,
@@ -29,7 +30,10 @@ import {
 
 export type Crumb = { label: string; to: string };
 
-const SidebarCollapsedContext = createContext(false);
+const SidebarCollapsedContext = createContext({
+    collapsed: false,
+    narrow: false,
+});
 
 export function SidebarItem({
     icon,
@@ -38,31 +42,22 @@ export function SidebarItem({
     icon?: ReactNode;
     children: ReactNode;
 }) {
-    const collapsed = useContext(SidebarCollapsedContext);
+    const { collapsed, narrow } = useContext(SidebarCollapsedContext);
     const iconEl = icon ? (
         <span className="flex size-4 shrink-0 items-center justify-center [&_svg]:size-4">
             {icon}
         </span>
     ) : null;
 
-    if (!collapsed) {
-        return (
-            <span className="flex items-center gap-2">
-                {iconEl}
-                {children}
-            </span>
-        );
-    }
-
     return (
-        <Tooltip>
+        <Tooltip disabled={!narrow}>
             <TooltipTrigger
-                render={
-                    <span className="flex w-full items-center justify-center" />
-                }
+                render={<span className="flex items-center gap-2" />}
             >
                 {iconEl}
-                <span className="sr-only">{children}</span>
+                <span className={collapsed ? "sr-only" : undefined}>
+                    {children}
+                </span>
             </TooltipTrigger>
             <TooltipContent side="right" sideOffset={8}>
                 {children}
@@ -98,6 +93,17 @@ export function AppShell({
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [island, setIsland] = useState(false);
     const [collapsed, setCollapsed] = useState(false);
+    const [narrow, setNarrow] = useState(false);
+
+    useEffect(() => {
+        if (!collapsed) {
+            setNarrow(false);
+            return;
+        }
+        if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+            setNarrow(true);
+        }
+    }, [collapsed]);
 
     useEffect(() => {
         const scroller = scrollerRef.current;
@@ -116,26 +122,32 @@ export function AppShell({
             {sidebar ? (
                 <aside
                     id="app-sidebar"
+                    onTransitionEnd={(e: TransitionEvent<HTMLElement>) => {
+                        if (e.target !== e.currentTarget) return;
+                        if (e.propertyName !== "width") return;
+                        setNarrow(collapsed);
+                    }}
                     className={cn(
                         "flex shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none [&_nav_a]:flex [&_nav_a]:h-8 [&_nav_a]:items-center [&_nav_a[aria-current=page]]:bg-muted",
-                        collapsed
-                            ? "w-14 [&_nav_a]:w-8 [&_nav_a]:justify-center [&_nav_a]:px-0 [&_nav_a]:mx-auto"
-                            : "w-52",
+                        collapsed ? "w-14" : "w-52",
+                        narrow &&
+                            "[&_nav_a]:w-8 [&_nav_a]:justify-center [&_nav_a]:px-0 [&_nav_a]:mx-auto",
                     )}
                 >
                     <div
                         className={cn(
                             "flex h-14 shrink-0 items-center overflow-hidden",
-                            collapsed
-                                ? "justify-center px-2 [&_span]:hidden"
-                                : "px-4",
+                            collapsed && "[&_span]:hidden",
+                            narrow ? "justify-center px-2" : "px-4",
                         )}
                     >
                         {brand}
                     </div>
-                    <SidebarCollapsedContext.Provider value={collapsed}>
+                    <SidebarCollapsedContext.Provider
+                        value={{ collapsed, narrow }}
+                    >
                         <TooltipProvider delay={0}>
-                            <div className={collapsed ? "px-2 py-4" : "p-4"}>
+                            <div className={narrow ? "px-2 py-4" : "p-4"}>
                                 {sidebar}
                             </div>
                         </TooltipProvider>
