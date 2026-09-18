@@ -1,4 +1,14 @@
-import type { MouseEvent, ReactNode } from "react";
+import { PanelLeft, PanelLeftClose } from "lucide-react";
+import {
+    createContext,
+    type MouseEvent,
+    type ReactNode,
+    useContext,
+    useEffect,
+    useRef,
+    useState,
+} from "react";
+import { cn } from "@/lib/utils";
 import { Alert, AlertDescription } from "./alert";
 import {
     Breadcrumb,
@@ -10,8 +20,16 @@ import {
 } from "./breadcrumb";
 import { Button } from "./button";
 import { ModeToggle } from "./mode-toggle";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "./tooltip";
 
 export type Crumb = { label: string; to: string };
+
+const SidebarCollapsedContext = createContext(false);
 
 export function SidebarItem({
     icon,
@@ -20,15 +38,36 @@ export function SidebarItem({
     icon?: ReactNode;
     children: ReactNode;
 }) {
-    return (
-        <span className="flex items-center gap-2">
-            {icon ? (
-                <span className="flex size-4 shrink-0 items-center justify-center [&_svg]:size-4">
-                    {icon}
-                </span>
-            ) : null}
-            {children}
+    const collapsed = useContext(SidebarCollapsedContext);
+    const iconEl = icon ? (
+        <span className="flex size-4 shrink-0 items-center justify-center [&_svg]:size-4">
+            {icon}
         </span>
+    ) : null;
+
+    if (!collapsed) {
+        return (
+            <span className="flex items-center gap-2">
+                {iconEl}
+                {children}
+            </span>
+        );
+    }
+
+    return (
+        <Tooltip>
+            <TooltipTrigger
+                render={
+                    <span className="flex w-full items-center justify-center" />
+                }
+            >
+                {iconEl}
+                <span className="sr-only">{children}</span>
+            </TooltipTrigger>
+            <TooltipContent side="right" sideOffset={8}>
+                {children}
+            </TooltipContent>
+        </Tooltip>
     );
 }
 
@@ -55,20 +94,82 @@ export function AppShell({
 }) {
     const brand = logo ?? <h1 className="text-lg font-semibold">{title}</h1>;
     const showCrumbs = crumbs && crumbs.length > 1;
+    const scrollerRef = useRef<HTMLDivElement>(null);
+    const sentinelRef = useRef<HTMLDivElement>(null);
+    const [island, setIsland] = useState(false);
+    const [collapsed, setCollapsed] = useState(false);
+
+    useEffect(() => {
+        const scroller = scrollerRef.current;
+        const sentinel = sentinelRef.current;
+        if (!scroller || !sentinel) return;
+        const io = new IntersectionObserver(
+            ([entry]) => setIsland(!entry.isIntersecting),
+            { root: scroller, threshold: 0 },
+        );
+        io.observe(sentinel);
+        return () => io.disconnect();
+    }, []);
 
     return (
         <div className="flex h-svh">
             {sidebar ? (
-                <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-r">
-                    <div className="flex h-14 shrink-0 items-center px-4">
+                <aside
+                    id="app-sidebar"
+                    className={cn(
+                        "flex shrink-0 flex-col overflow-x-hidden overflow-y-auto border-r transition-[width] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+                        collapsed
+                            ? "w-14 [&_nav_a]:flex [&_nav_a]:justify-center [&_nav_a]:px-0"
+                            : "w-52",
+                    )}
+                >
+                    <div
+                        className={cn(
+                            "flex h-14 shrink-0 items-center overflow-hidden",
+                            collapsed
+                                ? "justify-center px-2 [&_span]:hidden"
+                                : "px-4",
+                        )}
+                    >
                         {brand}
                     </div>
-                    <div className="p-4">{sidebar}</div>
+                    <SidebarCollapsedContext.Provider value={collapsed}>
+                        <TooltipProvider delay={0}>
+                            <div className={collapsed ? "p-2" : "p-4"}>
+                                {sidebar}
+                            </div>
+                        </TooltipProvider>
+                    </SidebarCollapsedContext.Provider>
                 </aside>
             ) : null}
-            <div className="flex min-h-0 min-w-0 flex-1 flex-col">
-                <header className="flex h-14 shrink-0 items-center justify-between gap-3 border-b px-4">
+            <div className="relative flex min-h-0 min-w-0 flex-1 flex-col">
+                <div className="h-14 shrink-0" />
+                <header
+                    className={cn(
+                        "absolute z-10 flex h-14 items-center justify-between gap-3 overflow-visible px-4 transition-[top,right,left,border-radius,box-shadow,background-color,border-color,backdrop-filter] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
+                        island
+                            ? "top-2 right-3 left-3 rounded-2xl border bg-background/80 shadow-sm backdrop-blur-md"
+                            : "inset-x-0 top-0 border-b bg-background",
+                    )}
+                >
                     <div className="flex min-w-0 items-center gap-3">
+                        {sidebar ? (
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                aria-expanded={!collapsed}
+                                aria-controls="app-sidebar"
+                                aria-label={
+                                    collapsed
+                                        ? "Expand sidebar"
+                                        : "Collapse sidebar"
+                                }
+                                data-testid="sidebar-toggle"
+                                onClick={() => setCollapsed((c) => !c)}
+                            >
+                                {collapsed ? <PanelLeft /> : <PanelLeftClose />}
+                            </Button>
+                        ) : null}
                         {sidebar ? null : brand}
                         {showCrumbs ? (
                             <Breadcrumb>
@@ -134,13 +235,23 @@ export function AppShell({
                         </div>
                     ) : null}
                 </header>
-                <div className="min-h-0 flex-1 space-y-6 overflow-y-auto p-6">
-                    {error ? (
-                        <Alert>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    ) : null}
-                    {children}
+                <div
+                    ref={scrollerRef}
+                    className="min-h-0 flex-1 overflow-y-auto"
+                >
+                    <div
+                        ref={sentinelRef}
+                        aria-hidden
+                        className="pointer-events-none -mb-2 h-2"
+                    />
+                    <div className="space-y-6 p-6">
+                        {error ? (
+                            <Alert>
+                                <AlertDescription>{error}</AlertDescription>
+                            </Alert>
+                        ) : null}
+                        {children}
+                    </div>
                 </div>
             </div>
         </div>

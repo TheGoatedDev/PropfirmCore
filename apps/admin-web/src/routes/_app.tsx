@@ -69,8 +69,8 @@ function App() {
                     to="/"
                     className="flex items-center gap-2 text-lg font-semibold"
                 >
-                    <Building2 className="size-5" />
-                    Admin
+                    <Building2 className="size-5 shrink-0" />
+                    <span>Admin</span>
                 </Link>
             }
             sidebar={
