@@ -30,7 +30,6 @@ export interface paths {
                             id: string;
                             email: string;
                             role: string;
-                            firmId: string | null;
                             kycVerified: boolean;
                             kyc: {
                                 enabled: boolean;
@@ -5249,7 +5248,6 @@ export interface components {
             readonly banReason?: string;
             /** Format: date-time */
             readonly banExpires?: string;
-            readonly firmId?: string;
             /** @default false */
             readonly kycVerified: boolean;
         };

@@ -24,7 +24,7 @@ export async function bootstrapAdmin(
     if (!res.user) throw new Error("bootstrap operator signup failed");
     await db
         .update(user)
-        .set({ role: "operator", firmId: null })
+        .set({ role: "operator" })
         .where(eq(user.id, res.user.id));
 }
 
@@ -32,7 +32,6 @@ export async function bootstrapFirmAdmin(
     db: Db,
     auth: Auth,
     creds: { email: string; password: string; name?: string },
-    firmId: string,
 ): Promise<void> {
     const existing = await db
         .select({ id: user.id })
@@ -50,6 +49,6 @@ export async function bootstrapFirmAdmin(
     if (!res.user) throw new Error("bootstrap firm admin signup failed");
     await db
         .update(user)
-        .set({ role: "admin", firmId })
+        .set({ role: "admin" })
         .where(eq(user.id, res.user.id));
 }

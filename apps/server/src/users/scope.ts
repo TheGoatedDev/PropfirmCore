@@ -6,14 +6,13 @@ export const firmRoles = ["trader", "admin"] as const;
 export type UserKind = (typeof userKinds)[number];
 export type FirmRole = (typeof firmRoles)[number];
 
-export type Actor = { id: string; role: string; firmId: string | null };
+export type Actor = { id: string; role: string };
 
 export type UserRow = {
     id: string;
     email: string;
     name: string;
     role: string | null;
-    firmId: string | null;
     banned: boolean | null;
     createdAt: Date;
 };
@@ -47,14 +46,11 @@ export function listScope(who: Actor): ListScope {
 
 export function canTouch(
     who: Actor,
-    target: { id: string; role: string | null; firmId: string | null },
+    target: { id: string; role: string | null },
 ): boolean {
     const scope = listScope(who);
     if (scope === "none") return false;
-    if (scope === "firm") {
-        if (!who.firmId || target.firmId !== who.firmId) return false;
-        if (kindOf(target.role) === "operator") return false;
-    }
+    if (scope === "firm" && kindOf(target.role) === "operator") return false;
     return true;
 }
 

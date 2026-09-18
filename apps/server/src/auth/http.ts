@@ -11,7 +11,6 @@ const meSchema = z.object({
     id: z.string(),
     email: z.string(),
     role: z.string(),
-    firmId: z.string().nullable(),
     kycVerified: z.boolean(),
     kyc: z
         .object({
@@ -52,7 +51,6 @@ export function mountAuth(app: OpenAPIHono, deps: Deps) {
                     id: session.user.id,
                     email: session.user.email,
                     role: roleOf(session.user),
-                    firmId: session.user.firmId ?? null,
                     kycVerified: await kycVerifiedOf(deps.db, session.user.id),
                     kyc: kycForMe(deps.firm),
                 },

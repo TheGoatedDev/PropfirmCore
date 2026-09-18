@@ -36,11 +36,10 @@ export async function listUsers(
 ): Promise<{ items: ReturnType<typeof userOut>[]; total: number }> {
     const scope = listScope(input.who);
     if (scope === "none") return { items: [], total: 0 };
-    if (scope === "firm" && !input.who.firmId) return { items: [], total: 0 };
 
     const parts = [];
-    if (scope === "firm" && input.who.firmId) {
-        parts.push(eq(user.firmId, input.who.firmId));
+    if (scope === "firm") {
+        parts.push(or(ne(user.role, "operator"), isNull(user.role)));
     }
     const q = input.q?.trim();
     if (q) {
@@ -123,12 +122,6 @@ export async function createListedUser(
             headers,
         });
         const id = created.user.id;
-        if (input.kind === "operator") {
-            await db
-                .update(user)
-                .set({ firmId: null, role: "operator" })
-                .where(eq(user.id, id));
-        }
         const row = await byId(db, id);
         if (!row) return { status: "badRequest" };
         return { status: "ok", user: userOut(row) };

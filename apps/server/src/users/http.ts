@@ -57,14 +57,6 @@ const roleBody = z.object({ role: z.enum(firmRoles) });
 
 type Deps = { db: Db; auth: Auth };
 
-function whoOf(user: {
-    id: string;
-    role?: string | null;
-    firmId?: string | null;
-}) {
-    return { ...actorOf(user), firmId: user.firmId ?? null };
-}
-
 export function mountUsers(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
@@ -94,7 +86,7 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
                 headers: c.req.raw.headers,
             });
             if (!session) return c.json({ error: "unauthorized" }, 401);
-            const who = whoOf(session.user);
+            const who = actorOf(session.user);
             if (!roleHasPermission(who.role, "user", "list")) {
                 return c.json({ error: "forbidden" }, 403);
             }
@@ -165,7 +157,7 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
                 deps.db,
                 deps.auth,
                 c.req.raw.headers,
-                whoOf(session.user),
+                actorOf(session.user),
                 body,
             );
             if (result.status === "forbidden") {
@@ -221,7 +213,7 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const result = await setUserBanned(
                 deps.db,
-                whoOf(session.user),
+                actorOf(session.user),
                 c.req.valid("param").id,
                 c.req.valid("json").banned,
             );
@@ -279,7 +271,7 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             if (!session) return c.json({ error: "unauthorized" }, 401);
             const result = await setUserRole(
                 deps.db,
-                whoOf(session.user),
+                actorOf(session.user),
                 c.req.valid("param").id,
                 c.req.valid("json").role,
             );

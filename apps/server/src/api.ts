@@ -21,7 +21,6 @@ const holder = {
 const auth = createAuth(db, {
     secret: env.BETTER_AUTH_SECRET,
     baseURL: env.BETTER_AUTH_URL,
-    liveFirmId: () => holder.current.id,
 });
 
 if (env.BOOTSTRAP_OPERATOR_EMAIL && env.BOOTSTRAP_OPERATOR_PASSWORD) {
@@ -31,15 +30,10 @@ if (env.BOOTSTRAP_OPERATOR_EMAIL && env.BOOTSTRAP_OPERATOR_PASSWORD) {
     });
 }
 if (env.BOOTSTRAP_FIRM_ADMIN_EMAIL && env.BOOTSTRAP_FIRM_ADMIN_PASSWORD) {
-    await bootstrapFirmAdmin(
-        db,
-        auth,
-        {
-            email: env.BOOTSTRAP_FIRM_ADMIN_EMAIL,
-            password: env.BOOTSTRAP_FIRM_ADMIN_PASSWORD,
-        },
-        holder.current.id,
-    );
+    await bootstrapFirmAdmin(db, auth, {
+        email: env.BOOTSTRAP_FIRM_ADMIN_EMAIL,
+        password: env.BOOTSTRAP_FIRM_ADMIN_PASSWORD,
+    });
 }
 
 await sql.listen("firm_config", async () => {

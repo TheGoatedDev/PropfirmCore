@@ -41,9 +41,8 @@ it("seed GET /firm; operator PUT; trader 403; in-use product blocked", async () 
         headers: { origin: base, cookie: op.cookie },
     });
     expect(me.ok).toBe(true);
-    const who = (await me.json()) as { role: string; firmId: string | null };
+    const who = (await me.json()) as { role: string };
     expect(who.role).toBe("operator");
-    expect(who.firmId).toBeNull();
 
     const got = await fetch(`${base}/firm`, {
         headers: { origin: base, cookie: op.cookie },
@@ -64,12 +63,8 @@ it("seed GET /firm; operator PUT; trader 403; in-use product blocked", async () 
     const traderMe = await fetch(`${base}/auth/me`, {
         headers: { origin: base, cookie: trader.cookie },
     });
-    const traderWho = (await traderMe.json()) as {
-        role: string;
-        firmId: string | null;
-    };
+    const traderWho = (await traderMe.json()) as { role: string };
     expect(traderWho.role).toBe("trader");
-    expect(traderWho.firmId).toBe(seed.id);
 
     const forbidden = await fetch(`${base}/firm`, {
         method: "PUT",

@@ -59,10 +59,6 @@
                         "format": "date-time",
                         "readOnly": true
                     },
-                    "firmId": {
-                        "type": "string",
-                        "readOnly": true
-                    },
                     "kycVerified": {
                         "type": "boolean",
                         "default": false,
@@ -263,10 +259,6 @@
                                         "role": {
                                             "type": "string"
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "nullable": true
-                                        },
                                         "kycVerified": {
                                             "type": "boolean"
                                         },
@@ -295,7 +287,6 @@
                                         "id",
                                         "email",
                                         "role",
-                                        "firmId",
                                         "kycVerified",
                                         "kyc"
                                     ]

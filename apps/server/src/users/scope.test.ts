@@ -13,17 +13,14 @@ import {
 const admin: Parameters<typeof listScope>[0] = {
     id: "a1",
     role: "admin",
-    firmId: "firm-1",
 };
 const operator: Parameters<typeof listScope>[0] = {
     id: "o1",
     role: "operator",
-    firmId: null,
 };
 const trader: Parameters<typeof listScope>[0] = {
     id: "t1",
     role: "trader",
-    firmId: "firm-1",
 };
 
 const firmTrader = {
@@ -31,7 +28,6 @@ const firmTrader = {
     email: "t@x.com",
     name: "T",
     role: "trader",
-    firmId: "firm-1",
     banned: false,
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
 };
@@ -41,7 +37,6 @@ const opRow = {
     id: "o2",
     email: "o@x.com",
     role: "operator",
-    firmId: null,
 };
 
 describe("kind/role out", () => {
@@ -67,10 +62,9 @@ describe("listScope", () => {
 });
 
 describe("canTouch", () => {
-    it("admin cannot touch operator or other firm", () => {
+    it("admin cannot touch operator", () => {
         expect(canTouch(admin, firmTrader)).toBe(true);
         expect(canTouch(admin, opRow)).toBe(false);
-        expect(canTouch(admin, { ...firmTrader, firmId: "other" })).toBe(false);
     });
 
     it("operator can touch both", () => {

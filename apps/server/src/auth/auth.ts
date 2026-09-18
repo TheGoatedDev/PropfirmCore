@@ -5,10 +5,7 @@ import type { Db } from "../db/db.ts";
 import * as authSchema from "./auth-schema.ts";
 import { ac, admin as adminRole, operator, trader } from "./permissions.ts";
 
-export function createAuth(
-    db: Db,
-    opts: { secret: string; baseURL: string; liveFirmId: () => string },
-) {
+export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
     return betterAuth({
         secret: opts.secret,
         baseURL: opts.baseURL,
@@ -20,21 +17,11 @@ export function createAuth(
         emailAndPassword: { enabled: true },
         user: {
             additionalFields: {
-                firmId: { type: "string", required: false, input: false },
                 kycVerified: {
                     type: "boolean",
                     required: false,
                     defaultValue: false,
                     input: false,
-                },
-            },
-        },
-        databaseHooks: {
-            user: {
-                create: {
-                    before: async (u) => ({
-                        data: { ...u, firmId: opts.liveFirmId() },
-                    }),
                 },
             },
         },

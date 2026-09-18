@@ -1,21 +1,21 @@
 # PropfirmCore
 
-Eval, then funded, then payout split. Fits a challenge mill or a retail prop firm. A stack can host many Firms.
+Eval, then funded, then payout split. Fits a challenge mill or a retail prop firm. One Firm per stack.
 
 ## Language
 
 ### People
 
 **Firm**:
-The business that sells products on this stack. Many per stack.
+The business that sells products on this stack. One per stack.
 _Avoid_: tenant, organization, brand, mill
 
 **Operator**:
-A User who runs the stack. Not bound to a Firm.
+A User who configures the Firm. Not an Admin.
 _Avoid_: superadmin, platform admin, host
 
 **User**:
-A login identity. Belongs to one Firm, or to none if Operator. May own many trading accounts, or none.
+A login identity. May own many trading accounts, or none.
 
 **Trader**:
 A User who buys products, trades, and requests payouts.

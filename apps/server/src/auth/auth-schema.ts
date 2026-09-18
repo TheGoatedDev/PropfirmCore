@@ -19,7 +19,6 @@ export const user = pgTable("user", {
         .$onUpdate(() => new Date())
         .notNull(),
     role: text("role").default("trader"),
-    firmId: text("firm_id"),
     kycVerified: boolean("kyc_verified").default(false).notNull(),
     banned: boolean("banned").default(false),
     banReason: text("ban_reason"),
