@@ -67,8 +67,8 @@ function App() {
                     to="/"
                     className="flex items-center gap-2 text-lg font-semibold"
                 >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-foreground text-background">
-                        <Building2 className="size-3.5" />
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
+                        <Building2 className="size-4" />
                     </span>
                     <span>Trader</span>
                 </Link>
