@@ -115,7 +115,7 @@ export function AppShell({
                     <div
                         className={cn(
                             "flex h-14 shrink-0 items-center overflow-hidden px-4",
-                            collapsed && "[&_span]:hidden",
+                            collapsed && "[&_a>span:last-child]:hidden",
                         )}
                     >
                         {brand}
