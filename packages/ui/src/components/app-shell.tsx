@@ -133,7 +133,7 @@ export function AppShell({
                     className={cn(
                         "absolute z-10 flex h-14 items-center justify-between gap-3 overflow-visible px-4 transition-[top,right,left,border-radius,box-shadow,background-color,border-color,backdrop-filter] duration-200 ease-[cubic-bezier(0.16,1,0.3,1)] motion-reduce:transition-none",
                         island
-                            ? "top-2 right-3 left-3 rounded-2xl border bg-background/80 shadow-sm backdrop-blur-md"
+                            ? "top-3 right-3 left-3 rounded-2xl border bg-background/80 shadow-sm backdrop-blur-md"
                             : "inset-x-0 top-0 border-b bg-background",
                     )}
                 >
