@@ -28,10 +28,10 @@ async function post(
     });
 }
 
-it("seed GET /firm; operator PUT; trader 403; in-use product blocked", async () => {
+it("seed GET /firm; admin PUT; trader 403; in-use product blocked", async () => {
     const seed = loadFirmFromPath(defaultFirmPath());
     const signin = await post("/auth/sign-in/email", {
-        email: "operator@example.com",
+        email: "admin@example.com",
         password: "changeme",
     });
     expect(signin.ok).toBe(true);
@@ -42,7 +42,7 @@ it("seed GET /firm; operator PUT; trader 403; in-use product blocked", async () 
     });
     expect(me.ok).toBe(true);
     const who = (await me.json()) as { role: string };
-    expect(who.role).toBe("operator");
+    expect(who.role).toBe("admin");
 
     const got = await fetch(`${base}/firm`, {
         headers: { origin: base, cookie: op.cookie },

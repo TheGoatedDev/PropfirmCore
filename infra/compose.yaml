@@ -47,10 +47,8 @@ services:
             FIRM_CONFIG_PATH: /app/firm.example.json
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
             BETTER_AUTH_URL: http://localhost
-            BOOTSTRAP_OPERATOR_EMAIL: operator@example.com
-            BOOTSTRAP_OPERATOR_PASSWORD: changeme
-            BOOTSTRAP_FIRM_ADMIN_EMAIL: admin@example.com
-            BOOTSTRAP_FIRM_ADMIN_PASSWORD: changeme
+            BOOTSTRAP_ADMIN_EMAIL: admin@example.com
+            BOOTSTRAP_ADMIN_PASSWORD: changeme
         depends_on:
             postgres:
                 condition: service_healthy
@@ -106,19 +104,6 @@ services:
                 VITE_BASE: /admin/
                 DIST_DEST: /usr/share/nginx/html/admin
                 NGINX_CONF: nginx-admin.conf
-        depends_on:
-            - api
-
-    operator-web:
-        profiles: ["ui"]
-        build:
-            context: ..
-            dockerfile: docker/web.Dockerfile
-            args:
-                APP: operator-web
-                VITE_BASE: /operator/
-                DIST_DEST: /usr/share/nginx/html/operator
-                NGINX_CONF: nginx-operator.conf
         depends_on:
             - api
 

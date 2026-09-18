@@ -2086,10 +2086,6 @@
                                                         "type": "string",
                                                         "minLength": 1
                                                     },
-                                                    "firmId": {
-                                                        "type": "string",
-                                                        "minLength": 1
-                                                    },
                                                     "userId": {
                                                         "type": "string",
                                                         "minLength": 1
@@ -2283,7 +2279,6 @@
                                                 },
                                                 "required": [
                                                     "id",
-                                                    "firmId",
                                                     "userId",
                                                     "productId",
                                                     "phaseIndex",
@@ -2362,10 +2357,6 @@
                                     "type": "object",
                                     "properties": {
                                         "id": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "firmId": {
                                             "type": "string",
                                             "minLength": 1
                                         },
@@ -2562,7 +2553,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -2852,10 +2842,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -3046,7 +3032,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -3156,10 +3141,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -3350,7 +3331,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -3583,10 +3563,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -3777,7 +3753,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -3907,10 +3882,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -3949,7 +3920,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -4068,10 +4038,6 @@
                                                 "type": "string",
                                                 "minLength": 1
                                             },
-                                            "firmId": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
                                             "userId": {
                                                 "type": "string",
                                                 "minLength": 1
@@ -4110,7 +4076,6 @@
                                         },
                                         "required": [
                                             "id",
-                                            "firmId",
                                             "userId",
                                             "tradingAccountId",
                                             "amount",
@@ -4202,10 +4167,6 @@
                                                 "type": "string",
                                                 "minLength": 1
                                             },
-                                            "firmId": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
                                             "userId": {
                                                 "type": "string",
                                                 "minLength": 1
@@ -4244,7 +4205,6 @@
                                         },
                                         "required": [
                                             "id",
-                                            "firmId",
                                             "userId",
                                             "tradingAccountId",
                                             "amount",
@@ -4307,10 +4267,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -4349,7 +4305,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -4449,10 +4404,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -4491,7 +4442,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -4610,10 +4560,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -4652,7 +4598,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -4771,10 +4716,6 @@
                                             "type": "string",
                                             "minLength": 1
                                         },
-                                        "firmId": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
                                         "userId": {
                                             "type": "string",
                                             "minLength": 1
@@ -4813,7 +4754,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "tradingAccountId",
                                         "amount",
@@ -5105,18 +5045,6 @@
                         "required": false,
                         "name": "banned",
                         "in": "query"
-                    },
-                    {
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "operator",
-                                "firmUser"
-                            ]
-                        },
-                        "required": false,
-                        "name": "kind",
-                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -5141,13 +5069,6 @@
                                                     "name": {
                                                         "type": "string"
                                                     },
-                                                    "kind": {
-                                                        "type": "string",
-                                                        "enum": [
-                                                            "operator",
-                                                            "firmUser"
-                                                        ]
-                                                    },
                                                     "role": {
                                                         "type": "string",
                                                         "nullable": true,
@@ -5168,7 +5089,6 @@
                                                     "id",
                                                     "email",
                                                     "name",
-                                                    "kind",
                                                     "role",
                                                     "banned",
                                                     "createdAt"
@@ -5236,73 +5156,33 @@
                     "content": {
                         "application/json": {
                             "schema": {
-                                "oneOf": [
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "kind": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "operator"
-                                                ]
-                                            },
-                                            "email": {
-                                                "type": "string",
-                                                "format": "email"
-                                            },
-                                            "name": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "password": {
-                                                "type": "string",
-                                                "minLength": 8
-                                            }
-                                        },
-                                        "required": [
-                                            "kind",
-                                            "email",
-                                            "name",
-                                            "password"
-                                        ]
+                                "type": "object",
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email"
                                     },
-                                    {
-                                        "type": "object",
-                                        "properties": {
-                                            "kind": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "firmUser"
-                                                ]
-                                            },
-                                            "role": {
-                                                "type": "string",
-                                                "enum": [
-                                                    "trader",
-                                                    "admin"
-                                                ]
-                                            },
-                                            "email": {
-                                                "type": "string",
-                                                "format": "email"
-                                            },
-                                            "name": {
-                                                "type": "string",
-                                                "minLength": 1
-                                            },
-                                            "password": {
-                                                "type": "string",
-                                                "minLength": 8
-                                            }
-                                        },
-                                        "required": [
-                                            "kind",
-                                            "role",
-                                            "email",
-                                            "name",
-                                            "password"
+                                    "name": {
+                                        "type": "string",
+                                        "minLength": 1
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "minLength": 8
+                                    },
+                                    "role": {
+                                        "type": "string",
+                                        "enum": [
+                                            "trader",
+                                            "admin"
                                         ]
                                     }
+                                },
+                                "required": [
+                                    "email",
+                                    "name",
+                                    "password",
+                                    "role"
                                 ]
                             }
                         }
@@ -5325,13 +5205,6 @@
                                         "name": {
                                             "type": "string"
                                         },
-                                        "kind": {
-                                            "type": "string",
-                                            "enum": [
-                                                "operator",
-                                                "firmUser"
-                                            ]
-                                        },
                                         "role": {
                                             "type": "string",
                                             "nullable": true,
@@ -5352,7 +5225,6 @@
                                         "id",
                                         "email",
                                         "name",
-                                        "kind",
                                         "role",
                                         "banned",
                                         "createdAt"
@@ -5491,13 +5363,6 @@
                                         "name": {
                                             "type": "string"
                                         },
-                                        "kind": {
-                                            "type": "string",
-                                            "enum": [
-                                                "operator",
-                                                "firmUser"
-                                            ]
-                                        },
                                         "role": {
                                             "type": "string",
                                             "nullable": true,
@@ -5518,7 +5383,6 @@
                                         "id",
                                         "email",
                                         "name",
-                                        "kind",
                                         "role",
                                         "banned",
                                         "createdAt"
@@ -5642,13 +5506,6 @@
                                         "name": {
                                             "type": "string"
                                         },
-                                        "kind": {
-                                            "type": "string",
-                                            "enum": [
-                                                "operator",
-                                                "firmUser"
-                                            ]
-                                        },
                                         "role": {
                                             "type": "string",
                                             "nullable": true,
@@ -5669,7 +5526,6 @@
                                         "id",
                                         "email",
                                         "name",
-                                        "kind",
                                         "role",
                                         "banned",
                                         "createdAt"
@@ -5787,10 +5643,6 @@
                                     "type": "object",
                                     "properties": {
                                         "id": {
-                                            "type": "string",
-                                            "minLength": 1
-                                        },
-                                        "firmId": {
                                             "type": "string",
                                             "minLength": 1
                                         },
@@ -5984,7 +5836,6 @@
                                     },
                                     "required": [
                                         "id",
-                                        "firmId",
                                         "userId",
                                         "productId",
                                         "phaseIndex",
@@ -14115,7 +13966,7 @@
         },
         {
             "name": "Firm",
-            "description": "Live Firm config. Admin and operator only."
+            "description": "Live Firm config. Admin only."
         },
         {
             "name": "Products",

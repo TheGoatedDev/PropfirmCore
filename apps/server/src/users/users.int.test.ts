@@ -40,7 +40,6 @@ type Listed = {
     items: {
         id: string;
         email: string;
-        kind: string;
         role: string | null;
         banned: boolean;
     }[];
@@ -49,7 +48,6 @@ type Listed = {
 
 it("scopes list, create, ban, and role", async () => {
     const admin = await signIn("admin@example.com");
-    const operator = await signIn("operator@example.com");
     const email = `u${Date.now()}@example.com`;
     const signup = await post("/auth/sign-up/email", {
         name: "Trader",
@@ -69,40 +67,14 @@ it("scopes list, create, ban, and role", async () => {
     });
     expect(asAdmin.ok).toBe(true);
     const adminList = (await asAdmin.json()) as Listed;
-    expect(adminList.items.some((u) => u.kind === "operator")).toBe(false);
     expect(adminList.items.some((u) => u.email === "admin@example.com")).toBe(
         true,
     );
-
-    const asOp = await fetch(`${base}/users?kind=operator`, {
-        headers: { origin: base, cookie: operator },
-    });
-    expect(asOp.ok).toBe(true);
-    const opList = (await asOp.json()) as Listed;
-    expect(opList.items.some((u) => u.email === "operator@example.com")).toBe(
-        true,
-    );
-    expect(
-        opList.items.every((u) => u.kind === "operator" && u.role === null),
-    ).toBe(true);
-
-    const adminMakesOp = await post(
-        "/users",
-        {
-            kind: "operator",
-            email: `op${Date.now()}@example.com`,
-            name: "Nope",
-            password: "password12",
-        },
-        { cookie: admin },
-    );
-    expect(adminMakesOp.status).toBe(403);
 
     const createdEmail = `c${Date.now()}@example.com`;
     const created = await post(
         "/users",
         {
-            kind: "firmUser",
             role: "trader",
             email: createdEmail,
             name: "New",
@@ -114,7 +86,6 @@ it("scopes list, create, ban, and role", async () => {
     const createdUser = (await created.json()) as Listed["items"][0];
     expect(createdUser.email).toBe(createdEmail);
     expect(createdUser.role).toBe("trader");
-    expect(createdUser.kind).toBe("firmUser");
 
     const found = await fetch(
         `${base}/users?q=${encodeURIComponent(createdEmail)}`,
@@ -157,19 +128,9 @@ it("scopes list, create, ban, and role", async () => {
     expect(banRes.ok).toBe(true);
     expect(((await banRes.json()) as Listed["items"][0]).banned).toBe(true);
 
-    const opRow = opList.items[0];
-    expect(opRow).toBeTruthy();
-    const adminBansOp = await post(
-        `/users/${opRow?.id}/ban`,
-        { banned: true },
-        { cookie: admin },
-    );
-    expect(adminBansOp.status).toBe(404);
-
     const dup = await post(
         "/users",
         {
-            kind: "firmUser",
             role: "trader",
             email: createdEmail,
             name: "Dup",
@@ -178,26 +139,4 @@ it("scopes list, create, ban, and role", async () => {
         { cookie: admin },
     );
     expect(dup.status).toBe(409);
-
-    const opCreatedEmail = `n${Date.now()}@example.com`;
-    const opCreated = await post(
-        "/users",
-        {
-            kind: "operator",
-            email: opCreatedEmail,
-            name: "Op",
-            password: "password12",
-        },
-        { cookie: operator },
-    );
-    expect(opCreated.ok).toBe(true);
-    const newOp = (await opCreated.json()) as Listed["items"][0];
-    expect(newOp.kind).toBe("operator");
-    expect(newOp.role).toBeNull();
-
-    const adminSeesOp = await fetch(
-        `${base}/users?q=${encodeURIComponent(opCreatedEmail)}`,
-        { headers: { origin: base, cookie: admin } },
-    );
-    expect(((await adminSeesOp.json()) as Listed).total).toBe(0);
 });

@@ -5,7 +5,6 @@ import { handleBridge } from "./bridge.ts";
 
 const account: TradingAccount = {
     id: "a1",
-    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,

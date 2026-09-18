@@ -18,7 +18,6 @@ export function provisionBook(accountId: string, balance: number): MockBook {
     return {
         account: {
             id: accountId,
-            firmId: "acme",
             userId: "broker",
             productId: "broker",
             phaseIndex: 0,

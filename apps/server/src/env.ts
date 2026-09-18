@@ -21,10 +21,8 @@ export const env = createEnv({
             ])
             .default("info"),
         FIRM_CONFIG_PATH: z.string().min(1).optional(),
-        BOOTSTRAP_OPERATOR_EMAIL: z.string().min(1).optional(),
-        BOOTSTRAP_OPERATOR_PASSWORD: z.string().min(1).optional(),
-        BOOTSTRAP_FIRM_ADMIN_EMAIL: z.string().min(1).optional(),
-        BOOTSTRAP_FIRM_ADMIN_PASSWORD: z.string().min(1).optional(),
+        BOOTSTRAP_ADMIN_EMAIL: z.string().min(1).optional(),
+        BOOTSTRAP_ADMIN_PASSWORD: z.string().min(1).optional(),
     },
     runtimeEnv: process.env,
     emptyStringAsUndefined: true,

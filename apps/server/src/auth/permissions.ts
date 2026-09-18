@@ -25,9 +25,7 @@ const staff = {
 
 export const admin = ac.newRole(staff);
 
-export const operator = ac.newRole(staff);
-
-export const roles = { trader, admin, operator };
+export const roles = { trader, admin };
 
 export const roleStatements: Record<
     string,
@@ -35,7 +33,6 @@ export const roleStatements: Record<
 > = {
     trader: {},
     admin: staff,
-    operator: staff,
 };
 
 export function roleHasPermission(

@@ -5,9 +5,6 @@
 	handle /admin* {
 		reverse_proxy admin-web:80
 	}
-	handle /operator* {
-		reverse_proxy operator-web:80
-	}
 	handle {
 		reverse_proxy trader-web:80
 	}

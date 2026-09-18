@@ -112,7 +112,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         expect(a.status).toBe("active");
         expect(a.startBalance).toBe(50_000);
@@ -128,7 +127,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const next = applySnapshot(
             a,
@@ -147,7 +145,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const next = applySnapshot(
             a,
@@ -166,7 +163,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const rich = applySnapshot(
             a,
@@ -201,7 +197,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const next = applySnapshot(
             a,
@@ -223,7 +218,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const next = applySnapshot(
             a,
@@ -246,7 +240,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const funded = applySnapshot(
             a,
@@ -272,7 +265,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const day1 = applySnapshot(
             a,
@@ -300,7 +292,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         expect(onFundedPhase(evalBook, twoStep)).toBe(false);
         const funded = applySnapshot(
@@ -321,7 +312,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const funded = applySnapshot(
             a,
@@ -358,7 +348,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const funded = applySnapshot(
             a,
@@ -411,7 +400,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const tight: Product = {
             ...product,
@@ -457,7 +445,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const sat = "2026-01-17T16:00:00.000Z";
         const filled = applyFills(
@@ -507,7 +494,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const result = applySnapshot(
             a,
@@ -561,7 +547,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         const rich = applySnapshot(a, snap(53_000), product, dailyClose);
         expect(rich.account.status).toBe("failed");
@@ -577,7 +562,6 @@ describe("engine", () => {
             t0,
             "u1",
             "loopback",
-            "acme",
         );
         expect(forceFail(a).status).toBe("failed");
         expect(forcePass(a).status).toBe("passed");

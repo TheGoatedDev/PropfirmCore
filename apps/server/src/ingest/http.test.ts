@@ -40,7 +40,6 @@ const firm = loadFirmConfig(
 
 const account = {
     id: "acc_1",
-    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 0,

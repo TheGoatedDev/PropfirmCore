@@ -1,6 +1,6 @@
 import { serve } from "@hono/node-server";
 import { createAuth } from "./auth/auth.ts";
-import { bootstrapAdmin, bootstrapFirmAdmin } from "./auth/bootstrap-admin.ts";
+import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
 import { createDb, migrate } from "./db/db.ts";
 import { env } from "./env.ts";
 import { ensureFirm, loadLiveFirm } from "./firm.ts";
@@ -23,16 +23,10 @@ const auth = createAuth(db, {
     baseURL: env.BETTER_AUTH_URL,
 });
 
-if (env.BOOTSTRAP_OPERATOR_EMAIL && env.BOOTSTRAP_OPERATOR_PASSWORD) {
+if (env.BOOTSTRAP_ADMIN_EMAIL && env.BOOTSTRAP_ADMIN_PASSWORD) {
     await bootstrapAdmin(db, auth, {
-        email: env.BOOTSTRAP_OPERATOR_EMAIL,
-        password: env.BOOTSTRAP_OPERATOR_PASSWORD,
-    });
-}
-if (env.BOOTSTRAP_FIRM_ADMIN_EMAIL && env.BOOTSTRAP_FIRM_ADMIN_PASSWORD) {
-    await bootstrapFirmAdmin(db, auth, {
-        email: env.BOOTSTRAP_FIRM_ADMIN_EMAIL,
-        password: env.BOOTSTRAP_FIRM_ADMIN_PASSWORD,
+        email: env.BOOTSTRAP_ADMIN_EMAIL,
+        password: env.BOOTSTRAP_ADMIN_PASSWORD,
     });
 }
 

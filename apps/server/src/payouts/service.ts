@@ -127,7 +127,6 @@ export async function requestPayout(
         }
         const payout: Payout = {
             id: crypto.randomUUID(),
-            firmId: account.firmId,
             userId: account.userId,
             tradingAccountId: account.id,
             amount: input.amount,

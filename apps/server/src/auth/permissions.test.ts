@@ -9,7 +9,6 @@ describe("roleHasPermission", () => {
     it("admin can list and create users", () => {
         expect(roleHasPermission("admin", "user", "list")).toBe(true);
         expect(roleHasPermission("admin", "user", "create")).toBe(true);
-        expect(roleHasPermission("operator", "user", "create")).toBe(true);
     });
 
     it("trader cannot set-role", () => {
@@ -51,10 +50,6 @@ describe("roleHasPermission", () => {
 
     it("trader cannot approve payout", () => {
         expect(roleHasPermission("trader", "payout", "approve")).toBe(false);
-    });
-
-    it("operator can write firm", () => {
-        expect(roleHasPermission("operator", "firm", "write")).toBe(true);
     });
 
     it("admin can write firm", () => {

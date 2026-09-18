@@ -41,7 +41,7 @@ export const tags = {
 } as const;
 
 const tagMeta: Record<string, string> = {
-    [tags.firm]: "Live Firm config. Admin and operator only.",
+    [tags.firm]: "Live Firm config. Admin only.",
     [tags.authentication]:
         "Sign-up, sign-in, session, password, and linked accounts.",
     [tags.authenticationAdmin]:

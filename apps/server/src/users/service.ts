@@ -1,4 +1,4 @@
-import { and, asc, count, desc, eq, ilike, isNull, ne, or } from "drizzle-orm";
+import { and, asc, count, desc, eq, ilike, isNull, or } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { session, user } from "../auth/auth-schema.ts";
 import type { Db } from "../db/db.ts";
@@ -9,7 +9,6 @@ import {
     type FirmRole,
     listScope,
     setRolePlan,
-    type UserKind,
     userOut,
 } from "./scope.ts";
 
@@ -31,16 +30,12 @@ export async function listUsers(
         order: "asc" | "desc";
         role?: FirmRole;
         banned?: boolean;
-        kind?: UserKind;
     },
 ): Promise<{ items: ReturnType<typeof userOut>[]; total: number }> {
     const scope = listScope(input.who);
     if (scope === "none") return { items: [], total: 0 };
 
     const parts = [];
-    if (scope === "firm") {
-        parts.push(or(ne(user.role, "operator"), isNull(user.role)));
-    }
     const q = input.q?.trim();
     if (q) {
         const pattern = `%${q}%`;
@@ -56,10 +51,6 @@ export async function listUsers(
     if (input.banned === true) parts.push(eq(user.banned, true));
     if (input.banned === false) {
         parts.push(or(eq(user.banned, false), isNull(user.banned)));
-    }
-    if (input.kind === "operator") parts.push(eq(user.role, "operator"));
-    if (input.kind === "firmUser") {
-        parts.push(or(ne(user.role, "operator"), isNull(user.role)));
     }
     const where = parts.length ? and(...parts) : undefined;
     const col = sortColumns[input.sort ?? "createdAt"];
@@ -94,8 +85,7 @@ export async function createListedUser(
         email: string;
         name: string;
         password: string;
-        kind: UserKind;
-        role?: FirmRole;
+        role: FirmRole;
     },
 ): Promise<
     | { status: "ok"; user: ReturnType<typeof userOut> }

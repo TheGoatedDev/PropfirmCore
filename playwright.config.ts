@@ -30,10 +30,5 @@ export default defineConfig({
             url: "http://localhost:5174",
             reuseExistingServer: false,
         },
-        {
-            command: "pnpm --filter @propfirmcore/operator-web dev",
-            url: "http://localhost:5175",
-            reuseExistingServer: false,
-        },
     ],
 });

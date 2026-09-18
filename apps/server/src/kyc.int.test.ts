@@ -42,12 +42,6 @@ async function putFirm(cookieHeader: string, body: unknown): Promise<Response> {
 
 it("kyc payout gate blocks cash until admin verifies", async () => {
     const seed = loadFirmFromPath(defaultFirmPath());
-    const op = cookie(
-        await post("/auth/sign-in/email", {
-            email: "operator@example.com",
-            password: "changeme",
-        }),
-    );
     const admin = cookie(
         await post("/auth/sign-in/email", {
             email: "admin@example.com",
@@ -84,7 +78,7 @@ it("kyc payout gate blocks cash until admin verifies", async () => {
         },
     };
     try {
-        expect((await putFirm(op, enabled)).ok).toBe(true);
+        expect((await putFirm(admin, enabled)).ok).toBe(true);
 
         const meOn = await fetch(`${base}/auth/me`, {
             headers: { origin: base, cookie: trader },
@@ -227,6 +221,6 @@ it("kyc payout gate blocks cash until admin verifies", async () => {
         );
         expect(okReq.ok).toBe(true);
     } finally {
-        expect((await putFirm(op, seed)).ok).toBe(true);
+        expect((await putFirm(admin, seed)).ok).toBe(true);
     }
 });

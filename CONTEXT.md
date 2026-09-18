@@ -10,10 +10,6 @@ Eval, then funded, then payout split. Fits a challenge mill or a retail prop fir
 The business that sells products on this stack. One per stack.
 _Avoid_: tenant, organization, brand, mill
 
-**Operator**:
-A User who configures the Firm. Not an Admin.
-_Avoid_: superadmin, platform admin, host
-
 **User**:
 A login identity. May own many trading accounts, or none.
 
@@ -22,7 +18,8 @@ A User who buys products, trades, and requests payouts.
 _Avoid_: customer, client, account holder
 
 **Admin**:
-A User who operates a Firm: complete payments, force pass or fail, approve reject or pay payouts, set KYC.
+A User who operates the Firm: config, complete payments, force pass or fail, approve reject or pay payouts, set KYC.
+_Avoid_: operator, superadmin
 
 **KYC**:
 The Firm's check that a User is verified. Off = no check.
@@ -33,8 +30,8 @@ When KYC is on: `payout` blocks sending cash; `funded` also blocks entering a fu
 _Avoid_: KYC mode, KYC stage
 
 **Role**:
-A permission set for Users on one Firm. Builtins are trader and admin. A Firm Admin may add more. Operator is not a Role.
-_Avoid_: group, organization role, tenant role
+A permission set. Builtins are trader and admin. An Admin may add more.
+_Avoid_: group, organization role, tenant role, operator
 
 ### Offering
 

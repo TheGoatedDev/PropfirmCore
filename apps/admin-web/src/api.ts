@@ -4,6 +4,7 @@ export const api = createApiClient("/api", { credentials: "include" });
 
 export const keys = {
     me: ["me"] as const,
+    firm: ["firm"] as const,
     accounts: ["trading-accounts"] as const,
     payouts: ["payouts"] as const,
     users: ["users"] as const,

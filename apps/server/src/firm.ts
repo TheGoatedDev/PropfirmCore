@@ -151,10 +151,10 @@ export async function loadFirm(db: Db, id: string): Promise<FirmConfig> {
         .limit(1);
     if (!row) throw new Error(`firm ${id} not found`);
     const [brokerRows, productRows, pbRows, phaseRows] = await Promise.all([
-        db.select().from(brokers).where(eq(brokers.firmId, id)),
-        db.select().from(products).where(eq(products.firmId, id)),
-        db.select().from(productBrokers).where(eq(productBrokers.firmId, id)),
-        db.select().from(phases).where(eq(phases.firmId, id)),
+        db.select().from(brokers),
+        db.select().from(products),
+        db.select().from(productBrokers),
+        db.select().from(phases),
     ]);
     return assembleFirm({
         firm: row,
@@ -175,7 +175,6 @@ export async function loadLiveFirm(db: Db): Promise<FirmConfig> {
 
 export async function usedIds(
     db: Db,
-    firmId: string,
 ): Promise<{ products: string[]; brokers: string[] }> {
     const [acc, pay] = await Promise.all([
         db
@@ -183,15 +182,13 @@ export async function usedIds(
                 productId: tradingAccounts.productId,
                 brokerId: tradingAccounts.brokerId,
             })
-            .from(tradingAccounts)
-            .where(eq(tradingAccounts.firmId, firmId)),
+            .from(tradingAccounts),
         db
             .select({
                 productId: payments.productId,
                 brokerId: payments.brokerId,
             })
-            .from(payments)
-            .where(eq(payments.firmId, firmId)),
+            .from(payments),
     ]);
     return {
         products: [...new Set([...acc, ...pay].map((r) => r.productId))],
@@ -231,16 +228,13 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
                     payoutOnUncoverable: cfg.payout.onUncoverable,
                 },
             });
-        await tx.delete(phases).where(eq(phases.firmId, cfg.id));
-        await tx
-            .delete(productBrokers)
-            .where(eq(productBrokers.firmId, cfg.id));
-        await tx.delete(products).where(eq(products.firmId, cfg.id));
-        await tx.delete(brokers).where(eq(brokers.firmId, cfg.id));
+        await tx.delete(phases);
+        await tx.delete(productBrokers);
+        await tx.delete(products);
+        await tx.delete(brokers);
         if (cfg.brokers.length) {
             await tx.insert(brokers).values(
                 cfg.brokers.map((br) => ({
-                    firmId: cfg.id,
                     id: br.id,
                     name: br.name,
                     bridgeProvider: br.bridge.provider,
@@ -251,7 +245,6 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
         if (cfg.products.length) {
             await tx.insert(products).values(
                 cfg.products.map((p) => ({
-                    firmId: cfg.id,
                     id: p.id,
                     name: p.name,
                     payoutSplit: p.payout?.split ?? null,
@@ -261,7 +254,6 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
             );
             const pb = cfg.products.flatMap((p) =>
                 p.brokers.map((brokerId) => ({
-                    firmId: cfg.id,
                     productId: p.id,
                     brokerId,
                 })),
@@ -270,7 +262,6 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
             await tx.insert(phases).values(
                 cfg.products.flatMap((p) =>
                     p.phases.map((ph, idx) => ({
-                        firmId: cfg.id,
                         productId: p.id,
                         idx,
                         name: ph.name,
@@ -306,7 +297,6 @@ export async function ensureFirm(
         const [product] = await db
             .select({ id: products.id })
             .from(products)
-            .where(eq(products.firmId, rows[0].id))
             .limit(1);
         if (product) {
             // ponytail: leftover pre-ADR 0005/0009 rows; drop when all DBs reseeded

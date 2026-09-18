@@ -885,7 +885,6 @@ export interface paths {
                         "application/json": {
                             items: {
                                 id: string;
-                                firmId: string;
                                 userId: string;
                                 productId: string;
                                 phaseIndex: number;
@@ -988,7 +987,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -1261,7 +1259,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -1385,7 +1382,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -1590,7 +1586,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;
@@ -1712,7 +1707,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1788,7 +1782,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1880,7 +1873,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -1940,7 +1932,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -2026,7 +2017,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -2122,7 +2112,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -2218,7 +2207,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             tradingAccountId: string;
                             amount: number;
@@ -2385,7 +2373,6 @@ export interface paths {
                     order?: "asc" | "desc";
                     role?: "trader" | "admin";
                     banned?: "true" | "false";
-                    kind?: "operator" | "firmUser";
                 };
                 header?: never;
                 path?: never;
@@ -2404,8 +2391,6 @@ export interface paths {
                                 id: string;
                                 email: string;
                                 name: string;
-                                /** @enum {string} */
-                                kind: "operator" | "firmUser";
                                 /** @enum {string|null} */
                                 role: "trader" | "admin" | null;
                                 banned: boolean;
@@ -2452,21 +2437,12 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        kind: "operator";
                         /** Format: email */
                         email: string;
                         name: string;
                         password: string;
-                    } | {
-                        /** @enum {string} */
-                        kind: "firmUser";
                         /** @enum {string} */
                         role: "trader" | "admin";
-                        /** Format: email */
-                        email: string;
-                        name: string;
-                        password: string;
                     };
                 };
             };
@@ -2481,8 +2457,6 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string} */
-                            kind: "operator" | "firmUser";
                             /** @enum {string|null} */
                             role: "trader" | "admin" | null;
                             banned: boolean;
@@ -2582,8 +2556,6 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string} */
-                            kind: "operator" | "firmUser";
                             /** @enum {string|null} */
                             role: "trader" | "admin" | null;
                             banned: boolean;
@@ -2672,8 +2644,6 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string} */
-                            kind: "operator" | "firmUser";
                             /** @enum {string|null} */
                             role: "trader" | "admin" | null;
                             banned: boolean;
@@ -2763,7 +2733,6 @@ export interface paths {
                     content: {
                         "application/json": {
                             id: string;
-                            firmId: string;
                             userId: string;
                             productId: string;
                             phaseIndex: number;

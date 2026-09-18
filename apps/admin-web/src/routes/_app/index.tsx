@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle } from "@propfirmcore/ui/components/card";
 import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { api, failMsg, keys } from "../../api.ts";
+import { fetchFirm } from "../../firm-api.ts";
 
 export const Route = createFileRoute("/_app/")({
     component: AdminHome,
@@ -9,6 +10,7 @@ export const Route = createFileRoute("/_app/")({
 });
 
 function AdminHome() {
+    const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
     const payouts = useQuery({
         queryKey: keys.payouts,
         queryFn: async () => {
@@ -33,6 +35,9 @@ function AdminHome() {
             <h1 className="text-xl font-semibold" data-testid="home-heading">
                 Home
             </h1>
+            {firm.isError ? (
+                <p>{failMsg(firm.error, "Could not load firm")}</p>
+            ) : null}
             {payouts.isError ? (
                 <p>{failMsg(payouts.error, "Could not load payouts")}</p>
             ) : null}
@@ -40,6 +45,40 @@ function AdminHome() {
                 <p>{failMsg(accounts.error, "Could not load accounts")}</p>
             ) : null}
             <div className="grid gap-3 sm:grid-cols-3">
+                <Link to="/firm" data-testid="link-firm">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Firm</CardTitle>
+                            <p data-testid="home-firm-name">
+                                {firm.isPending ? "…" : (firm.data?.name ?? "")}
+                            </p>
+                        </CardHeader>
+                    </Card>
+                </Link>
+                <Link to="/brokers" data-testid="link-brokers">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Brokers</CardTitle>
+                            <p data-testid="brokers-count">
+                                {firm.isPending
+                                    ? "…"
+                                    : (firm.data?.brokers.length ?? 0)}
+                            </p>
+                        </CardHeader>
+                    </Card>
+                </Link>
+                <Link to="/products" data-testid="link-products">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Products</CardTitle>
+                            <p data-testid="products-count">
+                                {firm.isPending
+                                    ? "…"
+                                    : (firm.data?.products.length ?? 0)}
+                            </p>
+                        </CardHeader>
+                    </Card>
+                </Link>
                 <Link to="/payments" data-testid="link-payments">
                     <Card>
                         <CardHeader>

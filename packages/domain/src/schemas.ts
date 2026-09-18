@@ -72,7 +72,6 @@ export const payoutReasonSchema = z.enum(payoutReasons);
 
 export const payoutSchema = z.object({
     id: z.string().min(1),
-    firmId: z.string().min(1),
     userId: z.string().min(1),
     tradingAccountId: z.string().min(1),
     amount: z.number().positive(),
@@ -83,7 +82,6 @@ export const payoutSchema = z.object({
 
 export const tradingAccountSchema = z.object({
     id: z.string().min(1),
-    firmId: z.string().min(1),
     userId: z.string().min(1),
     productId: z.string().min(1),
     phaseIndex: z.number().int(),

@@ -69,7 +69,6 @@ export async function completePayment(
         now,
         payment.userId,
         payment.brokerId,
-        firm.id,
     );
     let creds: { login: string; password: string };
     try {
@@ -133,7 +132,6 @@ export async function startCheckout(
     const paymentId = crypto.randomUUID();
     await db.insert(payments).values({
         id: paymentId,
-        firmId: firm.id,
         userId: input.userId,
         productId: input.productId,
         amount: fee,

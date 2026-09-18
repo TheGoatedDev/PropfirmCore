@@ -3,18 +3,18 @@ import { expect, test } from "@playwright/test";
 test.describe.configure({ mode: "serial" });
 
 const traderUrl = "http://localhost:5173";
-const operatorUrl = "http://localhost:5175";
+const adminUrl = "http://localhost:5174";
 
-async function signInOperator(page: import("@playwright/test").Page) {
-    await page.goto(`${operatorUrl}/signin`);
-    await page.getByTestId("sign-in-email").fill("operator@example.com");
+async function signInAdmin(page: import("@playwright/test").Page) {
+    await page.goto(`${adminUrl}/signin`);
+    await page.getByTestId("sign-in-email").fill("admin@example.com");
     await page.getByTestId("sign-in-password").fill("changeme");
     await page.getByTestId("sign-in-submit").click();
     await expect(page.getByTestId("home-heading")).toBeVisible();
 }
 
-test("operator renames firm and it sticks", async ({ page }) => {
-    await signInOperator(page);
+test("admin renames firm and it sticks", async ({ page }) => {
+    await signInAdmin(page);
     await page.getByTestId("nav-firm").click();
     await expect(page.getByTestId("firm-heading")).toBeVisible();
     await expect(page.getByTestId("firm-name")).toHaveValue("Acme");
@@ -32,47 +32,45 @@ test("operator renames firm and it sticks", async ({ page }) => {
     await expect(page.getByTestId("firm-name")).toHaveValue("Acme E2E");
 });
 
-test("operator adds broker and product; trader can buy", async ({
-    browser,
-}) => {
-    const op = await browser.newPage();
-    await signInOperator(op);
+test("admin adds broker and product; trader can buy", async ({ browser }) => {
+    const admin = await browser.newPage();
+    await signInAdmin(admin);
 
-    await op.getByTestId("nav-brokers").click();
-    await op.getByTestId("add-broker").click();
-    await op.getByTestId("broker-id").fill("e2e");
-    await op.getByTestId("broker-name").fill("E2E");
-    const savedBroker = op.waitForResponse(
+    await admin.getByTestId("nav-brokers").click();
+    await admin.getByTestId("add-broker").click();
+    await admin.getByTestId("broker-id").fill("e2e");
+    await admin.getByTestId("broker-name").fill("E2E");
+    const savedBroker = admin.waitForResponse(
         (r) =>
             r.url().includes("/firm") &&
             r.request().method() === "PUT" &&
             r.ok(),
     );
-    await op.getByTestId("broker-save").click();
+    await admin.getByTestId("broker-save").click();
     await savedBroker;
-    await expect(op.getByTestId("broker-id")).toHaveValue("e2e");
+    await expect(admin.getByTestId("broker-id")).toHaveValue("e2e");
 
-    await op.getByTestId("nav-products").click();
-    await op.getByTestId("add-product").click();
-    await op.getByTestId("product-id").fill("e2e-free");
-    await op.getByTestId("product-name").fill("E2E free");
-    await op.getByTestId("product-broker-loopback").click();
-    const savedProduct = op.waitForResponse(
+    await admin.getByTestId("nav-products").click();
+    await admin.getByTestId("add-product").click();
+    await admin.getByTestId("product-id").fill("e2e-free");
+    await admin.getByTestId("product-name").fill("E2E free");
+    await admin.getByTestId("product-broker-loopback").click();
+    const savedProduct = admin.waitForResponse(
         (r) =>
             r.url().includes("/firm") &&
             r.request().method() === "PUT" &&
             r.ok(),
     );
-    await op.getByTestId("product-save").click();
+    await admin.getByTestId("product-save").click();
     await savedProduct;
-    await expect(op.getByTestId("product-id")).toHaveValue("e2e-free");
+    await expect(admin.getByTestId("product-id")).toHaveValue("e2e-free");
 
     const trader = await browser.newPage();
     const email = `t${crypto.randomUUID()}@example.com`;
     await trader.goto(`${traderUrl}/signup`);
     await trader.getByTestId("sign-up-name").fill("Trader");
     await trader.getByTestId("sign-up-email").fill(email);
-    await trader.getByTestId("sign-up-password").fill(password);
+    await trader.getByTestId("sign-up-password").fill("password12");
     await trader.getByTestId("sign-up-submit").click();
     await expect(trader.getByTestId("products-heading")).toBeVisible();
     await expect(trader.getByText("E2E free", { exact: true })).toBeVisible();

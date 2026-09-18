@@ -106,7 +106,7 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
             if (keys.length) {
                 return c.json({ error: `missing ${keys.join(", ")}` }, 400);
             }
-            const used = await usedIds(deps.db, body.id);
+            const used = await usedIds(deps.db);
             const stuck = missingInUse(body, used);
             if (stuck.length) {
                 return c.json({ error: `in use: ${stuck.join(", ")}` }, 400);

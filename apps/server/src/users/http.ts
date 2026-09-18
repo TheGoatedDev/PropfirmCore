@@ -5,7 +5,7 @@ import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { actorOf } from "../http/session.ts";
-import { firmRoles, userKinds } from "./scope.ts";
+import { firmRoles } from "./scope.ts";
 import {
     createListedUser,
     listUsers,
@@ -22,13 +22,11 @@ const listQuery = z.object({
     order: z.enum(["asc", "desc"]).default("desc"),
     role: z.enum(firmRoles).optional(),
     banned: z.enum(["true", "false"]).optional(),
-    kind: z.enum(userKinds).optional(),
 });
 const userOutSchema = z.object({
     id: z.string(),
     email: z.string(),
     name: z.string(),
-    kind: z.enum(userKinds),
     role: z.enum(firmRoles).nullable(),
     banned: z.boolean(),
     createdAt: z.string(),
@@ -37,21 +35,12 @@ const listSchema = z.object({
     items: z.array(userOutSchema),
     total: z.number().int(),
 });
-const createBody = z.discriminatedUnion("kind", [
-    z.object({
-        kind: z.literal("operator"),
-        email: z.email(),
-        name: z.string().min(1),
-        password: z.string().min(8),
-    }),
-    z.object({
-        kind: z.literal("firmUser"),
-        role: z.enum(firmRoles),
-        email: z.email(),
-        name: z.string().min(1),
-        password: z.string().min(8),
-    }),
-]);
+const createBody = z.object({
+    email: z.email(),
+    name: z.string().min(1),
+    password: z.string().min(8),
+    role: z.enum(firmRoles),
+});
 const banBody = z.object({ banned: z.boolean() });
 const roleBody = z.object({ role: z.enum(firmRoles) });
 
@@ -105,7 +94,6 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
                         : query.banned === "false"
                           ? false
                           : undefined,
-                kind: query.kind,
             });
             return c.json(listed, 200);
         },

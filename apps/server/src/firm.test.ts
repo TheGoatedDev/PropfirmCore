@@ -55,14 +55,12 @@ describe("assembleFirm", () => {
                 payoutOnUncoverable: cfg.payout.onUncoverable,
             },
             brokers: cfg.brokers.map((b) => ({
-                firmId: cfg.id,
                 id: b.id,
                 name: b.name,
                 bridgeProvider: b.bridge.provider,
                 bridgeUrl: b.bridge.url ?? null,
             })),
             products: cfg.products.map((p) => ({
-                firmId: cfg.id,
                 id: p.id,
                 name: p.name,
                 payoutSplit: p.payout?.split ?? null,
@@ -71,14 +69,12 @@ describe("assembleFirm", () => {
             })),
             productBrokers: cfg.products.flatMap((p) =>
                 p.brokers.map((brokerId) => ({
-                    firmId: cfg.id,
                     productId: p.id,
                     brokerId,
                 })),
             ),
             phases: cfg.products.flatMap((p) =>
                 p.phases.map((ph, idx) => ({
-                    firmId: cfg.id,
                     productId: p.id,
                     idx,
                     name: ph.name,

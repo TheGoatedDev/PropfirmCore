@@ -1,3 +1,7 @@
+---
+status: superseded in part by ADR-0012
+---
+
 # One Firm per stack
 
 A stack is one Firm. Users have no firm membership field. Operator configures that Firm; Admin runs day-to-day. Config and book rows still reference the Firm id. Custom roles later are a name catalog, not `(firm_id, name)`.

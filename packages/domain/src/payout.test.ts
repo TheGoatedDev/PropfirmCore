@@ -9,7 +9,6 @@ import type { TradingAccount } from "./schemas.ts";
 
 const account: TradingAccount = {
     id: "a1",
-    firmId: "acme",
     userId: "u1",
     productId: "50k",
     phaseIndex: 1,

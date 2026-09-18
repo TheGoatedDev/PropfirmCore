@@ -77,49 +77,33 @@ export const firms = pgTable("firm", {
     payoutOnUncoverable: onUncoverableEnum("payout_on_uncoverable").notNull(),
 });
 
-export const brokers = pgTable(
-    "brokers",
-    {
-        firmId: text("firm_id")
-            .notNull()
-            .references(() => firms.id),
-        id: text("id").notNull(),
-        name: text("name").notNull(),
-        bridgeProvider: text("bridge_provider").notNull(),
-        bridgeUrl: text("bridge_url"),
-    },
-    (t) => [primaryKey({ columns: [t.firmId, t.id] })],
-);
+export const brokers = pgTable("brokers", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    bridgeProvider: text("bridge_provider").notNull(),
+    bridgeUrl: text("bridge_url"),
+});
 
-export const products = pgTable(
-    "products",
-    {
-        firmId: text("firm_id")
-            .notNull()
-            .references(() => firms.id),
-        id: text("id").notNull(),
-        name: text("name").notNull(),
-        payoutSplit: doublePrecision("payout_split"),
-        payoutMode: payoutModeEnum("payout_mode"),
-        payoutOnUncoverable: onUncoverableEnum("payout_on_uncoverable"),
-    },
-    (t) => [primaryKey({ columns: [t.firmId, t.id] })],
-);
+export const products = pgTable("products", {
+    id: text("id").primaryKey(),
+    name: text("name").notNull(),
+    payoutSplit: doublePrecision("payout_split"),
+    payoutMode: payoutModeEnum("payout_mode"),
+    payoutOnUncoverable: onUncoverableEnum("payout_on_uncoverable"),
+});
 
 export const productBrokers = pgTable(
     "product_brokers",
     {
-        firmId: text("firm_id").notNull(),
         productId: text("product_id").notNull(),
         brokerId: text("broker_id").notNull(),
     },
-    (t) => [primaryKey({ columns: [t.firmId, t.productId, t.brokerId] })],
+    (t) => [primaryKey({ columns: [t.productId, t.brokerId] })],
 );
 
 export const phases = pgTable(
     "phases",
     {
-        firmId: text("firm_id").notNull(),
         productId: text("product_id").notNull(),
         idx: integer("idx").notNull(),
         name: text("name").notNull(),
@@ -135,14 +119,11 @@ export const phases = pgTable(
         weekend: jsonb("weekend").$type<Ruleset["weekend"]>(),
         maxLot: jsonb("max_lot").$type<Ruleset["maxLot"]>(),
     },
-    (t) => [primaryKey({ columns: [t.firmId, t.productId, t.idx] })],
+    (t) => [primaryKey({ columns: [t.productId, t.idx] })],
 );
 
 export const tradingAccounts = pgTable("trading_accounts", {
     id: text("id").primaryKey(),
-    firmId: text("firm_id")
-        .notNull()
-        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),
@@ -195,9 +176,6 @@ export const fills = pgTable("fills", {
 
 export const payments = pgTable("payments", {
     id: text("id").primaryKey(),
-    firmId: text("firm_id")
-        .notNull()
-        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),
@@ -238,9 +216,6 @@ export const ruleBreaches = pgTable(
 
 export const payouts = pgTable("payouts", {
     id: text("id").primaryKey(),
-    firmId: text("firm_id")
-        .notNull()
-        .references(() => firms.id),
     userId: text("user_id")
         .notNull()
         .references(() => user.id),

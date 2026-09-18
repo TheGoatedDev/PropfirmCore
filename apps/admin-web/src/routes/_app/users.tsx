@@ -38,7 +38,6 @@ type User = {
     id: string;
     email: string;
     name: string;
-    kind: "operator" | "firmUser";
     role: "trader" | "admin" | null;
     banned: boolean;
     createdAt: string;
@@ -117,7 +116,7 @@ function Users() {
     const create = useMutation({
         mutationFn: async (input: z.infer<typeof createSchema>) => {
             const { error } = await api.POST("/users", {
-                body: { kind: "firmUser", ...input },
+                body: input,
             });
             if (error) throw error;
         },

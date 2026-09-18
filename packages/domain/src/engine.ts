@@ -39,7 +39,6 @@ function resetToPhase(
     const key = tradingDayKey(now, dailyClose);
     return {
         id: account.id,
-        firmId: account.firmId,
         userId: account.userId,
         productId: account.productId,
         phaseIndex,
@@ -73,12 +72,10 @@ export function openTradingAccount(
     now: string,
     userId: string,
     brokerId: string,
-    firmId: string,
 ): TradingAccount {
     return resetToPhase(
         {
             id,
-            firmId,
             userId,
             productId: product.id,
             phaseIndex: 0,

@@ -3,7 +3,7 @@ import { betterAuth } from "better-auth";
 import { admin, bearer, openAPI } from "better-auth/plugins";
 import type { Db } from "../db/db.ts";
 import * as authSchema from "./auth-schema.ts";
-import { ac, admin as adminRole, operator, trader } from "./permissions.ts";
+import { ac, admin as adminRole, trader } from "./permissions.ts";
 
 export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
     return betterAuth({
@@ -30,15 +30,14 @@ export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
             "http://localhost:3000",
             "http://localhost:5173",
             "http://localhost:5174",
-            "http://localhost:5175",
             "http://localhost:8081",
         ],
         plugins: [
             admin({
                 ac,
                 defaultRole: "trader",
-                adminRoles: ["admin", "operator"],
-                roles: { trader, admin: adminRole, operator },
+                adminRoles: ["admin"],
+                roles: { trader, admin: adminRole },
             }),
             bearer(),
             openAPI({ disableDefaultReference: true }),

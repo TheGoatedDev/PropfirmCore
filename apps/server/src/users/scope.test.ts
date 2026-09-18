@@ -3,7 +3,6 @@ import {
     banPlan,
     canTouch,
     createPlan,
-    kindOf,
     listScope,
     roleOut,
     setRolePlan,
@@ -14,16 +13,12 @@ const admin: Parameters<typeof listScope>[0] = {
     id: "a1",
     role: "admin",
 };
-const operator: Parameters<typeof listScope>[0] = {
-    id: "o1",
-    role: "operator",
-};
 const trader: Parameters<typeof listScope>[0] = {
     id: "t1",
     role: "trader",
 };
 
-const firmTrader = {
+const traderRow = {
     id: "t2",
     email: "t@x.com",
     name: "T",
@@ -32,108 +27,60 @@ const firmTrader = {
     createdAt: new Date("2026-01-01T00:00:00.000Z"),
 };
 
-const opRow = {
-    ...firmTrader,
-    id: "o2",
-    email: "o@x.com",
-    role: "operator",
-};
-
-describe("kind/role out", () => {
-    it("operator is kind not role", () => {
-        expect(kindOf("operator")).toBe("operator");
-        expect(roleOut("operator")).toBeNull();
-        expect(userOut(opRow).role).toBeNull();
-        expect(userOut(opRow).kind).toBe("operator");
+describe("role out", () => {
+    it("admin keeps role", () => {
+        expect(roleOut("admin")).toBe("admin");
+        expect(userOut({ ...traderRow, role: "admin" }).role).toBe("admin");
     });
 
-    it("firm admin keeps role", () => {
-        expect(kindOf("admin")).toBe("firmUser");
-        expect(roleOut("admin")).toBe("admin");
+    it("unknown role is null", () => {
+        expect(roleOut("operator")).toBeNull();
     });
 });
 
 describe("listScope", () => {
-    it("operator all, admin firm, trader none", () => {
-        expect(listScope(operator)).toBe("all");
-        expect(listScope(admin)).toBe("firm");
+    it("admin all, trader none", () => {
+        expect(listScope(admin)).toBe("all");
         expect(listScope(trader)).toBe("none");
     });
 });
 
 describe("canTouch", () => {
-    it("admin cannot touch operator", () => {
-        expect(canTouch(admin, firmTrader)).toBe(true);
-        expect(canTouch(admin, opRow)).toBe(false);
-    });
-
-    it("operator can touch both", () => {
-        expect(canTouch(operator, firmTrader)).toBe(true);
-        expect(canTouch(operator, opRow)).toBe(true);
+    it("admin can, trader cannot", () => {
+        expect(canTouch(admin, traderRow)).toBe(true);
+        expect(canTouch(trader, traderRow)).toBe(false);
     });
 });
 
 describe("createPlan", () => {
-    it("admin cannot create operator", () => {
-        expect(createPlan(admin, { kind: "operator" })).toEqual({
-            ok: false,
-            error: "forbidden",
-        });
-    });
-
-    it("operator can create operator", () => {
-        expect(createPlan(operator, { kind: "operator" })).toEqual({
-            ok: true,
-            role: "operator",
-        });
-    });
-
-    it("firm user needs role", () => {
-        expect(createPlan(admin, { kind: "firmUser" })).toEqual({
+    it("needs role", () => {
+        expect(createPlan(admin, {})).toEqual({
             ok: false,
             error: "badRequest",
         });
-        expect(createPlan(admin, { kind: "firmUser", role: "admin" })).toEqual({
+        expect(createPlan(admin, { role: "admin" })).toEqual({
             ok: true,
             role: "admin",
         });
     });
 
     it("trader cannot create", () => {
-        expect(
-            createPlan(trader, { kind: "firmUser", role: "trader" }),
-        ).toEqual({ ok: false, error: "forbidden" });
+        expect(createPlan(trader, { role: "trader" })).toEqual({
+            ok: false,
+            error: "forbidden",
+        });
     });
 });
 
 describe("banPlan / setRolePlan", () => {
     it("blocks self", () => {
-        expect(banPlan(admin, { ...firmTrader, id: admin.id })).toEqual({
+        expect(banPlan(admin, { ...traderRow, id: admin.id })).toEqual({
             ok: false,
             error: "forbidden",
         });
         expect(
-            setRolePlan(admin, { ...firmTrader, id: admin.id }, "trader"),
+            setRolePlan(admin, { ...traderRow, id: admin.id }, "trader"),
         ).toEqual({ ok: false, error: "forbidden" });
-    });
-
-    it("admin operator target is not found", () => {
-        expect(banPlan(admin, opRow)).toEqual({
-            ok: false,
-            error: "notFound",
-        });
-        expect(setRolePlan(admin, opRow, "admin")).toEqual({
-            ok: false,
-            error: "notFound",
-        });
-    });
-
-    it("cannot set role on operator even for operator actor", () => {
-        expect(setRolePlan(operator, opRow, "admin")).toEqual({
-            ok: false,
-            error: "forbidden",
-        });
-        expect(banPlan(operator, opRow)).toEqual({ ok: true });
     });
 
     it("missing target", () => {
