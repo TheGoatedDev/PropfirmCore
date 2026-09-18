@@ -60,7 +60,7 @@ export function AppShell({
         <div className="flex h-svh">
             {sidebar ? (
                 <aside className="flex w-52 shrink-0 flex-col overflow-y-auto border-r">
-                    <div className="flex h-14 shrink-0 items-center border-b px-4">
+                    <div className="flex h-14 shrink-0 items-center px-4">
                         {brand}
                     </div>
                     <div className="p-4">{sidebar}</div>
