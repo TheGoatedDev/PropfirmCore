@@ -10,6 +10,37 @@ async function signInAdmin(page: import("@playwright/test").Page) {
     await expect(page.getByTestId("home-heading")).toBeVisible();
 }
 
+test("nav marks the current path", async ({ page }) => {
+    await signInAdmin(page);
+    await expect(page.getByTestId("nav-home")).toHaveAttribute(
+        "aria-current",
+        "page",
+    );
+    await expect(page.getByTestId("nav-firm")).not.toHaveAttribute(
+        "aria-current",
+        "page",
+    );
+
+    await page.getByTestId("nav-firm").click();
+    await expect(page.getByTestId("firm-heading")).toBeVisible();
+    await expect(page.getByTestId("nav-firm")).toHaveAttribute(
+        "aria-current",
+        "page",
+    );
+    await expect(page.getByTestId("nav-home")).not.toHaveAttribute(
+        "aria-current",
+        "page",
+    );
+
+    await page.getByTestId("nav-brokers").click();
+    await page.getByTestId("add-broker").click();
+    await expect(page.getByTestId("broker-id")).toBeVisible();
+    await expect(page.getByTestId("nav-brokers")).toHaveAttribute(
+        "aria-current",
+        "page",
+    );
+});
+
 test("sidebar collapse keeps icon rail and nav works", async ({ page }) => {
     await signInAdmin(page);
     await expect(page.getByText("Trading accounts")).toBeVisible();
