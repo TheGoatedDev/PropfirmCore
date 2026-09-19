@@ -1,12 +1,14 @@
 import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
-import { firmConfigSchema } from "@propfirmcore/config";
+import { firmConfigSchema, firmConfigWriteSchema } from "@propfirmcore/config";
 import type { Auth } from "../auth/auth.ts";
 import { roleHasPermission } from "../auth/permissions.ts";
 import type { Db } from "../db/db.ts";
 import {
+    loadFirm,
     missingIngestKeys,
     missingInUse,
     replaceFirm,
+    unknownIds,
     usedIds,
 } from "../firm.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
@@ -64,7 +66,7 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
             request: {
                 body: {
                     content: {
-                        "application/json": { schema: firmConfigSchema },
+                        "application/json": { schema: firmConfigWriteSchema },
                     },
                     required: true,
                 },
@@ -102,6 +104,13 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
             if (body.id !== deps.holder.current.id) {
                 return c.json({ error: "id is immutable" }, 400);
             }
+            const unknown = unknownIds(body, deps.holder.current);
+            if (unknown.length) {
+                return c.json(
+                    { error: `unknown id: ${unknown.join(", ")}` },
+                    400,
+                );
+            }
             const keys = missingIngestKeys(body);
             if (keys.length) {
                 return c.json({ error: `missing ${keys.join(", ")}` }, 400);
@@ -112,13 +121,14 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
                 return c.json({ error: `in use: ${stuck.join(", ")}` }, 400);
             }
             await replaceFirm(deps.db, body);
-            deps.holder.current = body;
-            const next = ingestKeysFromEnv(body);
+            const live = await loadFirm(deps.db, body.id);
+            deps.holder.current = live;
+            const next = ingestKeysFromEnv(live);
             for (const k of Object.keys(deps.holder.ingestKeys)) {
                 delete deps.holder.ingestKeys[k];
             }
             Object.assign(deps.holder.ingestKeys, next);
-            return c.json(body, 200);
+            return c.json(live, 200);
         },
     );
 }

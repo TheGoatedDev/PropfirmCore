@@ -16,7 +16,7 @@ export function ingestKeysFromEnv(
     const out: Record<string, string> = {};
     for (const b of firm.brokers) {
         const name = ingestKeyEnvName(b.id);
-        const v = env[name];
+        const v = env[name] ?? env.INGEST_API_KEY;
         if (!v) throw new Error(`missing ${name}`);
         out[b.id] = v;
     }

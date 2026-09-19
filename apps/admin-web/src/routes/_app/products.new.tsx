@@ -1,4 +1,4 @@
-import type { Product } from "@propfirmcore/config";
+import type { ProductWrite } from "@propfirmcore/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
@@ -17,15 +17,26 @@ function NewProduct() {
     const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
     const save = useMutation({
-        mutationFn: (product: Product) =>
+        mutationFn: (product: ProductWrite) =>
             saveFirmSlice((current) => ({
                 ...current,
                 products: [...current.products, product],
             })),
-        onSuccess: (data, product) => {
+        onSuccess: (data) => {
             setError(null);
+            const prev = qc.getQueryData(keys.firm) as
+                | { products: { id: string }[] }
+                | undefined;
+            const created = data.products.find(
+                (p) => !prev?.products.some((x) => x.id === p.id),
+            );
             qc.setQueryData(keys.firm, data);
-            void navigate({ to: "/products/$id", params: { id: product.id } });
+            if (created) {
+                void navigate({
+                    to: "/products/$id",
+                    params: { id: created.id },
+                });
+            }
         },
         onError: (err) => setError(failMsg(err, "Save failed")),
     });
@@ -39,7 +50,7 @@ function NewProduct() {
         <div className="space-y-4">
             <ProductForm
                 product={emptyProduct()}
-                brokerIds={firm.data.brokers.map((b) => b.id).filter(Boolean)}
+                brokers={firm.data.brokers}
                 saving={save.isPending}
                 onSave={(next) => save.mutate(next)}
             />

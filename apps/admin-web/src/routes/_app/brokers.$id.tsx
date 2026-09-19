@@ -1,6 +1,6 @@
-import type { Broker } from "@propfirmcore/config";
+import type { BrokerWrite } from "@propfirmcore/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
 import { BrokerForm } from "../../broker-form.tsx";
 import { fetchFirm, saveFirmSlice } from "../../firm-api.ts";
@@ -15,10 +15,9 @@ function EditBroker() {
     const { id } = Route.useParams();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
-    const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
     const save = useMutation({
-        mutationFn: (broker: Broker) =>
+        mutationFn: (broker: BrokerWrite) =>
             saveFirmSlice((current) => {
                 if (!current.brokers.some((b) => b.id === id)) {
                     throw new Error("Broker not found");
@@ -26,19 +25,13 @@ function EditBroker() {
                 return {
                     ...current,
                     brokers: current.brokers.map((b) =>
-                        b.id === id ? broker : b,
+                        b.id === id ? { ...broker, id } : b,
                     ),
                 };
             }),
-        onSuccess: (data, broker) => {
+        onSuccess: (data) => {
             setError(null);
             qc.setQueryData(keys.firm, data);
-            if (broker.id !== id) {
-                void navigate({
-                    to: "/brokers/$id",
-                    params: { id: broker.id },
-                });
-            }
         },
         onError: (err) => setError(failMsg(err, "Save failed")),
     });

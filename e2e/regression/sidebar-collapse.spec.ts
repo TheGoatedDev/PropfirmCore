@@ -34,7 +34,7 @@ test("nav marks the current path", async ({ page }) => {
 
     await page.getByTestId("nav-brokers").click();
     await page.getByTestId("add-broker").click();
-    await expect(page.getByTestId("broker-id")).toBeVisible();
+    await expect(page.getByTestId("broker-name")).toBeVisible();
     await expect(page.getByTestId("nav-brokers")).toHaveAttribute(
         "aria-current",
         "page",

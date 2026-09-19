@@ -1,12 +1,15 @@
 import { readFileSync } from "node:fs";
 import { isAbsolute, resolve } from "node:path";
 import {
+    type BrokerWrite,
     type FirmConfig,
+    type FirmConfigWrite,
     ingestKeyEnvName,
     loadFirmConfig,
+    type ProductWrite,
     parseFirmConfig,
 } from "@propfirmcore/config";
-import { eq, sql } from "drizzle-orm";
+import { eq, notInArray, sql } from "drizzle-orm";
 import {
     brokers,
     type Db,
@@ -31,11 +34,17 @@ export function defaultFirmPath(fromEnv?: string): string {
 }
 
 export function missingInUse(
-    next: FirmConfig,
+    next: FirmConfigWrite,
     used: { products: string[]; brokers: string[] },
 ): string[] {
-    const p = new Set(next.products.map((x) => x.id));
-    const b = new Set(next.brokers.map((x) => x.id));
+    const p = new Set(
+        next.products
+            .map((x) => x.id)
+            .filter((id): id is string => Boolean(id)),
+    );
+    const b = new Set(
+        next.brokers.map((x) => x.id).filter((id): id is string => Boolean(id)),
+    );
     return [
         ...used.products
             .filter((id) => !p.has(id))
@@ -45,12 +54,36 @@ export function missingInUse(
 }
 
 export function missingIngestKeys(
-    next: FirmConfig,
+    next: FirmConfigWrite,
     env: NodeJS.Dict<string> = process.env,
 ): string[] {
-    return next.brokers
-        .map((br) => ingestKeyEnvName(br.id))
-        .filter((name) => !env[name]);
+    if (env.INGEST_API_KEY) return [];
+    const names = new Set<string>();
+    for (const br of next.brokers) {
+        if (!br.id) {
+            names.add("INGEST_API_KEY");
+            continue;
+        }
+        const name = ingestKeyEnvName(br.id);
+        if (!env[name]) names.add(name);
+    }
+    return [...names];
+}
+
+export function unknownIds(
+    next: FirmConfigWrite,
+    current: { brokers: { id: string }[]; products: { id: string }[] },
+): string[] {
+    const b = new Set(current.brokers.map((x) => x.id));
+    const p = new Set(current.products.map((x) => x.id));
+    return [
+        ...next.brokers
+            .filter((x) => x.id && !b.has(x.id))
+            .map((x) => `broker ${x.id}`),
+        ...next.products
+            .filter((x) => x.id && !p.has(x.id))
+            .map((x) => `product ${x.id}`),
+    ];
 }
 
 export function assembleFirm(input: {
@@ -196,7 +229,24 @@ export async function usedIds(
     };
 }
 
-export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
+function brokerValues(br: BrokerWrite) {
+    return {
+        name: br.name,
+        bridgeProvider: br.bridge.provider,
+        bridgeUrl: br.bridge.url ?? null,
+    };
+}
+
+function productValues(p: ProductWrite) {
+    return {
+        name: p.name,
+        payoutSplit: p.payout?.split ?? null,
+        payoutMode: p.payout?.mode ?? null,
+        payoutOnUncoverable: p.payout?.onUncoverable ?? null,
+    };
+}
+
+export async function replaceFirm(db: Db, cfg: FirmConfigWrite): Promise<void> {
     await db.transaction(async (tx) => {
         await tx
             .insert(firms)
@@ -228,58 +278,85 @@ export async function replaceFirm(db: Db, cfg: FirmConfig): Promise<void> {
                     payoutOnUncoverable: cfg.payout.onUncoverable,
                 },
             });
+        const existingBrokers = new Set(
+            (await tx.select({ id: brokers.id }).from(brokers)).map(
+                (r) => r.id,
+            ),
+        );
+        const existingProducts = new Set(
+            (await tx.select({ id: products.id }).from(products)).map(
+                (r) => r.id,
+            ),
+        );
+        const keepBrokerIds: string[] = [];
+        for (const br of cfg.brokers) {
+            const row = brokerValues(br);
+            if (br.id && existingBrokers.has(br.id)) {
+                await tx.update(brokers).set(row).where(eq(brokers.id, br.id));
+                keepBrokerIds.push(br.id);
+            } else if (br.id) {
+                await tx.insert(brokers).values({ id: br.id, ...row });
+                keepBrokerIds.push(br.id);
+            } else {
+                const [inserted] = await tx
+                    .insert(brokers)
+                    .values(row)
+                    .returning({ id: brokers.id });
+                if (!inserted) throw new Error("broker insert returned no id");
+                keepBrokerIds.push(inserted.id);
+            }
+        }
+        const keepProductIds: string[] = [];
+        for (const p of cfg.products) {
+            const row = productValues(p);
+            if (p.id && existingProducts.has(p.id)) {
+                await tx.update(products).set(row).where(eq(products.id, p.id));
+                keepProductIds.push(p.id);
+            } else if (p.id) {
+                await tx.insert(products).values({ id: p.id, ...row });
+                keepProductIds.push(p.id);
+            } else {
+                const [inserted] = await tx
+                    .insert(products)
+                    .values(row)
+                    .returning({ id: products.id });
+                if (!inserted) throw new Error("product insert returned no id");
+                keepProductIds.push(inserted.id);
+            }
+        }
         await tx.delete(phases);
         await tx.delete(productBrokers);
-        await tx.delete(products);
-        await tx.delete(brokers);
-        if (cfg.brokers.length) {
-            await tx.insert(brokers).values(
-                cfg.brokers.map((br) => ({
-                    id: br.id,
-                    name: br.name,
-                    bridgeProvider: br.bridge.provider,
-                    bridgeUrl: br.bridge.url ?? null,
+        await tx
+            .delete(products)
+            .where(notInArray(products.id, keepProductIds));
+        await tx.delete(brokers).where(notInArray(brokers.id, keepBrokerIds));
+        const pb = cfg.products.flatMap((p, i) =>
+            p.brokers.map((brokerId) => ({
+                productId: keepProductIds[i] ?? "",
+                brokerId,
+            })),
+        );
+        if (pb.length) await tx.insert(productBrokers).values(pb);
+        await tx.insert(phases).values(
+            cfg.products.flatMap((p, i) =>
+                p.phases.map((ph, idx) => ({
+                    productId: keepProductIds[i] ?? "",
+                    idx,
+                    name: ph.name,
+                    kind: ph.kind,
+                    balance: ph.balance,
+                    fee: ph.fee ?? null,
+                    profitTarget: ph.ruleset.profitTarget,
+                    maxDrawdown: ph.ruleset.maxDrawdown,
+                    dailyDrawdown: ph.ruleset.dailyDrawdown,
+                    minTradingDays: ph.ruleset.minTradingDays,
+                    maxWarnings: ph.ruleset.maxWarnings ?? null,
+                    consistency: ph.ruleset.consistency ?? null,
+                    weekend: ph.ruleset.weekend ?? null,
+                    maxLot: ph.ruleset.maxLot ?? null,
                 })),
-            );
-        }
-        if (cfg.products.length) {
-            await tx.insert(products).values(
-                cfg.products.map((p) => ({
-                    id: p.id,
-                    name: p.name,
-                    payoutSplit: p.payout?.split ?? null,
-                    payoutMode: p.payout?.mode ?? null,
-                    payoutOnUncoverable: p.payout?.onUncoverable ?? null,
-                })),
-            );
-            const pb = cfg.products.flatMap((p) =>
-                p.brokers.map((brokerId) => ({
-                    productId: p.id,
-                    brokerId,
-                })),
-            );
-            if (pb.length) await tx.insert(productBrokers).values(pb);
-            await tx.insert(phases).values(
-                cfg.products.flatMap((p) =>
-                    p.phases.map((ph, idx) => ({
-                        productId: p.id,
-                        idx,
-                        name: ph.name,
-                        kind: ph.kind,
-                        balance: ph.balance,
-                        fee: ph.fee ?? null,
-                        profitTarget: ph.ruleset.profitTarget,
-                        maxDrawdown: ph.ruleset.maxDrawdown,
-                        dailyDrawdown: ph.ruleset.dailyDrawdown,
-                        minTradingDays: ph.ruleset.minTradingDays,
-                        maxWarnings: ph.ruleset.maxWarnings ?? null,
-                        consistency: ph.ruleset.consistency ?? null,
-                        weekend: ph.ruleset.weekend ?? null,
-                        maxLot: ph.ruleset.maxLot ?? null,
-                    })),
-                ),
-            );
-        }
+            ),
+        );
         await tx.execute(sql`notify firm_config`);
     });
 }

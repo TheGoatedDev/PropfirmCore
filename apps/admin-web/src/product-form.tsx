@@ -1,4 +1,8 @@
-import { type Product, payoutModes, phaseKinds } from "@propfirmcore/config";
+import {
+    type ProductWrite,
+    payoutModes,
+    phaseKinds,
+} from "@propfirmcore/config";
 import { Button } from "@propfirmcore/ui/components/button";
 import { Checkbox } from "@propfirmcore/ui/components/checkbox";
 import {
@@ -18,7 +22,7 @@ import {
 } from "@propfirmcore/ui/components/select";
 import { useFieldArray, useForm } from "react-hook-form";
 
-function emptyPhase(): Product["phases"][0] {
+function emptyPhase(): ProductWrite["phases"][0] {
     return {
         name: "eval",
         kind: "eval",
@@ -33,9 +37,8 @@ function emptyPhase(): Product["phases"][0] {
     };
 }
 
-export function emptyProduct(): Product {
+export function emptyProduct(): ProductWrite {
     return {
-        id: "",
         name: "",
         brokers: [],
         phases: [emptyPhase()],
@@ -66,16 +69,17 @@ function NumInput({
 
 export function ProductForm({
     product,
-    brokerIds,
+    brokers,
     onSave,
     saving,
 }: {
-    product: Product;
-    brokerIds: string[];
-    onSave: (next: Product) => void;
+    product: ProductWrite;
+    brokers: { id: string; name: string }[];
+    onSave: (next: ProductWrite) => void;
     saving: boolean;
 }) {
-    const form = useForm<Product>({
+    const locked = Boolean(product.id);
+    const form = useForm<ProductWrite>({
         defaultValues: {
             ...product,
             payout: product.payout ?? {
@@ -100,23 +104,32 @@ export function ProductForm({
                 onSubmit={form.handleSubmit((v) => onSave(v))}
             >
                 <div className="grid gap-3 sm:grid-cols-2">
-                    <FormField
-                        control={form.control}
-                        name="id"
-                        render={({ field, fieldState }) => (
-                            <FormItem>
-                                <FormLabel htmlFor="product-id">Id</FormLabel>
-                                <Input
-                                    id="product-id"
-                                    data-testid="product-id"
-                                    {...field}
-                                />
-                                <FormMessage>
-                                    {fieldState.error?.message}
-                                </FormMessage>
-                            </FormItem>
-                        )}
-                    />
+                    {locked ? (
+                        <FormField
+                            control={form.control}
+                            name="id"
+                            render={({ field, fieldState }) => (
+                                <FormItem>
+                                    <FormLabel htmlFor="product-id">
+                                        Id
+                                    </FormLabel>
+                                    <Input
+                                        id="product-id"
+                                        data-testid="product-id"
+                                        disabled
+                                        value={field.value ?? ""}
+                                        onChange={field.onChange}
+                                        onBlur={field.onBlur}
+                                        name={field.name}
+                                        ref={field.ref}
+                                    />
+                                    <FormMessage>
+                                        {fieldState.error?.message}
+                                    </FormMessage>
+                                </FormItem>
+                            )}
+                        />
+                    ) : null}
                     <FormField
                         control={form.control}
                         name="name"
@@ -144,30 +157,30 @@ export function ProductForm({
                         <FormItem>
                             <FormLabel>Brokers</FormLabel>
                             <div className="flex flex-wrap gap-3">
-                                {brokerIds.map((id) => (
+                                {brokers.map((b) => (
                                     <div
-                                        key={id}
+                                        key={b.id}
                                         className="flex items-center gap-2 text-sm"
                                     >
                                         <Checkbox
-                                            id={`pb-${id}`}
-                                            checked={field.value.includes(id)}
+                                            id={`pb-${b.id}`}
+                                            checked={field.value.includes(b.id)}
                                             onCheckedChange={(v) => {
                                                 const on = v === true;
                                                 field.onChange(
                                                     on
-                                                        ? [...field.value, id]
+                                                        ? [...field.value, b.id]
                                                         : field.value.filter(
-                                                              (x) => x !== id,
+                                                              (x) => x !== b.id,
                                                           ),
                                                 );
                                             }}
                                         />
                                         <FormLabel
-                                            htmlFor={`pb-${id}`}
-                                            data-testid={`product-broker-${id}`}
+                                            htmlFor={`pb-${b.id}`}
+                                            data-testid={`product-broker-${b.id}`}
                                         >
-                                            {id}
+                                            {b.name}
                                         </FormLabel>
                                     </div>
                                 ))}

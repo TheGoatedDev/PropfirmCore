@@ -21,7 +21,8 @@ export function getBridge(
         return broker.bridge.url
             ? createWebhookBridge(
                   broker.bridge.url,
-                  process.env[bridgeKeyEnvName(broker.id)],
+                  process.env[bridgeKeyEnvName(broker.id)] ??
+                      process.env.BRIDGE_WEBHOOK_KEY,
               )
             : undefined;
     }

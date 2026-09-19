@@ -1,4 +1,4 @@
-import type { Broker } from "@propfirmcore/config";
+import type { BrokerWrite } from "@propfirmcore/config";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Form,
@@ -17,9 +17,8 @@ import {
 } from "@propfirmcore/ui/components/select";
 import { useForm } from "react-hook-form";
 
-export function emptyBroker(): Broker {
+export function emptyBroker(): BrokerWrite {
     return {
-        id: "",
         name: "",
         bridge: { provider: "loopback" },
     };
@@ -30,14 +29,15 @@ export function BrokerForm({
     onSave,
     saving,
 }: {
-    broker: Broker;
-    onSave: (next: Broker) => void;
+    broker: BrokerWrite;
+    onSave: (next: BrokerWrite) => void;
     saving: boolean;
 }) {
-    const form = useForm<Broker>({
+    const form = useForm<BrokerWrite>({
         defaultValues: broker,
         values: broker,
     });
+    const locked = Boolean(broker.id);
 
     return (
         <Form {...form}>
@@ -45,23 +45,30 @@ export function BrokerForm({
                 className="grid max-w-xl gap-3 sm:grid-cols-2"
                 onSubmit={form.handleSubmit((v) => onSave(v))}
             >
-                <FormField
-                    control={form.control}
-                    name="id"
-                    render={({ field, fieldState }) => (
-                        <FormItem>
-                            <FormLabel htmlFor="broker-id">Id</FormLabel>
-                            <Input
-                                id="broker-id"
-                                data-testid="broker-id"
-                                {...field}
-                            />
-                            <FormMessage>
-                                {fieldState.error?.message}
-                            </FormMessage>
-                        </FormItem>
-                    )}
-                />
+                {locked ? (
+                    <FormField
+                        control={form.control}
+                        name="id"
+                        render={({ field, fieldState }) => (
+                            <FormItem>
+                                <FormLabel htmlFor="broker-id">Id</FormLabel>
+                                <Input
+                                    id="broker-id"
+                                    data-testid="broker-id"
+                                    disabled
+                                    value={field.value ?? ""}
+                                    onChange={field.onChange}
+                                    onBlur={field.onBlur}
+                                    name={field.name}
+                                    ref={field.ref}
+                                />
+                                <FormMessage>
+                                    {fieldState.error?.message}
+                                </FormMessage>
+                            </FormItem>
+                        )}
+                    />
+                ) : null}
                 <FormField
                     control={form.control}
                     name="name"

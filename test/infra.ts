@@ -4,7 +4,7 @@ import { GenericContainer } from "testcontainers";
 export const testAppEnv = {
     NATS_TOKEN: "dev",
     INGEST_API_KEY_LOOPBACK: "dev",
-    INGEST_API_KEY_E2E: "dev",
+    INGEST_API_KEY: "dev",
     BETTER_AUTH_SECRET: "change-me-to-a-long-random-string",
     BETTER_AUTH_URL: "http://localhost:3000",
     BOOTSTRAP_ADMIN_EMAIL: "admin@example.com",

@@ -1,6 +1,11 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
-import { ingestKeyEnvName, loadFirmConfig, parseFirmConfig } from "./index.ts";
+import {
+    ingestKeyEnvName,
+    loadFirmConfig,
+    parseFirmConfig,
+    parseFirmConfigWrite,
+} from "./index.ts";
 
 const valid = {
     id: "acme",
@@ -211,6 +216,28 @@ describe("parseFirmConfig", () => {
     it("ingest key env name", () => {
         expect(ingestKeyEnvName("loopback")).toBe("INGEST_API_KEY_LOOPBACK");
         expect(ingestKeyEnvName("mt5-live")).toBe("INGEST_API_KEY_MT5_LIVE");
+    });
+
+    it("write schema allows omitted broker and product ids", () => {
+        const { id: _b, ...broker } = valid.brokers[0];
+        const { id: _p, ...product } = valid.products[0];
+        const cfg = parseFirmConfigWrite({
+            ...valid,
+            brokers: [broker, valid.brokers[0]],
+            products: [product],
+        });
+        expect(cfg.brokers[0]?.id).toBeUndefined();
+        expect(cfg.products[0]?.id).toBeUndefined();
+    });
+
+    it("write schema rejects unknown broker refs", () => {
+        const { id: _p, ...product } = valid.products[0];
+        expect(() =>
+            parseFirmConfigWrite({
+                ...valid,
+                products: [{ ...product, brokers: ["nope"] }],
+            }),
+        ).toThrow();
     });
 
     it("parses firm.example.json", () => {

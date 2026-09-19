@@ -308,7 +308,7 @@ export interface paths {
                             onUncoverable?: "failApprove" | "autoReject";
                         };
                         brokers: {
-                            id: string;
+                            id?: string;
                             name: string;
                             bridge: {
                                 /** @default loopback */
@@ -318,7 +318,7 @@ export interface paths {
                             };
                         }[];
                         products: {
-                            id: string;
+                            id?: string;
                             name: string;
                             brokers: string[];
                             phases: {

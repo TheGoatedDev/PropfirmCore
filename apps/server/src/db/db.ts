@@ -21,6 +21,7 @@ import {
     tradingAccountSchema,
     tradingAccountStatuses,
 } from "@propfirmcore/domain";
+import { sql } from "drizzle-orm";
 import {
     boolean,
     doublePrecision,
@@ -78,14 +79,14 @@ export const firms = pgTable("firm", {
 });
 
 export const brokers = pgTable("brokers", {
-    id: text("id").primaryKey(),
+    id: text("id").primaryKey().default(sql`gen_random_uuid()::text`),
     name: text("name").notNull(),
     bridgeProvider: text("bridge_provider").notNull(),
     bridgeUrl: text("bridge_url"),
 });
 
 export const products = pgTable("products", {
-    id: text("id").primaryKey(),
+    id: text("id").primaryKey().default(sql`gen_random_uuid()::text`),
     name: text("name").notNull(),
     payoutSplit: doublePrecision("payout_split"),
     payoutMode: payoutModeEnum("payout_mode"),

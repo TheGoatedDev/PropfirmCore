@@ -1,4 +1,4 @@
-import type { Broker } from "@propfirmcore/config";
+import type { BrokerWrite } from "@propfirmcore/config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
@@ -16,15 +16,26 @@ function NewBroker() {
     const qc = useQueryClient();
     const navigate = useNavigate();
     const save = useMutation({
-        mutationFn: (broker: Broker) =>
+        mutationFn: (broker: BrokerWrite) =>
             saveFirmSlice((current) => ({
                 ...current,
                 brokers: [...current.brokers, broker],
             })),
-        onSuccess: (data, broker) => {
+        onSuccess: (data) => {
             setError(null);
+            const prev = qc.getQueryData(keys.firm) as
+                | { brokers: { id: string }[] }
+                | undefined;
+            const created = data.brokers.find(
+                (b) => !prev?.brokers.some((x) => x.id === b.id),
+            );
             qc.setQueryData(keys.firm, data);
-            void navigate({ to: "/brokers/$id", params: { id: broker.id } });
+            if (created) {
+                void navigate({
+                    to: "/brokers/$id",
+                    params: { id: created.id },
+                });
+            }
         },
         onError: (err) => setError(failMsg(err, "Save failed")),
     });

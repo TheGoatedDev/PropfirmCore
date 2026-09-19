@@ -1,7 +1,12 @@
-import { type FirmConfig, parseFirmConfig } from "@propfirmcore/config";
+import {
+    type FirmConfig,
+    type FirmConfigWrite,
+    parseFirmConfig,
+    parseFirmConfigWrite,
+} from "@propfirmcore/config";
 import { api, failMsg } from "./api.ts";
 
-export function cleanFirm(cfg: FirmConfig): FirmConfig {
+export function cleanFirm(cfg: FirmConfigWrite): FirmConfigWrite {
     return {
         ...cfg,
         products: cfg.products.map((p) => {
@@ -19,12 +24,12 @@ export async function fetchFirm(): Promise<FirmConfig> {
 }
 
 export async function saveFirmSlice(
-    patch: (firm: FirmConfig) => FirmConfig,
+    patch: (firm: FirmConfig) => FirmConfigWrite,
 ): Promise<FirmConfig> {
     const current = await fetchFirm();
-    let next: FirmConfig;
+    let next: FirmConfigWrite;
     try {
-        next = parseFirmConfig(cleanFirm(patch(current)));
+        next = parseFirmConfigWrite(cleanFirm(patch(current)));
     } catch (err) {
         throw new Error(err instanceof Error ? err.message : "Invalid firm");
     }

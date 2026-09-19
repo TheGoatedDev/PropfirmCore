@@ -38,7 +38,6 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
 
     await admin.getByTestId("nav-brokers").click();
     await admin.getByTestId("add-broker").click();
-    await admin.getByTestId("broker-id").fill("e2e");
     await admin.getByTestId("broker-name").fill("E2E");
     const savedBroker = admin.waitForResponse(
         (r) =>
@@ -48,11 +47,11 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     );
     await admin.getByTestId("broker-save").click();
     await savedBroker;
-    await expect(admin.getByTestId("broker-id")).toHaveValue("e2e");
+    await expect(admin).toHaveURL(/\/brokers\/[0-9a-f-]{36}$/i);
+    await expect(admin.getByTestId("broker-id")).toHaveValue(/[0-9a-f-]{36}/i);
 
     await admin.getByTestId("nav-products").click();
     await admin.getByTestId("add-product").click();
-    await admin.getByTestId("product-id").fill("e2e-free");
     await admin.getByTestId("product-name").fill("E2E free");
     await admin.getByTestId("product-broker-loopback").click();
     const savedProduct = admin.waitForResponse(
@@ -63,7 +62,8 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     );
     await admin.getByTestId("product-save").click();
     await savedProduct;
-    await expect(admin.getByTestId("product-id")).toHaveValue("e2e-free");
+    await expect(admin).toHaveURL(/\/products\/[0-9a-f-]{36}$/i);
+    const productId = admin.url().split("/").pop() ?? "";
 
     const trader = await browser.newPage();
     const email = `t${crypto.randomUUID()}@example.com`;
@@ -74,7 +74,7 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     await trader.getByTestId("sign-up-submit").click();
     await expect(trader.getByTestId("products-heading")).toBeVisible();
     await expect(trader.getByText("E2E free", { exact: true })).toBeVisible();
-    await trader.getByTestId("product-buy-e2e-free").click();
+    await trader.getByTestId(`product-buy-${productId}`).click();
     await expect(trader.getByTestId("account-status").first()).toHaveText(
         "active",
     );

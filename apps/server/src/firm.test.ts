@@ -5,6 +5,7 @@ import {
     loadFirmFromPath,
     missingIngestKeys,
     missingInUse,
+    unknownIds,
 } from "./firm.ts";
 
 const cfg = loadFirmFromPath(defaultFirmPath());
@@ -34,6 +35,52 @@ describe("missingIngestKeys", () => {
         expect(missingIngestKeys(cfg, {})).toEqual(["INGEST_API_KEY_LOOPBACK"]);
         expect(
             missingIngestKeys(cfg, { INGEST_API_KEY_LOOPBACK: "x" }),
+        ).toEqual([]);
+        expect(missingIngestKeys(cfg, { INGEST_API_KEY: "x" })).toEqual([]);
+    });
+
+    it("requires shared key when a broker has no id", () => {
+        const { id: _, ...broker } = cfg.brokers[0];
+        expect(missingIngestKeys({ ...cfg, brokers: [broker] }, {})).toEqual([
+            "INGEST_API_KEY",
+        ]);
+        expect(
+            missingIngestKeys(
+                { ...cfg, brokers: [broker] },
+                { INGEST_API_KEY: "x" },
+            ),
+        ).toEqual([]);
+    });
+});
+
+describe("unknownIds", () => {
+    it("empty when ids match live firm", () => {
+        expect(unknownIds(cfg, cfg)).toEqual([]);
+    });
+
+    it("names ids not on the live firm", () => {
+        expect(
+            unknownIds(
+                {
+                    ...cfg,
+                    brokers: [
+                        ...cfg.brokers,
+                        {
+                            id: "nope",
+                            name: "Nope",
+                            bridge: { provider: "loopback" },
+                        },
+                    ],
+                },
+                cfg,
+            ),
+        ).toEqual(["broker nope"]);
+    });
+
+    it("ignores omitted ids", () => {
+        const { id: _, ...broker } = cfg.brokers[0];
+        expect(
+            unknownIds({ ...cfg, brokers: [...cfg.brokers, broker] }, cfg),
         ).toEqual([]);
     });
 });

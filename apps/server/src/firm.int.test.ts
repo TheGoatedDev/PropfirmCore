@@ -113,3 +113,74 @@ it("seed GET /firm; admin PUT; trader 403; in-use product blocked", async () => 
     });
     expect(blocked.status).toBe(400);
 });
+
+it("PUT /firm mints ids; rejects unknown ids", async () => {
+    const seed = loadFirmFromPath(defaultFirmPath());
+    const signin = await post("/auth/sign-in/email", {
+        email: "admin@example.com",
+        password: "changeme",
+    });
+    expect(signin.ok).toBe(true);
+    const cookieHeader = cookie(signin);
+
+    const got = await fetch(`${base}/firm`, {
+        headers: { origin: base, cookie: cookieHeader },
+    });
+    expect(got.status).toBe(200);
+    const live = (await got.json()) as typeof seed;
+
+    const evalOnly = {
+        name: "minted",
+        brokers: [live.brokers[0]?.id ?? "loopback"],
+        phases: [
+            {
+                name: "eval",
+                kind: "eval" as const,
+                balance: 50_000,
+                fee: 0,
+                ruleset: {
+                    profitTarget: 0.06,
+                    maxDrawdown: 0.05,
+                    dailyDrawdown: 0.02,
+                    minTradingDays: 0,
+                },
+            },
+        ],
+    };
+
+    const created = await fetch(`${base}/firm`, {
+        method: "PUT",
+        headers: {
+            origin: base,
+            "content-type": "application/json",
+            cookie: cookieHeader,
+        },
+        body: JSON.stringify({
+            ...live,
+            products: [...live.products, evalOnly],
+        }),
+    });
+    expect(created.status).toBe(200);
+    const after = (await created.json()) as typeof seed;
+    const minted = after.products.find((p) => p.name === "minted");
+    expect(minted?.id).toMatch(
+        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i,
+    );
+
+    const unknown = await fetch(`${base}/firm`, {
+        method: "PUT",
+        headers: {
+            origin: base,
+            "content-type": "application/json",
+            cookie: cookieHeader,
+        },
+        body: JSON.stringify({
+            ...after,
+            products: [
+                ...after.products,
+                { ...evalOnly, id: "nope", name: "ghost" },
+            ],
+        }),
+    });
+    expect(unknown.status).toBe(400);
+});

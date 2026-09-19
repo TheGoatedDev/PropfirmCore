@@ -868,7 +868,6 @@
                                                 }
                                             },
                                             "required": [
-                                                "id",
                                                 "name",
                                                 "bridge"
                                             ]
@@ -1074,7 +1073,6 @@
                                                 }
                                             },
                                             "required": [
-                                                "id",
                                                 "name",
                                                 "brokers",
                                                 "phases"

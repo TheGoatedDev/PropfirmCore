@@ -18,6 +18,7 @@ export default defineConfig({
                     name: "int",
                     include: ["**/*.int.test.ts"],
                     exclude,
+                    fileParallelism: false,
                     globalSetup: ["./test/vitest-global-setup.ts"],
                 },
             },

@@ -1,6 +1,6 @@
-import type { Product } from "@propfirmcore/config";
+import type { ProductWrite } from "@propfirmcore/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
 import { fetchFirm, saveFirmSlice } from "../../firm-api.ts";
 import { ProductForm } from "../../product-form.tsx";
@@ -15,10 +15,9 @@ function EditProduct() {
     const { id } = Route.useParams();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
-    const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
     const save = useMutation({
-        mutationFn: (product: Product) =>
+        mutationFn: (product: ProductWrite) =>
             saveFirmSlice((current) => {
                 if (!current.products.some((p) => p.id === id)) {
                     throw new Error("Product not found");
@@ -26,19 +25,13 @@ function EditProduct() {
                 return {
                     ...current,
                     products: current.products.map((p) =>
-                        p.id === id ? product : p,
+                        p.id === id ? { ...product, id } : p,
                     ),
                 };
             }),
-        onSuccess: (data, product) => {
+        onSuccess: (data) => {
             setError(null);
             qc.setQueryData(keys.firm, data);
-            if (product.id !== id) {
-                void navigate({
-                    to: "/products/$id",
-                    params: { id: product.id },
-                });
-            }
         },
         onError: (err) => setError(failMsg(err, "Save failed")),
     });
@@ -54,7 +47,7 @@ function EditProduct() {
         <div className="space-y-4">
             <ProductForm
                 product={product}
-                brokerIds={firm.data.brokers.map((b) => b.id).filter(Boolean)}
+                brokers={firm.data.brokers}
                 saving={save.isPending}
                 onSave={(next) => save.mutate(next)}
             />
