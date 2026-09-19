@@ -31,10 +31,7 @@ function AdminHome() {
     });
 
     return (
-        <div className="space-y-4">
-            <h1 className="text-xl font-semibold" data-testid="home-heading">
-                Home
-            </h1>
+        <div className="space-y-4" data-testid="home-heading">
             {firm.isError ? (
                 <p>{failMsg(firm.error, "Could not load firm")}</p>
             ) : null}

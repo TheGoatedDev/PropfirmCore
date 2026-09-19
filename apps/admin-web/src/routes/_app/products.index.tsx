@@ -67,8 +67,7 @@ function Products() {
 
     return (
         <div className="space-y-4">
-            <div className="flex items-center justify-between">
-                <h1 className="text-xl font-semibold">Products</h1>
+            <div className="flex items-center justify-end">
                 <Button
                     data-testid="add-product"
                     onClick={() => void navigate({ to: "/products/new" })}

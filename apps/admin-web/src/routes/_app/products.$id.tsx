@@ -52,7 +52,6 @@ function EditProduct() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-xl font-semibold">Product</h1>
             <ProductForm
                 product={product}
                 brokerIds={firm.data.brokers.map((b) => b.id).filter(Boolean)}

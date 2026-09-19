@@ -53,7 +53,6 @@ function Payouts() {
 
     return (
         <section>
-            <h2 className="mb-3 text-lg font-medium">Payouts</h2>
             <Table>
                 <TableHeader>
                     <TableRow>

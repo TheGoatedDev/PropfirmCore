@@ -124,13 +124,7 @@ function TradingAccounts() {
     });
 
     return (
-        <section>
-            <h2
-                className="mb-3 text-lg font-medium"
-                data-testid="accounts-heading"
-            >
-                Trading accounts
-            </h2>
+        <section data-testid="accounts-heading">
             <DataTable
                 columns={col.columns([
                     col.accessor("id", {

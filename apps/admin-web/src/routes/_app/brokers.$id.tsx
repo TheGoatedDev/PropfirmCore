@@ -52,7 +52,6 @@ function EditBroker() {
 
     return (
         <div className="space-y-4">
-            <h1 className="text-xl font-semibold">Broker</h1>
             <BrokerForm
                 broker={broker}
                 saving={save.isPending}

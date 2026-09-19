@@ -176,10 +176,10 @@ function Users() {
 
     return (
         <section className="space-y-3">
-            <div className="flex items-center justify-between">
-                <h2 className="text-lg font-medium" data-testid="users-heading">
-                    Users
-                </h2>
+            <div
+                className="flex items-center justify-end"
+                data-testid="users-heading"
+            >
                 <Button
                     data-testid="user-create"
                     onClick={() => setCreating((v) => !v)}
