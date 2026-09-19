@@ -7,7 +7,7 @@ import { noopIngestPublish } from "./ingest/bus.ts";
 
 const firm = loadFirmConfig(
     readFileSync(
-        new URL("../../../firm.example.json", import.meta.url),
+        new URL("../../../packages/config/firm.example.json", import.meta.url),
         "utf8",
     ),
 );

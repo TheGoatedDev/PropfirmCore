@@ -4,7 +4,6 @@ WORKDIR /app
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml tsconfig.json ./
 COPY packages ./packages
 COPY apps/server ./apps/server
-COPY firm.example.json ./
 RUN pnpm install --frozen-lockfile
 WORKDIR /app/apps/server
 ENV ROLE=api

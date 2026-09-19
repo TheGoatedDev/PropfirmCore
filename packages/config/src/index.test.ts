@@ -242,7 +242,7 @@ describe("parseFirmConfig", () => {
 
     it("parses firm.example.json", () => {
         const json = readFileSync(
-            new URL("../../../firm.example.json", import.meta.url),
+            new URL("../firm.example.json", import.meta.url),
             "utf8",
         );
         expect(loadFirmConfig(json).name).toBe("Acme");

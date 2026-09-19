@@ -45,7 +45,7 @@ services:
             NATS_TOKEN: dev
             INGEST_API_KEY_LOOPBACK: dev
             INGEST_API_KEY: dev
-            FIRM_CONFIG_PATH: /app/firm.example.json
+            FIRM_CONFIG_PATH: /app/packages/config/firm.example.json
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
             BETTER_AUTH_URL: http://localhost
             BOOTSTRAP_ADMIN_EMAIL: admin@example.com
@@ -69,7 +69,7 @@ services:
             INGEST_API_KEY_LOOPBACK: dev
             INGEST_API_KEY: dev
             BETTER_AUTH_SECRET: change-me-to-a-long-random-string
-            FIRM_CONFIG_PATH: /app/firm.example.json
+            FIRM_CONFIG_PATH: /app/packages/config/firm.example.json
         depends_on:
             postgres:
                 condition: service_healthy

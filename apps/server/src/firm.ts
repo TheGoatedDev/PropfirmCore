@@ -28,7 +28,7 @@ export function loadFirmFromPath(path: string): FirmConfig {
 }
 
 export function defaultFirmPath(fromEnv?: string): string {
-    if (!fromEnv) return resolve(repoRoot, "firm.example.json");
+    if (!fromEnv) return resolve(repoRoot, "packages/config/firm.example.json");
     if (isAbsolute(fromEnv)) return fromEnv;
     return resolve(repoRoot, fromEnv);
 }
