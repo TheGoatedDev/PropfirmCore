@@ -86,4 +86,24 @@ it("lists trading accounts with page and q", async () => {
     };
     expect(found.total).toBe(1);
     expect(found.items[0]?.id).toBe(tradingAccount.id);
+
+    const active = await fetch(`${base}/trading-accounts?status=active`, {
+        headers: { cookie: trader.cookie },
+    });
+    expect(active.ok).toBe(true);
+    const activeList = (await active.json()) as {
+        items: { id: string; status: string }[];
+    };
+    expect(activeList.items.some((a) => a.id === tradingAccount.id)).toBe(true);
+
+    const failed = await fetch(`${base}/trading-accounts?status=failed`, {
+        headers: { cookie: trader.cookie },
+    });
+    expect(failed.ok).toBe(true);
+    const failedList = (await failed.json()) as {
+        items: { id: string }[];
+    };
+    expect(failedList.items.some((a) => a.id === tradingAccount.id)).toBe(
+        false,
+    );
 });

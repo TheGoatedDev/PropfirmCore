@@ -869,6 +869,7 @@ export interface paths {
                     q?: string;
                     sort?: "id" | "status" | "equity" | "productId" | "userId";
                     order?: "asc" | "desc";
+                    status?: "active" | "passed" | "failed";
                 };
                 header?: never;
                 path?: never;

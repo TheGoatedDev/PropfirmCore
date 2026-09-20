@@ -4,6 +4,7 @@ import {
     forcePass,
     resyncRuleset,
     type TradingAccount,
+    type TradingAccountStatus,
 } from "@propfirmcore/domain";
 import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
 import { roleHasPermission } from "../auth/permissions.ts";
@@ -35,6 +36,7 @@ export async function listAccounts(
         q?: string;
         sort?: AccountListSort;
         order: "asc" | "desc";
+        status?: TradingAccountStatus;
     },
 ): Promise<{ items: TradingAccount[]; total: number }> {
     const parts = [];
@@ -51,6 +53,7 @@ export async function listAccounts(
             ),
         );
     }
+    if (input.status) parts.push(eq(tradingAccounts.status, input.status));
     const where = parts.length ? and(...parts) : undefined;
     const col = sortColumns[input.sort ?? "id"];
     const order = input.order === "desc" ? desc(col) : asc(col);

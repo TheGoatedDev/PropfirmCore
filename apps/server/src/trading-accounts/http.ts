@@ -1,6 +1,9 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
 import type { FirmConfig } from "@propfirmcore/config";
-import { tradingAccountSchema } from "@propfirmcore/domain";
+import {
+    tradingAccountSchema,
+    tradingAccountStatusSchema,
+} from "@propfirmcore/domain";
 import { eq, inArray } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { user } from "../auth/auth-schema.ts";
@@ -25,6 +28,7 @@ const listQuery = z.object({
     q: z.string().optional(),
     sort: z.enum(["id", "status", "equity", "productId", "userId"]).optional(),
     order: z.enum(["asc", "desc"]).default("asc"),
+    status: tradingAccountStatusSchema.optional(),
 });
 const accountOutSchema = tradingAccountSchema.extend({
     kycVerified: z.boolean().optional(),

@@ -2065,6 +2065,19 @@
                         "required": false,
                         "name": "order",
                         "in": "query"
+                    },
+                    {
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "active",
+                                "passed",
+                                "failed"
+                            ]
+                        },
+                        "required": false,
+                        "name": "status",
+                        "in": "query"
                     }
                 ],
                 "responses": {
