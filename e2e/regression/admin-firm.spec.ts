@@ -79,3 +79,16 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
         "active",
     );
 });
+
+test("broker rows open via the Inspect action, not a row click", async ({
+    page,
+}) => {
+    await signInAdmin(page);
+    await page.getByTestId("nav-brokers").click();
+    await expect(page).toHaveURL(/\/brokers$/);
+    await page.getByRole("cell", { name: "loopback", exact: true }).click();
+    await expect(page).toHaveURL(/\/brokers$/);
+    await page.getByTestId("row-actions-0").click();
+    await page.getByTestId("broker-inspect-loopback").click();
+    await expect(page).toHaveURL(/\/brokers\/loopback$/);
+});
