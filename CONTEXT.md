@@ -160,8 +160,12 @@ A tradable spec: symbol, asset class, tick, multiplier, currency.
 `fx`, `futures`, `crypto`, or `equity`.
 
 **Ingest**:
-Inbound feed of snapshots and fills onto an existing trading account. Unknown id is rejected. Does not open a book. Key must match the account's Broker.
+Inbound feed of snapshots and fills onto an existing trading account. Unknown id is rejected. Does not open a book. The Ingest key must match the account's Broker.
 _Avoid_: webhook, stream
+
+**Ingest key**:
+A Broker's secret that authorizes Ingest for its trading accounts. The server makes it; an Admin sees it once, on rotate. Rotate cuts over at once. An Admin may revoke it; then Ingest is refused.
+_Avoid_: API key, webhook secret, token
 
 **Broker**:
 The platform a trading account lives on. A Firm has many. A Product lists which. The trader picks at buy. Immutable after.
@@ -213,6 +217,10 @@ Approve-time check when live available is less than the requested amount. Firm p
 Outbound port on a Broker. Withdraw and deposit move sim. Freeze and unfreeze do not. Provision creates the remote book and returns login and password. Loopback does it in this process. HTTP ingest is inbound snapshots and fills, not this.
 _Avoid_: Broker adapter
 
+**Bridge key**:
+A Broker's secret sent on outbound bridge calls. Set or cleared by an Admin. Optional. Only on an HTTP adapter Broker.
+_Avoid_: API key, webhook secret, token
+
 **Provision**:
 Bridge action when a Payment completes. The Broker creates the remote book and returns login and password. Failure leaves the Payment pending and does not insert a trading account.
 
@@ -220,4 +228,4 @@ Bridge action when a Payment completes. The Broker creates the remote book and r
 The default bridge. Applies `applyPayout` here: equity, balance, and daily start move; rules do not run. Freeze and unfreeze are no-ops. Provision returns login = account id, password = `loopback`.
 
 **HTTP adapter**:
-Bridge with `provider: "webhook"`. POST `{ action, accountId, amount? }` to the broker's `bridge.url`. `withdraw` and `deposit` then `applyPayout`. `freeze` and `unfreeze` do not move sim. `provision` returns `{ login, password }`. Optional per-broker `BRIDGE_WEBHOOK_KEY_<ID>` as `X-Api-Key`.
+Bridge with `provider: "webhook"`. POST `{ action, accountId, amount? }` to the broker's `bridge.url`. `withdraw` and `deposit` then `applyPayout`. `freeze` and `unfreeze` do not move sim. `provision` returns `{ login, password }`. Sends the Broker's Bridge key, if set, as `X-Api-Key`.
