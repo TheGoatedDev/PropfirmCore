@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { loadFirmConfig } from "@propfirmcore/config";
 import { describe, expect, it } from "vitest";
 import type { Auth } from "../auth/auth.ts";
+import { type BrokerSecrets, hashKey } from "../brokers/credentials.ts";
 import type { Db } from "../db/db.ts";
 import { noopIngestPublish } from "../ingest/bus.ts";
 import { type AppDeps, createApp } from "./app.ts";
@@ -16,6 +17,15 @@ const auth = {
     },
 } as unknown as Auth;
 
+function secretsOf(keys: Record<string, string>): BrokerSecrets {
+    return new Map(
+        Object.entries(keys).map(([id, k]) => [
+            id,
+            { ingestKeyHash: hashKey(k), bridgeKey: null },
+        ]),
+    );
+}
+
 const firm = loadFirmConfig(
     readFileSync(
         new URL(
@@ -27,11 +37,10 @@ const firm = loadFirmConfig(
 );
 
 function app() {
-    const ingestKeys = { loopback: "secret" };
     return createApp({
-        ingestKeys,
+        secrets: secretsOf({ loopback: "secret" }),
         firm,
-        holder: { current: firm, ingestKeys },
+        holder: { current: firm },
         db: {} as Db,
         auth,
         publish: noopIngestPublish,

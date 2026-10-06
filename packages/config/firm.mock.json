@@ -12,7 +12,12 @@
         {
             "id": "mock",
             "name": "Mock",
-            "bridge": { "provider": "webhook", "url": "http://localhost:4000/" }
+            "bridge": {
+                "provider": "webhook",
+                "url": "http://localhost:4000/"
+            },
+            "ingestKey": "dev",
+            "bridgeKey": "dev"
         }
     ],
     "products": [

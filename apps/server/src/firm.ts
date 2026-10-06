@@ -4,12 +4,14 @@ import {
     type BrokerWrite,
     type FirmConfig,
     type FirmConfigWrite,
-    ingestKeyEnvName,
+    type FirmSeed,
     loadFirmConfig,
+    loadFirmSeed,
     type ProductWrite,
     parseFirmConfig,
 } from "@propfirmcore/config";
 import { eq, notInArray, sql } from "drizzle-orm";
+import { hashKey, ingestKeyPrefix } from "./brokers/credentials.ts";
 import {
     brokers,
     type Db,
@@ -20,6 +22,7 @@ import {
     products,
     tradingAccounts,
 } from "./db/db.ts";
+import { log } from "./logger.ts";
 
 const repoRoot = resolve(import.meta.dirname, "../../..");
 
@@ -51,23 +54,6 @@ export function missingInUse(
             .map((id) => `product ${id}`),
         ...used.brokers.filter((id) => !b.has(id)).map((id) => `broker ${id}`),
     ];
-}
-
-export function missingIngestKeys(
-    next: FirmConfigWrite,
-    env: NodeJS.Dict<string> = process.env,
-): string[] {
-    if (env.INGEST_API_KEY) return [];
-    const names = new Set<string>();
-    for (const br of next.brokers) {
-        if (!br.id) {
-            names.add("INGEST_API_KEY");
-            continue;
-        }
-        const name = ingestKeyEnvName(br.id);
-        if (!env[name]) names.add(name);
-    }
-    return [...names];
 }
 
 export function unknownIds(
@@ -246,7 +232,34 @@ function productValues(p: ProductWrite) {
     };
 }
 
-export async function replaceFirm(db: Db, cfg: FirmConfigWrite): Promise<void> {
+type SeedKeys = Map<
+    string,
+    { ingestKeyHash: string | null; bridgeKey: string | null }
+>;
+
+export function seedKeys(seed: FirmSeed): SeedKeys {
+    const out: SeedKeys = new Map();
+    for (const br of seed.brokers) {
+        if (!br.ingestKey && !br.bridgeKey) continue;
+        if (br.ingestKey && !br.ingestKey.startsWith(ingestKeyPrefix)) {
+            log.warn(
+                { brokerId: br.id },
+                `seed ingest key is not ${ingestKeyPrefix}-prefixed; use only for dev`,
+            );
+        }
+        out.set(br.id, {
+            ingestKeyHash: br.ingestKey ? hashKey(br.ingestKey) : null,
+            bridgeKey: br.bridgeKey ?? null,
+        });
+    }
+    return out;
+}
+
+export async function replaceFirm(
+    db: Db,
+    cfg: FirmConfigWrite,
+    keys: SeedKeys = new Map(),
+): Promise<void> {
     await db.transaction(async (tx) => {
         await tx
             .insert(firms)
@@ -305,6 +318,9 @@ export async function replaceFirm(db: Db, cfg: FirmConfigWrite): Promise<void> {
                 if (!inserted) throw new Error("broker insert returned no id");
                 keepBrokerIds.push(inserted.id);
             }
+        }
+        for (const [id, k] of keys) {
+            await tx.update(brokers).set(k).where(eq(brokers.id, id));
         }
         const keepProductIds: string[] = [];
         for (const p of cfg.products) {
@@ -369,7 +385,7 @@ export async function ensureFirm(
     if (rows.length > 1) {
         throw new Error(`expected 1 firm, got ${rows.length}`);
     }
-    const cfg = loadFirmFromPath(defaultFirmPath(fromEnv));
+    const seed = loadFirmSeed(readFileSync(defaultFirmPath(fromEnv), "utf8"));
     if (rows.length === 1) {
         const [product] = await db
             .select({ id: products.id })
@@ -379,6 +395,16 @@ export async function ensureFirm(
             return loadFirm(db, rows[0].id);
         }
     }
-    await replaceFirm(db, cfg);
-    return cfg;
+    const { brokers: seedBrokers, ...rest } = seed;
+    await replaceFirm(
+        db,
+        {
+            ...rest,
+            brokers: seedBrokers.map(
+                ({ ingestKey: _i, bridgeKey: _b, ...br }) => br,
+            ),
+        },
+        seedKeys(seed),
+    );
+    return loadFirm(db, seed.id);
 }

@@ -7,6 +7,7 @@ export const statement = {
     tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
+    broker: ["credentials"],
     kyc: ["write"],
 } as const;
 
@@ -20,6 +21,7 @@ const staff = {
     tradingAccount: ["read", "list", "fail", "pass", "resync"],
     payout: ["read", "list", "approve", "reject", "pay"],
     firm: ["read", "write"],
+    broker: ["credentials"],
     kyc: ["write"],
 } as const;
 

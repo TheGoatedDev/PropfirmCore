@@ -143,8 +143,18 @@ export const brokerSchema = z.object({
     bridge: bridgeSchema,
 });
 
-export const brokerWriteSchema = brokerSchema.extend({
-    id: z.string().min(1).optional(),
+/** Strict: keys never travel in Firm config. Read-only flags are ignored. */
+export const brokerWriteSchema = brokerSchema
+    .extend({
+        id: z.string().min(1).optional(),
+        hasIngestKey: z.boolean().optional(),
+        hasBridgeKey: z.boolean().optional(),
+    })
+    .strict();
+
+export const brokerSeedSchema = brokerSchema.extend({
+    ingestKey: z.string().min(1).optional(),
+    bridgeKey: z.string().min(1).optional(),
 });
 
 export const firmIdSchema = z.string().regex(/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/);
@@ -213,6 +223,26 @@ export const firmConfigWriteSchema = z
     })
     .superRefine(refineBrokerRefs);
 
+export const brokerViewSchema = brokerSchema.extend({
+    hasIngestKey: z.boolean(),
+    hasBridgeKey: z.boolean(),
+});
+
+/** Firm config as an Admin reads it: brokers say whether keys are set. */
+export const firmViewSchema = z.object({
+    ...firmFields,
+    brokers: z.array(brokerViewSchema).min(1),
+    products: z.array(productSchema).min(1),
+});
+
+export const firmSeedSchema = z
+    .object({
+        ...firmFields,
+        brokers: z.array(brokerSeedSchema).min(1),
+        products: z.array(productSchema).min(1),
+    })
+    .superRefine(refineBrokerRefs);
+
 export type OnBreach = (typeof onBreachModes)[number];
 export type ConsistencyMode = (typeof consistencyModes)[number];
 export type Ruleset = z.infer<typeof rulesetSchema>;
@@ -229,18 +259,14 @@ export type FirmPayout = z.infer<typeof firmPayoutSchema>;
 export type Bridge = z.infer<typeof bridgeSchema>;
 export type Broker = z.infer<typeof brokerSchema>;
 export type BrokerWrite = z.infer<typeof brokerWriteSchema>;
+export type BrokerView = z.infer<typeof brokerViewSchema>;
+export type FirmView = z.infer<typeof firmViewSchema>;
+export type BrokerSeed = z.infer<typeof brokerSeedSchema>;
+export type FirmSeed = z.infer<typeof firmSeedSchema>;
 export type PayoutMode = (typeof payoutModes)[number];
 export type OnUncoverable = (typeof onUncoverablePolicies)[number];
 export type FirmConfig = z.infer<typeof firmConfigSchema>;
 export type FirmConfigWrite = z.infer<typeof firmConfigWriteSchema>;
-
-export function ingestKeyEnvName(brokerId: string): string {
-    return `INGEST_API_KEY_${brokerId.replace(/[^A-Za-z0-9]+/g, "_").toUpperCase()}`;
-}
-
-export function bridgeKeyEnvName(brokerId: string): string {
-    return `BRIDGE_WEBHOOK_KEY_${brokerId.replace(/[^A-Za-z0-9]+/g, "_").toUpperCase()}`;
-}
 
 export function brokerOf(firm: FirmConfig, id: string): Broker | undefined {
     return firm.brokers.find((b) => b.id === id);
@@ -263,4 +289,8 @@ export function parseFirmConfigWrite(input: unknown): FirmConfigWrite {
 
 export function loadFirmConfig(json: string): FirmConfig {
     return parseFirmConfig(JSON.parse(json) as unknown);
+}
+
+export function loadFirmSeed(json: string): FirmSeed {
+    return firmSeedSchema.parse(JSON.parse(json) as unknown);
 }

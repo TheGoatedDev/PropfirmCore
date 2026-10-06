@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
-    ingestKeyEnvName,
+    firmSeedSchema,
     loadFirmConfig,
     parseFirmConfig,
     parseFirmConfigWrite,
@@ -213,9 +213,47 @@ describe("parseFirmConfig", () => {
         ).toThrow();
     });
 
-    it("ingest key env name", () => {
-        expect(ingestKeyEnvName("loopback")).toBe("INGEST_API_KEY_LOOPBACK");
-        expect(ingestKeyEnvName("mt5-live")).toBe("INGEST_API_KEY_MT5_LIVE");
+    it("write schema rejects broker keys", () => {
+        expect(() =>
+            parseFirmConfigWrite({
+                ...valid,
+                brokers: [{ ...valid.brokers[0], ingestKey: "k" }],
+            }),
+        ).toThrow();
+        expect(() =>
+            parseFirmConfigWrite({
+                ...valid,
+                brokers: [{ ...valid.brokers[0], bridgeKey: "k" }],
+            }),
+        ).toThrow();
+    });
+
+    it("write schema accepts read-only key flags", () => {
+        const cfg = parseFirmConfigWrite({
+            ...valid,
+            brokers: [
+                {
+                    ...valid.brokers[0],
+                    hasIngestKey: true,
+                    hasBridgeKey: false,
+                },
+            ],
+        });
+        expect(cfg.brokers[0]?.id).toBe("loopback");
+    });
+
+    it("seed schema carries optional broker keys", () => {
+        const seed = firmSeedSchema.parse({
+            ...valid,
+            brokers: [
+                { ...valid.brokers[0], ingestKey: "dev", bridgeKey: "b" },
+            ],
+        });
+        expect(seed.brokers[0]?.ingestKey).toBe("dev");
+        expect(seed.brokers[0]?.bridgeKey).toBe("b");
+        expect(
+            firmSeedSchema.parse(valid).brokers[0]?.ingestKey,
+        ).toBeUndefined();
     });
 
     it("write schema allows omitted broker and product ids", () => {

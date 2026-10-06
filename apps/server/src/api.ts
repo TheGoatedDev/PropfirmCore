@@ -1,11 +1,11 @@
 import { serve } from "@hono/node-server";
 import { createAuth } from "./auth/auth.ts";
 import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
+import { brokerSecrets, loadBrokerSecrets } from "./brokers/credentials.ts";
 import { createDb, migrate } from "./db/db.ts";
 import { env } from "./env.ts";
 import { ensureFirm, loadLiveFirm } from "./firm.ts";
 import { createApp } from "./http/app.ts";
-import { ingestKeysFromEnv } from "./ingest/ingest-key.ts";
 import { connectIngest, natsPublish } from "./ingest/nats.ts";
 import { log } from "./logger.ts";
 
@@ -13,10 +13,8 @@ const { db, sql } = createDb(env.DATABASE_URL);
 await migrate(db);
 
 const firm = await ensureFirm(db, env.FIRM_CONFIG_PATH);
-const holder = {
-    current: firm,
-    ingestKeys: ingestKeysFromEnv(firm),
-};
+const holder = { current: firm };
+await loadBrokerSecrets(db);
 
 const auth = createAuth(db, {
     secret: env.BETTER_AUTH_SECRET,
@@ -33,11 +31,7 @@ if (env.BOOTSTRAP_ADMIN_EMAIL && env.BOOTSTRAP_ADMIN_PASSWORD) {
 await sql.listen("firm_config", async () => {
     try {
         holder.current = await loadLiveFirm(db);
-        const next = ingestKeysFromEnv(holder.current);
-        for (const k of Object.keys(holder.ingestKeys)) {
-            delete holder.ingestKeys[k];
-        }
-        Object.assign(holder.ingestKeys, next);
+        await loadBrokerSecrets(db);
     } catch (err) {
         log.error({ err }, "firm reload");
     }
@@ -49,7 +43,7 @@ const app = createApp({
     get firm() {
         return holder.current;
     },
-    ingestKeys: holder.ingestKeys,
+    secrets: brokerSecrets,
     holder,
     auth,
     publish: natsPublish(nc),

@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
+import { hashKey } from "./brokers/credentials.ts";
+import { firmView } from "./firm/http.ts";
 import {
     assembleFirm,
     defaultFirmPath,
     loadFirmFromPath,
-    missingIngestKeys,
     missingInUse,
+    seedKeys,
     unknownIds,
 } from "./firm.ts";
 
@@ -30,26 +32,41 @@ describe("missingInUse", () => {
     });
 });
 
-describe("missingIngestKeys", () => {
-    it("lists missing env names", () => {
-        expect(missingIngestKeys(cfg, {})).toEqual(["INGEST_API_KEY_LOOPBACK"]);
-        expect(
-            missingIngestKeys(cfg, { INGEST_API_KEY_LOOPBACK: "x" }),
-        ).toEqual([]);
-        expect(missingIngestKeys(cfg, { INGEST_API_KEY: "x" })).toEqual([]);
+describe("seedKeys", () => {
+    it("hashes the ingest key and keeps the bridge key", () => {
+        const keys = seedKeys({
+            ...cfg,
+            brokers: [
+                { ...cfg.brokers[0], ingestKey: "dev", bridgeKey: "b" },
+                { ...cfg.brokers[0], id: "bare" },
+            ],
+        });
+        expect(keys.get("loopback")).toEqual({
+            ingestKeyHash: hashKey("dev"),
+            bridgeKey: "b",
+        });
+        expect(keys.has("bare")).toBe(false);
     });
+});
 
-    it("requires shared key when a broker has no id", () => {
-        const { id: _, ...broker } = cfg.brokers[0];
-        expect(missingIngestKeys({ ...cfg, brokers: [broker] }, {})).toEqual([
-            "INGEST_API_KEY",
-        ]);
-        expect(
-            missingIngestKeys(
-                { ...cfg, brokers: [broker] },
-                { INGEST_API_KEY: "x" },
-            ),
-        ).toEqual([]);
+describe("firmView", () => {
+    it("flags which broker keys are set, never the keys", () => {
+        const view = firmView(
+            cfg,
+            new Map([
+                [
+                    "loopback",
+                    { ingestKeyHash: hashKey("dev"), bridgeKey: null },
+                ],
+            ]),
+        );
+        expect(view.brokers[0]).toEqual({
+            ...cfg.brokers[0],
+            hasIngestKey: true,
+            hasBridgeKey: false,
+        });
+        expect(JSON.stringify(view)).not.toContain(hashKey("dev"));
+        expect(firmView(cfg, new Map()).brokers[0]?.hasIngestKey).toBe(false);
     });
 });
 

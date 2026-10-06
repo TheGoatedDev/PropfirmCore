@@ -1,8 +1,9 @@
+import { brokerOf, type FirmConfig } from "@propfirmcore/config";
 import {
-    bridgeKeyEnvName,
-    brokerOf,
-    type FirmConfig,
-} from "@propfirmcore/config";
+    type BrokerSecrets,
+    bridgeKeyOf,
+    brokerSecrets,
+} from "../brokers/credentials.ts";
 import { loopbackBridge } from "./loopback.ts";
 import type { Bridge } from "./port.ts";
 import { createWebhookBridge } from "./webhook.ts";
@@ -14,6 +15,7 @@ export const bridges: Record<string, Bridge> = {
 export function getBridge(
     firm: FirmConfig,
     brokerId: string,
+    secrets: BrokerSecrets = brokerSecrets,
 ): Bridge | undefined {
     const broker = brokerOf(firm, brokerId);
     if (!broker) return undefined;
@@ -21,8 +23,7 @@ export function getBridge(
         return broker.bridge.url
             ? createWebhookBridge(
                   broker.bridge.url,
-                  process.env[bridgeKeyEnvName(broker.id)] ??
-                      process.env.BRIDGE_WEBHOOK_KEY,
+                  bridgeKeyOf(secrets, broker.id),
               )
             : undefined;
     }
