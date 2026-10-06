@@ -49,10 +49,10 @@ function accountIdOf(body: unknown): string | undefined {
 }
 
 const baseUrl = env("BASE_URL", "http://localhost:3000");
-const apiKey = env("INGEST_API_KEY_MOCK", "dev");
+const apiKey = env("MOCK_INGEST_KEY", "dev");
 const port = Number(env("MOCK_BROKER_PORT", "4000"));
 const tickMs = Number(env("TICK_MS", "1000"));
-const expectedKey = process.env.BRIDGE_WEBHOOK_KEY_MOCK || undefined;
+const expectedKey = process.env.MOCK_BRIDGE_KEY || undefined;
 const wantedIds = (process.env.ACCOUNT_IDS ?? "")
     .split(",")
     .map((s) => s.trim())

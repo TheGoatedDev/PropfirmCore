@@ -12,7 +12,8 @@
         {
             "id": "loopback",
             "name": "Loopback",
-            "bridge": { "provider": "loopback" }
+            "bridge": { "provider": "loopback" },
+            "ingestKey": "dev"
         }
     ],
     "products": [

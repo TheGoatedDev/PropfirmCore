@@ -276,8 +276,7 @@ async function main() {
         JSON.parse(readFileSync(profilePath, "utf8")) as unknown,
     );
     const durationMs = parseDuration(profile.duration);
-    const apiKey =
-        process.env.INGEST_API_KEY_MOCK ?? process.env.INGEST_API_KEY ?? "dev";
+    const apiKey = process.env.MOCK_INGEST_KEY ?? "dev";
     const jar = cookieJar();
     const bearer: { token?: string } = {};
     const client = makeClient(profile.baseUrl, apiKey, jar, bearer);

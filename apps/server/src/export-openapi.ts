@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { loadFirmConfig } from "@propfirmcore/config";
 import { createAuth } from "./auth/auth.ts";
+import { brokerSecrets } from "./brokers/credentials.ts";
 import type { Db } from "./db/db.ts";
 import { createApp } from "./http/app.ts";
 import { noopIngestPublish } from "./ingest/bus.ts";
@@ -17,11 +18,10 @@ const auth = createAuth({} as Db, {
     baseURL: "http://localhost:3000",
 });
 
-const ingestKeys = { loopback: "export" };
 const app = createApp({
-    ingestKeys,
+    secrets: brokerSecrets,
     firm,
-    holder: { current: firm, ingestKeys },
+    holder: { current: firm },
     db: {} as Db,
     auth,
     publish: noopIngestPublish,

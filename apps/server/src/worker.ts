@@ -1,3 +1,4 @@
+import { loadBrokerSecrets } from "./brokers/credentials.ts";
 import { createDb, migrate } from "./db/db.ts";
 import { env } from "./env.ts";
 import { ensureFirm, loadLiveFirm } from "./firm.ts";
@@ -7,9 +8,11 @@ import { log } from "./logger.ts";
 const { db, sql } = createDb(env.DATABASE_URL);
 await migrate(db);
 const holder = { current: await ensureFirm(db, env.FIRM_CONFIG_PATH) };
+await loadBrokerSecrets(db);
 await sql.listen("firm_config", async () => {
     try {
         holder.current = await loadLiveFirm(db);
+        await loadBrokerSecrets(db);
     } catch (err) {
         log.error({ err }, "firm reload");
     }

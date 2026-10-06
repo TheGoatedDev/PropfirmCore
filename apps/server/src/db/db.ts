@@ -83,6 +83,8 @@ export const brokers = pgTable("brokers", {
     name: text("name").notNull(),
     bridgeProvider: text("bridge_provider").notNull(),
     bridgeUrl: text("bridge_url"),
+    ingestKeyHash: text("ingest_key_hash").unique(),
+    bridgeKey: text("bridge_key"),
 });
 
 export const products = pgTable("products", {

@@ -457,12 +457,20 @@
                                                                 "format": "uri"
                                                             }
                                                         }
+                                                    },
+                                                    "hasIngestKey": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "hasBridgeKey": {
+                                                        "type": "boolean"
                                                     }
                                                 },
                                                 "required": [
                                                     "id",
                                                     "name",
-                                                    "bridge"
+                                                    "bridge",
+                                                    "hasIngestKey",
+                                                    "hasBridgeKey"
                                                 ]
                                             },
                                             "minItems": 1
@@ -865,12 +873,19 @@
                                                             "format": "uri"
                                                         }
                                                     }
+                                                },
+                                                "hasIngestKey": {
+                                                    "type": "boolean"
+                                                },
+                                                "hasBridgeKey": {
+                                                    "type": "boolean"
                                                 }
                                             },
                                             "required": [
                                                 "name",
                                                 "bridge"
-                                            ]
+                                            ],
+                                            "additionalProperties": false
                                         },
                                         "minItems": 1
                                     },
@@ -1228,12 +1243,20 @@
                                                                 "format": "uri"
                                                             }
                                                         }
+                                                    },
+                                                    "hasIngestKey": {
+                                                        "type": "boolean"
+                                                    },
+                                                    "hasBridgeKey": {
+                                                        "type": "boolean"
                                                     }
                                                 },
                                                 "required": [
                                                     "id",
                                                     "name",
-                                                    "bridge"
+                                                    "bridge",
+                                                    "hasIngestKey",
+                                                    "hasBridgeKey"
                                                 ]
                                             },
                                             "minItems": 1
@@ -1497,6 +1520,394 @@
                     },
                     "403": {
                         "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/firm/brokers/{id}/ingest-key": {
+            "post": {
+                "tags": [
+                    "Firm"
+                ],
+                "summary": "Rotate a Broker's Ingest key",
+                "description": "Makes a new Ingest key and returns it once. The old key stops working now.",
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The new Ingest key.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "ingestKey": {
+                                            "type": "string",
+                                            "description": "The new Ingest key. Shown once; store it now."
+                                        }
+                                    },
+                                    "required": [
+                                        "ingestKey"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Firm"
+                ],
+                "summary": "Revoke a Broker's Ingest key",
+                "description": "Ingest for this Broker is refused until a rotate.",
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The Broker with key flags.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "bridge": {
+                                            "type": "object",
+                                            "properties": {
+                                                "provider": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "loopback"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                }
+                                            }
+                                        },
+                                        "hasIngestKey": {
+                                            "type": "boolean"
+                                        },
+                                        "hasBridgeKey": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "bridge",
+                                        "hasIngestKey",
+                                        "hasBridgeKey"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/firm/brokers/{id}/bridge-key": {
+            "put": {
+                "tags": [
+                    "Firm"
+                ],
+                "summary": "Set or clear a Broker's Bridge key",
+                "description": "Only for a Broker whose bridge provider is webhook.",
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "key": {
+                                        "type": "string",
+                                        "nullable": true,
+                                        "minLength": 1,
+                                        "description": "Bridge key to send as X-Api-Key. Null clears it."
+                                    }
+                                },
+                                "required": [
+                                    "key"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The Broker with key flags.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "bridge": {
+                                            "type": "object",
+                                            "properties": {
+                                                "provider": {
+                                                    "type": "string",
+                                                    "minLength": 1,
+                                                    "default": "loopback"
+                                                },
+                                                "url": {
+                                                    "type": "string",
+                                                    "format": "uri"
+                                                }
+                                            }
+                                        },
+                                        "hasIngestKey": {
+                                            "type": "boolean"
+                                        },
+                                        "hasBridgeKey": {
+                                            "type": "boolean"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "name",
+                                        "bridge",
+                                        "hasIngestKey",
+                                        "hasBridgeKey"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
                         "content": {
                             "application/json": {
                                 "schema": {

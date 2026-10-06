@@ -1,11 +1,20 @@
 import { createRoute, type OpenAPIHono } from "@hono/zod-openapi";
-import { firmConfigSchema, firmConfigWriteSchema } from "@propfirmcore/config";
+import {
+    type FirmConfig,
+    type FirmView,
+    firmConfigWriteSchema,
+    firmViewSchema,
+} from "@propfirmcore/config";
 import type { Auth } from "../auth/auth.ts";
 import { roleHasPermission } from "../auth/permissions.ts";
+import {
+    type BrokerSecrets,
+    brokerSecrets,
+    loadBrokerSecrets,
+} from "../brokers/credentials.ts";
 import type { Db } from "../db/db.ts";
 import {
     loadFirm,
-    missingIngestKeys,
     missingInUse,
     replaceFirm,
     unknownIds,
@@ -14,14 +23,27 @@ import {
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { roleOf } from "../http/session.ts";
-import { ingestKeysFromEnv } from "../ingest/ingest-key.ts";
 
-type Holder = {
-    current: import("@propfirmcore/config").FirmConfig;
-    ingestKeys: Record<string, string>;
-};
+type Holder = { current: FirmConfig };
 
 type Deps = { db: Db; auth: Auth; holder: Holder };
+
+export function firmView(
+    firm: FirmConfig,
+    secrets: BrokerSecrets = brokerSecrets,
+): FirmView {
+    return {
+        ...firm,
+        brokers: firm.brokers.map((b) => {
+            const s = secrets.get(b.id);
+            return {
+                ...b,
+                hasIngestKey: Boolean(s?.ingestKeyHash),
+                hasBridgeKey: Boolean(s?.bridgeKey),
+            };
+        }),
+    };
+}
 
 export function mountFirm(app: OpenAPIHono, deps: Deps) {
     app.openapi(
@@ -33,7 +55,7 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
                 200: {
                     description: "The live Firm config.",
                     content: {
-                        "application/json": { schema: firmConfigSchema },
+                        "application/json": { schema: firmViewSchema },
                     },
                 },
                 401: {
@@ -54,7 +76,7 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
             if (!roleHasPermission(roleOf(session.user), "firm", "read")) {
                 return c.json({ error: "forbidden" }, 403);
             }
-            return c.json(deps.holder.current, 200);
+            return c.json(firmView(deps.holder.current), 200);
         },
     );
 
@@ -75,7 +97,7 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
                 200: {
                     description: "The live Firm config after replace.",
                     content: {
-                        "application/json": { schema: firmConfigSchema },
+                        "application/json": { schema: firmViewSchema },
                     },
                 },
                 400: {
@@ -111,10 +133,6 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
                     400,
                 );
             }
-            const keys = missingIngestKeys(body);
-            if (keys.length) {
-                return c.json({ error: `missing ${keys.join(", ")}` }, 400);
-            }
             const used = await usedIds(deps.db);
             const stuck = missingInUse(body, used);
             if (stuck.length) {
@@ -123,12 +141,8 @@ export function mountFirm(app: OpenAPIHono, deps: Deps) {
             await replaceFirm(deps.db, body);
             const live = await loadFirm(deps.db, body.id);
             deps.holder.current = live;
-            const next = ingestKeysFromEnv(live);
-            for (const k of Object.keys(deps.holder.ingestKeys)) {
-                delete deps.holder.ingestKeys[k];
-            }
-            Object.assign(deps.holder.ingestKeys, next);
-            return c.json(live, 200);
+            await loadBrokerSecrets(deps.db);
+            return c.json(firmView(live), 200);
         },
     );
 }

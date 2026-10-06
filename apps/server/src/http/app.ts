@@ -3,6 +3,8 @@ import type { FirmConfig } from "@propfirmcore/config";
 import { cors } from "hono/cors";
 import type { Auth } from "../auth/auth.ts";
 import { mountAuth } from "../auth/http.ts";
+import type { BrokerSecrets } from "../brokers/credentials.ts";
+import { mountBrokerCredentials } from "../brokers/http.ts";
 import { mountCheckout } from "../checkout/http.ts";
 import type { Db } from "../db/db.ts";
 import { mountFirm } from "../firm/http.ts";
@@ -17,11 +19,10 @@ import { openApiInfo, withAuthOpenAPI } from "./openapi.ts";
 
 export type FirmHolder = {
     current: FirmConfig;
-    ingestKeys: Record<string, string>;
 };
 
 export type AppDeps = {
-    ingestKeys: Record<string, string>;
+    secrets: BrokerSecrets;
     firm: FirmConfig;
     holder?: FirmHolder;
     db: Db;
@@ -61,7 +62,10 @@ export function createApp(deps: AppDeps) {
     app.get("/health", (c) => c.json({ ok: true }));
 
     mountAuth(app, deps);
-    if (deps.holder) mountFirm(app, { ...deps, holder: deps.holder });
+    if (deps.holder) {
+        mountFirm(app, { ...deps, holder: deps.holder });
+        mountBrokerCredentials(app, { ...deps, holder: deps.holder });
+    }
     mountCheckout(app, deps);
     mountTradingAccounts(app, deps);
     mountPayouts(app, deps);

@@ -5,6 +5,7 @@ import {
     snapshotSchema,
     tradingAccountSchema,
 } from "@propfirmcore/domain";
+import { type BrokerSecrets, matchIngestKey } from "../brokers/credentials.ts";
 import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
@@ -12,7 +13,7 @@ import { log } from "../logger.ts";
 import { fillsFrozenForAccount } from "../payouts/service.ts";
 import { getById } from "../trading-accounts/service.ts";
 import type { IngestPublish } from "./bus.ts";
-import { matchIngestKey, requireIngestKey } from "./ingest-key.ts";
+import { requireIngestKey } from "./ingest-key.ts";
 
 const fillsBody = z.object({ fills: z.array(fillSchema).min(1) });
 const idParam = z.object({ id: z.string().min(1) });
@@ -26,14 +27,14 @@ const fillsAccepted = z.object({
 });
 
 type Deps = {
-    ingestKeys: Record<string, string>;
+    secrets: BrokerSecrets;
     db: Db;
     firm: FirmConfig;
     publish: IngestPublish;
 };
 
 export function mountIngest(app: OpenAPIHono, deps: Deps) {
-    app.use("/ingest/*", requireIngestKey(deps.ingestKeys));
+    app.use("/ingest/*", requireIngestKey(deps.secrets));
 
     app.openapi(
         createRoute({
@@ -65,7 +66,7 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             if (
                 !account ||
                 account.brokerId !==
-                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+                    matchIngestKey(deps.secrets, c.req.header("x-api-key"))
             ) {
                 return c.json({ error: "not found" }, 404);
             }
@@ -118,7 +119,7 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             if (
                 !account ||
                 account.brokerId !==
-                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+                    matchIngestKey(deps.secrets, c.req.header("x-api-key"))
             ) {
                 return c.json({ error: "not found" }, 404);
             }
@@ -181,7 +182,7 @@ export function mountIngest(app: OpenAPIHono, deps: Deps) {
             if (
                 !account ||
                 account.brokerId !==
-                    matchIngestKey(deps.ingestKeys, c.req.header("x-api-key"))
+                    matchIngestKey(deps.secrets, c.req.header("x-api-key"))
             ) {
                 return c.json({ error: "not found" }, 404);
             }

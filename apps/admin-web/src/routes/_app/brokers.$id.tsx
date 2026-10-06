@@ -2,6 +2,7 @@ import type { BrokerWrite } from "@propfirmcore/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
+import { BrokerCredentials } from "../../broker-credentials.tsx";
 import { BrokerForm } from "../../broker-form.tsx";
 import { fetchFirm, saveFirmSlice } from "../../firm-api.ts";
 import { useUi } from "../../stores/ui.ts";
@@ -50,6 +51,7 @@ function EditBroker() {
                 saving={save.isPending}
                 onSave={(next) => save.mutate(next)}
             />
+            <BrokerCredentials broker={broker} />
         </div>
     );
 }
