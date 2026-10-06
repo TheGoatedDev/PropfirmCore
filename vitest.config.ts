@@ -5,6 +5,11 @@ const exclude = [...configDefaults.exclude, "e2e/**"];
 export default defineConfig({
     test: {
         passWithNoTests: true,
+        coverage: {
+            provider: "v8",
+            reporter: ["text", "json-summary", "json"],
+            reportOnFailure: true,
+        },
         projects: [
             {
                 test: {

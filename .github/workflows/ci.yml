@@ -8,6 +8,9 @@ on:
 jobs:
     check:
         runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            pull-requests: write
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
 
@@ -31,7 +34,20 @@ jobs:
             - run: pnpm install --frozen-lockfile
             - run: pnpm lint
             - run: pnpm typecheck
-            - run: pnpm test:unit
+            - run: pnpm test:unit --coverage --reporter=default --reporter=github-actions --reporter=junit --outputFile.junit=reports/unit.xml
+
+            # Fork PRs get a read-only token, so commenting would fail.
+            - name: Coverage report
+              if: ${{ !cancelled() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+              uses: davelosert/vitest-coverage-report-action@c4bbc33a89b7ace0e63d35f1f7d4bcee31155a73 # v2.13.0
+
+            - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              if: ${{ !cancelled() }}
+              with:
+                  name: test-results-unit
+                  path: reports/
+                  if-no-files-found: ignore
+
             - run: pnpm deps:check
 
     e2e:
@@ -48,5 +64,32 @@ jobs:
 
             - run: pnpm install --frozen-lockfile
             - run: pnpm exec playwright install --with-deps chromium
-            - run: pnpm test:int
+            - run: pnpm test:int --reporter=default --reporter=github-actions --reporter=junit --outputFile.junit=reports/int.xml
             - run: pnpm test:e2e
+
+            - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+              if: ${{ !cancelled() }}
+              with:
+                  name: test-results-e2e
+                  path: reports/
+                  if-no-files-found: ignore
+
+    report:
+        needs: [check, e2e]
+        # Fork PRs get a read-only token, so publishing would fail.
+        if: ${{ !cancelled() && (github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            checks: write
+            pull-requests: write
+        steps:
+            - uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+              with:
+                  pattern: test-results-*
+                  path: reports/
+                  merge-multiple: true
+
+            - uses: EnricoMi/publish-unit-test-result-action@d0a4676d0e0b938bc201470d88276b7c74c712b3 # v2.24.0
+              with:
+                  files: reports/*.xml

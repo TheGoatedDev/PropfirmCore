@@ -5,6 +5,9 @@ export default defineConfig({
     forbidOnly: !!process.env.CI,
     retries: process.env.CI ? 2 : 0,
     workers: 1,
+    reporter: process.env.CI
+        ? [["github"], ["list"], ["junit", { outputFile: "reports/e2e.xml" }]]
+        : "list",
     use: {
         trace: "on-first-retry",
         ...devices["Desktop Chrome"],
