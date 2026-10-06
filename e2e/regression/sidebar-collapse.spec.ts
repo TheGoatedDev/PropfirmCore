@@ -43,18 +43,23 @@ test("nav marks the current path", async ({ page }) => {
 
 test("sidebar collapse keeps icon rail and nav works", async ({ page }) => {
     await signInAdmin(page);
-    await expect(page.getByText("Trading accounts")).toBeVisible();
+    const navLabel = page
+        .getByTestId("nav-trading-accounts")
+        .getByText("Trading accounts");
+    await expect(navLabel).toBeVisible();
 
     await page.getByTestId("sidebar-toggle").click();
     await expect(page.getByTestId("sidebar-toggle")).toHaveAttribute(
         "aria-expanded",
         "false",
     );
-    await expect(page.getByText("Trading accounts")).toBeHidden();
+    await expect(navLabel).toHaveClass(/\bsr-only\b/);
+    await expect(page.getByTestId("nav-trading-accounts")).toBeVisible();
 
     await page.getByTestId("nav-firm").click();
     await expect(page.getByTestId("firm-heading")).toBeVisible();
 
     await page.getByTestId("sidebar-toggle").click();
-    await expect(page.getByText("Trading accounts")).toBeVisible();
+    await expect(navLabel).toBeVisible();
+    await expect(navLabel).not.toHaveClass(/\bsr-only\b/);
 });

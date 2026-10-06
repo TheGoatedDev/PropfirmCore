@@ -394,7 +394,10 @@ export function DataTable<TData extends RowData>({
                                         ));
                                     if (!items.length) {
                                         return (
-                                            <TableRow key={row.id}>
+                                            <TableRow
+                                                key={row.id}
+                                                data-testid={`table-row-${row.index}`}
+                                            >
                                                 {cells}
                                             </TableRow>
                                         );
@@ -402,7 +405,11 @@ export function DataTable<TData extends RowData>({
                                     return (
                                         <ContextMenu.Root key={row.id}>
                                             <ContextMenu.Trigger
-                                                render={<TableRow />}
+                                                render={
+                                                    <TableRow
+                                                        data-testid={`table-row-${row.index}`}
+                                                    />
+                                                }
                                             >
                                                 {cells}
                                             </ContextMenu.Trigger>
