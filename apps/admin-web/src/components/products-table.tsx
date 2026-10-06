@@ -6,7 +6,7 @@ import {
 } from "@propfirmcore/ui/components/data-table";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
-import { Trash2 } from "lucide-react";
+import { SquareMousePointer, Trash2 } from "lucide-react";
 import {
     parseAsIndex,
     parseAsInteger,
@@ -144,6 +144,16 @@ export function ProductsTable() {
                 loading={firm.isFetching}
                 rowActions={(row) => [
                     {
+                        label: "Inspect",
+                        icon: <SquareMousePointer />,
+                        testId: `product-inspect-${row.id}`,
+                        onSelect: () =>
+                            void navigate({
+                                to: "/products/$id",
+                                params: { id: row.id },
+                            }),
+                    },
+                    {
                         label: "Delete",
                         icon: <Trash2 />,
                         variant: "destructive",
@@ -154,12 +164,6 @@ export function ProductsTable() {
                         },
                     },
                 ]}
-                onRowClick={(row) =>
-                    void navigate({
-                        to: "/products/$id",
-                        params: { id: row.id },
-                    })
-                }
             />
         </>
     );

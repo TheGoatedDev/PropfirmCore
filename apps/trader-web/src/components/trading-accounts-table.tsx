@@ -9,6 +9,7 @@ import {
 } from "@propfirmcore/ui/components/data-table";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
+import { SquareMousePointer } from "lucide-react";
 import {
     parseAsIndex,
     parseAsInteger,
@@ -164,12 +165,18 @@ export function TradingAccountsTable() {
                 });
             }}
             loading={accounts.isFetching}
-            onRowClick={(a) =>
-                void navigate({
-                    to: "/trading-accounts/$id",
-                    params: { id: a.id },
-                })
-            }
+            rowActions={(row) => [
+                {
+                    label: "Inspect",
+                    icon: <SquareMousePointer />,
+                    testId: `trading-account-inspect-${row.id}`,
+                    onSelect: () =>
+                        void navigate({
+                            to: "/trading-accounts/$id",
+                            params: { id: row.id },
+                        }),
+                },
+            ]}
         />
     );
 }

@@ -18,7 +18,7 @@ import {
     Filter,
     Search,
 } from "lucide-react";
-import type { KeyboardEvent, ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/button";
 import {
     DropdownMenu,
@@ -183,7 +183,13 @@ export type DataTableRowAction = {
     testId?: string;
 };
 
-function RowActionsMenu({ items }: { items: DataTableRowAction[] }) {
+function RowActionsMenu({
+    items,
+    testId,
+}: {
+    items: DataTableRowAction[];
+    testId: string;
+}) {
     if (!items.length) return null;
     return (
         <DropdownMenu>
@@ -193,6 +199,7 @@ function RowActionsMenu({ items }: { items: DataTableRowAction[] }) {
                         variant="ghost"
                         size="icon-sm"
                         aria-label="Actions"
+                        data-testid={testId}
                         onClick={(event) => event.stopPropagation()}
                     />
                 }
@@ -235,7 +242,6 @@ export function DataTable<TData extends RowData>({
     placeholder = "Search…",
     loading = false,
     empty = "No results.",
-    onRowClick,
     rowActions,
 }: {
     columns: ColumnDef<DataTableFeatures, TData>[];
@@ -260,7 +266,6 @@ export function DataTable<TData extends RowData>({
     placeholder?: string;
     loading?: boolean;
     empty?: string;
-    onRowClick?: (row: TData) => void;
     rowActions?: (row: TData) => DataTableRowAction[];
 }) {
     const tableColumns = rowActions
@@ -270,7 +275,10 @@ export function DataTable<TData extends RowData>({
                   enableSorting: false,
                   header: () => <span className="sr-only">Actions</span>,
                   cell: ({ row }) => (
-                      <RowActionsMenu items={rowActions(row.original)} />
+                      <RowActionsMenu
+                          items={rowActions(row.original)}
+                          testId={`row-actions-${row.index}`}
+                      />
                   ),
               } satisfies ColumnDef<DataTableFeatures, TData>,
               ...columns,
@@ -384,31 +392,11 @@ export function DataTable<TData extends RowData>({
                                                 <table.FlexRender cell={cell} />
                                             </TableCell>
                                         ));
-                                    const rowProps = {
-                                        className: onRowClick
-                                            ? "cursor-pointer"
-                                            : undefined,
-                                        tabIndex: onRowClick ? 0 : undefined,
-                                        onClick: onRowClick
-                                            ? () => onRowClick(row.original)
-                                            : undefined,
-                                        onKeyDown: onRowClick
-                                            ? (event: KeyboardEvent) => {
-                                                  if (
-                                                      event.key === "Enter" ||
-                                                      event.key === " "
-                                                  ) {
-                                                      event.preventDefault();
-                                                      onRowClick(row.original);
-                                                  }
-                                              }
-                                            : undefined,
-                                    };
                                     if (!items.length) {
                                         return (
                                             <TableRow
                                                 key={row.id}
-                                                {...rowProps}
+                                                data-testid={`table-row-${row.index}`}
                                             >
                                                 {cells}
                                             </TableRow>
@@ -418,7 +406,9 @@ export function DataTable<TData extends RowData>({
                                         <ContextMenu.Root key={row.id}>
                                             <ContextMenu.Trigger
                                                 render={
-                                                    <TableRow {...rowProps} />
+                                                    <TableRow
+                                                        data-testid={`table-row-${row.index}`}
+                                                    />
                                                 }
                                             >
                                                 {cells}

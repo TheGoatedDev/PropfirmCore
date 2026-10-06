@@ -17,8 +17,9 @@ test("admin renames firm and it sticks", async ({ page }) => {
     await signInAdmin(page);
     await page.getByTestId("nav-firm").click();
     await expect(page.getByTestId("firm-heading")).toBeVisible();
-    await expect(page.getByTestId("firm-name")).toHaveValue("Acme");
-    await page.getByTestId("firm-name").fill("Acme E2E");
+    await expect(page.getByTestId("firm-name")).not.toHaveValue("");
+    const name = `Acme ${crypto.randomUUID().slice(0, 8)}`;
+    await page.getByTestId("firm-name").fill(name);
     const saved = page.waitForResponse(
         (r) =>
             r.url().includes("/firm") &&
@@ -29,7 +30,7 @@ test("admin renames firm and it sticks", async ({ page }) => {
     await saved;
     await page.reload();
     await expect(page.getByTestId("firm-heading")).toBeVisible();
-    await expect(page.getByTestId("firm-name")).toHaveValue("Acme E2E");
+    await expect(page.getByTestId("firm-name")).toHaveValue(name);
 });
 
 test("admin adds broker and product; trader can buy", async ({ browser }) => {
@@ -78,4 +79,17 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     await expect(trader.getByTestId("account-status").first()).toHaveText(
         "active",
     );
+});
+
+test("broker rows open via the Inspect action, not a row click", async ({
+    page,
+}) => {
+    await signInAdmin(page);
+    await page.getByTestId("nav-brokers").click();
+    await expect(page).toHaveURL(/\/brokers$/);
+    await page.getByTestId("table-row-0").click();
+    await expect(page).toHaveURL(/\/brokers$/);
+    await page.getByTestId("row-actions-0").click();
+    await page.getByTestId("broker-inspect-loopback").click();
+    await expect(page).toHaveURL(/\/brokers\/loopback$/);
 });
