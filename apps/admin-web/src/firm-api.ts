@@ -1,7 +1,7 @@
 import {
-    type FirmConfig,
     type FirmConfigWrite,
-    parseFirmConfig,
+    type FirmView,
+    firmViewSchema,
     parseFirmConfigWrite,
 } from "@propfirmcore/config";
 import { api, failMsg } from "./api.ts";
@@ -17,15 +17,15 @@ export function cleanFirm(cfg: FirmConfigWrite): FirmConfigWrite {
     };
 }
 
-export async function fetchFirm(): Promise<FirmConfig> {
+export async function fetchFirm(): Promise<FirmView> {
     const { data, error } = await api.GET("/firm");
     if (error || !data) throw new Error(failMsg(error, "Load failed"));
-    return parseFirmConfig(data);
+    return firmViewSchema.parse(data);
 }
 
 export async function saveFirmSlice(
-    patch: (firm: FirmConfig) => FirmConfigWrite,
-): Promise<FirmConfig> {
+    patch: (firm: FirmView) => FirmConfigWrite,
+): Promise<FirmView> {
     const current = await fetchFirm();
     let next: FirmConfigWrite;
     try {
@@ -35,5 +35,32 @@ export async function saveFirmSlice(
     }
     const { data, error } = await api.PUT("/firm", { body: next });
     if (error || !data) throw new Error(failMsg(error, "Save failed"));
-    return parseFirmConfig(data);
+    return firmViewSchema.parse(data);
+}
+
+/** Returns the new Ingest key. Shown once. */
+export async function rotateIngestKey(brokerId: string): Promise<string> {
+    const { data, error } = await api.POST("/firm/brokers/{id}/ingest-key", {
+        params: { path: { id: brokerId } },
+    });
+    if (error || !data) throw new Error(failMsg(error, "Rotate failed"));
+    return data.ingestKey;
+}
+
+export async function revokeIngestKey(brokerId: string): Promise<void> {
+    const { error } = await api.DELETE("/firm/brokers/{id}/ingest-key", {
+        params: { path: { id: brokerId } },
+    });
+    if (error) throw new Error(failMsg(error, "Revoke failed"));
+}
+
+export async function setBridgeKey(
+    brokerId: string,
+    key: string | null,
+): Promise<void> {
+    const { error } = await api.PUT("/firm/brokers/{id}/bridge-key", {
+        params: { path: { id: brokerId } },
+        body: { key },
+    });
+    if (error) throw new Error(failMsg(error, "Save failed"));
 }

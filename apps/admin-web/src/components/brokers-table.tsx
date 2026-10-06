@@ -1,3 +1,4 @@
+import { Badge } from "@propfirmcore/ui/components/badge";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -18,7 +19,12 @@ import { failMsg, keys } from "../api.ts";
 import { fetchFirm, saveFirmSlice } from "../firm-api.ts";
 import { useUi } from "../stores/ui.ts";
 
-type Row = { id: string; name: string; provider: string };
+type Row = {
+    id: string;
+    name: string;
+    provider: string;
+    ingestKey: "Set" | "Missing";
+};
 
 const col = createDataTableColumnHelper<Row>();
 const textFilter = { filter: { variant: "text" as const } };
@@ -64,6 +70,9 @@ export function BrokersTable() {
                 id: b.id,
                 name: b.name,
                 provider: b.bridge.provider,
+                ingestKey: b.hasIngestKey
+                    ? ("Set" as const)
+                    : ("Missing" as const),
             }))
             .filter((b) => {
                 if (
@@ -108,6 +117,22 @@ export function BrokersTable() {
                     col.accessor("provider", {
                         header: "Bridge",
                         enableSorting: false,
+                    }),
+                    col.accessor("ingestKey", {
+                        header: "Ingest key",
+                        enableSorting: false,
+                        cell: (c) => (
+                            <Badge
+                                variant={
+                                    c.getValue() === "Set"
+                                        ? "secondary"
+                                        : "destructive"
+                                }
+                                data-testid={`broker-ingest-status-${c.row.original.id}`}
+                            >
+                                {c.getValue()}
+                            </Badge>
+                        ),
                     }),
                 ])}
                 data={pageRows}

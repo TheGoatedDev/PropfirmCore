@@ -50,6 +50,10 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     await savedBroker;
     await expect(admin).toHaveURL(/\/brokers\/[0-9a-f-]{36}$/i);
     await expect(admin.getByTestId("broker-id")).toHaveValue(/[0-9a-f-]{36}/i);
+    await expect(admin.getByTestId("broker-ingest-key")).toHaveValue(
+        /^pfc_ik_/,
+    );
+    await expect(admin.getByTestId("broker-ingest-status")).toHaveText("Set");
 
     await admin.getByTestId("nav-products").click();
     await admin.getByTestId("add-product").click();
@@ -92,4 +96,32 @@ test("broker rows open via the Inspect action, not a row click", async ({
     await page.getByTestId("row-actions-0").click();
     await page.getByTestId("broker-inspect-loopback").click();
     await expect(page).toHaveURL(/\/brokers\/loopback$/);
+});
+
+test("admin rotates and revokes a broker ingest key", async ({ page }) => {
+    await signInAdmin(page);
+    await page.getByTestId("nav-brokers").click();
+    await page.getByTestId("add-broker").click();
+    await page.getByTestId("broker-name").fill("E2E keys");
+    await page.getByTestId("broker-save").click();
+    const key = page.getByTestId("broker-ingest-key");
+    await expect(key).toHaveValue(/^pfc_ik_/);
+    const first = await key.inputValue();
+    await page.getByTestId("broker-ingest-done").click();
+    await expect(key).toBeHidden();
+
+    await page.getByTestId("broker-ingest-rotate").click();
+    await page.getByTestId("broker-ingest-rotate-confirm").click();
+    await expect(key).toHaveValue(/^pfc_ik_/);
+    expect(await key.inputValue()).not.toBe(first);
+    await page.getByTestId("broker-ingest-done").click();
+
+    await page.getByTestId("broker-ingest-revoke").click();
+    await page.getByTestId("broker-ingest-revoke-confirm").click();
+    await expect(page.getByTestId("broker-ingest-status")).toHaveText(
+        "Missing",
+    );
+    await expect(page.getByTestId("broker-ingest-rotate")).toHaveText(
+        "Generate",
+    );
 });
