@@ -21,7 +21,7 @@ import {
     parseAsStringLiteral,
     useQueryStates,
 } from "nuqs";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { api, failMsg, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
@@ -49,7 +49,13 @@ const userSearch = {
 const selectClass =
     "h-8 rounded-lg border border-input bg-transparent px-2 text-sm";
 
-export function UsersTable({ meId }: { meId: string }) {
+export function UsersTable({
+    meId,
+    actions,
+}: {
+    meId: string;
+    actions?: ReactNode;
+}) {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
@@ -127,6 +133,7 @@ export function UsersTable({ meId }: { meId: string }) {
 
     return (
         <DataTable
+            actions={actions}
             columns={col.columns([
                 col.accessor("email", {
                     header: ({ column }) => (

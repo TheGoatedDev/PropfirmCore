@@ -13,7 +13,7 @@ import {
     parseAsString,
     useQueryStates,
 } from "nuqs";
-import { useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { failMsg, keys } from "../api.ts";
 import { fetchFirm, saveFirmSlice } from "../firm-api.ts";
 import { useUi } from "../stores/ui.ts";
@@ -30,7 +30,7 @@ const productSearch = {
     pageSize: parseAsInteger.withDefault(10),
 };
 
-export function ProductsTable() {
+export function ProductsTable({ actions }: { actions?: ReactNode }) {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const navigate = useNavigate();
@@ -94,6 +94,7 @@ export function ProductsTable() {
                 <p>{failMsg(firm.error, "Could not load firm")}</p>
             ) : null}
             <DataTable
+                actions={actions}
                 columns={col.columns([
                     col.accessor("id", {
                         header: "ID",

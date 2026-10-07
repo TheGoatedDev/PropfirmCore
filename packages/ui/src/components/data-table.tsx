@@ -243,6 +243,7 @@ export function DataTable<TData extends RowData>({
     loading = false,
     empty = "No results.",
     rowActions,
+    actions,
 }: {
     columns: ColumnDef<DataTableFeatures, TData>[];
     data: TData[];
@@ -267,6 +268,8 @@ export function DataTable<TData extends RowData>({
     loading?: boolean;
     empty?: string;
     rowActions?: (row: TData) => DataTableRowAction[];
+    /** Table-level actions (create, export). Sits opposite the search. */
+    actions?: ReactNode;
 }) {
     const tableColumns = rowActions
         ? [
@@ -314,21 +317,31 @@ export function DataTable<TData extends RowData>({
     return (
         <TooltipProvider delay={0}>
             <div aria-busy={loading || undefined}>
-                {onFilterChange ? (
-                    <div className="flex items-center py-4">
-                        <div className="relative w-full max-w-sm">
-                            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder={placeholder}
-                                aria-label={placeholder}
-                                value={filter ?? ""}
-                                onChange={(event) =>
-                                    onFilterChange(event.target.value)
-                                }
-                                className="pl-8"
-                                data-testid="table-filter"
-                            />
-                        </div>
+                {onFilterChange || actions ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 py-4">
+                        {onFilterChange ? (
+                            <div className="relative w-full max-w-sm">
+                                <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder={placeholder}
+                                    aria-label={placeholder}
+                                    value={filter ?? ""}
+                                    onChange={(event) =>
+                                        onFilterChange(event.target.value)
+                                    }
+                                    className="pl-8"
+                                    data-testid="table-filter"
+                                />
+                            </div>
+                        ) : null}
+                        {actions ? (
+                            <div
+                                className="ml-auto flex items-center gap-2"
+                                data-testid="table-actions"
+                            >
+                                {actions}
+                            </div>
+                        ) : null}
                     </div>
                 ) : null}
                 <div className="rounded-md border">

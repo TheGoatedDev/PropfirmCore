@@ -1,5 +1,6 @@
 import { Button } from "@propfirmcore/ui/components/button";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { BrokersTable } from "../../components/brokers-table.tsx";
 
 export const Route = createFileRoute("/_app/brokers/")({
@@ -9,16 +10,16 @@ export const Route = createFileRoute("/_app/brokers/")({
 function Brokers() {
     const navigate = useNavigate();
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-end">
+        <BrokersTable
+            actions={
                 <Button
                     data-testid="add-broker"
                     onClick={() => void navigate({ to: "/brokers/new" })}
                 >
+                    <Plus />
                     Add broker
                 </Button>
-            </div>
-            <BrokersTable />
-        </div>
+            }
+        />
     );
 }
