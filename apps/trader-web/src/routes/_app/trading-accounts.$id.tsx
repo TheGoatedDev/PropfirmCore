@@ -26,6 +26,7 @@ import {
 import {
     formatAmount,
     formatDateTime,
+    formatEnum,
     formatPercent,
 } from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -263,7 +264,8 @@ function AccountDetail({ id }: { id: string }) {
                                     data-testid={`account-warning-${i}`}
                                 >
                                     <TableCell>
-                                        {ruleLabels[w.ruleId] ?? w.ruleId}
+                                        {ruleLabels[w.ruleId] ??
+                                            formatEnum(w.ruleId)}
                                     </TableCell>
                                     <TableCell>{w.phaseIndex + 1}</TableCell>
                                     <TableCell>
@@ -361,7 +363,7 @@ function FillsSection({ fills }: { fills: Fill[] }) {
                             {visible.map((f) => (
                                 <TableRow key={f.externalId}>
                                     <TableCell>{f.symbol}</TableCell>
-                                    <TableCell>{f.side}</TableCell>
+                                    <TableCell>{formatEnum(f.side)}</TableCell>
                                     <TableCell className="text-right">
                                         {f.qty}
                                     </TableCell>

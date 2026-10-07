@@ -284,6 +284,7 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 
 ### Numbers and Time
 - **Amounts** use `formatAmount` (`packages/ui/src/lib/format.ts`): grouped, two decimals, no currency symbol. The trader API does not expose the firm currency, and Sim is not cash.
+- **Enum values** (status, role, kind, mode, side, rule ids) display through `formatEnum`, in sentence case: `active` shows as "Active" and `debitOnApprove` as "Debit on approve". Stored and sent values stay as the API defines them. `StatusBadge` and `SelectValue` render functions apply it.
 - **Rule fractions** use `formatPercent`. **Timestamps** use `formatDateTime` (Luxon, medium date with seconds, viewer's zone).
 - **Tables** render tabular numerals. Numeric columns (amount, equity, qty, price) align right.
 

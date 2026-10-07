@@ -53,7 +53,7 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     await expect(admin).toHaveURL(new RegExp(`/trading-accounts/${id}$`));
 
     await expect(admin.getByTestId("account-detail-status")).toHaveText(
-        "active",
+        "Active",
     );
     await expect(admin.getByTestId("account-breaches-empty")).toBeVisible();
 
@@ -65,7 +65,7 @@ test("admin inspects, resyncs, and fails a trading account", async ({
 
     await admin.getByTestId("account-fail").click();
     await expect(admin.getByTestId("account-detail-status")).toHaveText(
-        "failed",
+        "Failed",
     );
     await expect(admin.getByTestId("account-pass")).toBeDisabled();
 });

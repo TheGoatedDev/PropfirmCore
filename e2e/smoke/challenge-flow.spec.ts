@@ -37,11 +37,11 @@ test("trader buys, admin completes", async ({ browser }) => {
     await completed;
     await admin.getByTestId("nav-trading-accounts").click();
     await expect(admin.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 
     await trader.reload();
     await expect(trader.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 });

@@ -81,7 +81,7 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     await expect(trader.getByText("E2E free", { exact: true })).toBeVisible();
     await trader.getByTestId(`product-buy-${productId}`).click();
     await expect(trader.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 });
 

@@ -30,3 +30,16 @@ export function formatDateTime(iso: string, zone?: string): string {
         .setLocale(locale)
         .toLocaleString(DateTime.DATETIME_MED_WITH_SECONDS);
 }
+
+const acronyms: Record<string, string> = { kyc: "KYC" };
+
+// Display label for an enum value. The stored value stays as the API sends it.
+export function formatEnum(value: string): string {
+    const words = value
+        .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+        .split(/[\s_-]+/)
+        .filter(Boolean)
+        .map((w) => acronyms[w.toLowerCase()] ?? w.toLowerCase());
+    const [first = "", ...rest] = words;
+    return [first.charAt(0).toUpperCase() + first.slice(1), ...rest].join(" ");
+}

@@ -144,8 +144,8 @@ export function UsersTable({ meId }: { meId: string }) {
                         filter: {
                             variant: "select",
                             options: [
-                                { label: "trader", value: "trader" },
-                                { label: "admin", value: "admin" },
+                                { label: "Trader", value: "trader" },
+                                { label: "Admin", value: "admin" },
                             ],
                         },
                     },
@@ -172,8 +172,8 @@ export function UsersTable({ meId }: { meId: string }) {
                                     });
                                 }}
                             >
-                                <option value="trader">trader</option>
-                                <option value="admin">admin</option>
+                                <option value="trader">Trader</option>
+                                <option value="admin">Admin</option>
                             </select>
                         );
                     },

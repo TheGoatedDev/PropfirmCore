@@ -128,8 +128,8 @@ function Users() {
                                     data-testid="user-create-role"
                                     defaultValue="trader"
                                 >
-                                    <option value="trader">trader</option>
-                                    <option value="admin">admin</option>
+                                    <option value="trader">Trader</option>
+                                    <option value="admin">Admin</option>
                                 </select>
                             </div>
                             <div className="sm:col-span-2">

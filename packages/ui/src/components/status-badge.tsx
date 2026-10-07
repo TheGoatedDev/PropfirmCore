@@ -11,6 +11,8 @@ import {
 } from "lucide-react";
 import type * as React from "react";
 
+import { formatEnum } from "@/lib/format";
+
 import { Badge } from "./badge";
 
 type Tone = "success" | "warning" | "flag" | "info" | "destructive" | "outline";
@@ -49,7 +51,7 @@ function StatusBadge({
     return (
         <Badge variant={known?.tone ?? "outline"} {...props}>
             {Icon ? <Icon aria-hidden data-icon="inline-start" /> : null}
-            {children ?? status}
+            {children ?? formatEnum(status)}
         </Badge>
     );
 }

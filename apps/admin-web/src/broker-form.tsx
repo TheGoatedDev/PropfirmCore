@@ -15,6 +15,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@propfirmcore/ui/components/select";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import { useForm } from "react-hook-form";
 
 export function emptyBroker(): BrokerWrite {
@@ -97,14 +98,14 @@ export function BrokerForm({
                                 onValueChange={field.onChange}
                             >
                                 <SelectTrigger>
-                                    <SelectValue />
+                                    <SelectValue>{formatEnum}</SelectValue>
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="loopback">
-                                        loopback
+                                        Loopback
                                     </SelectItem>
                                     <SelectItem value="webhook">
-                                        webhook
+                                        Webhook
                                     </SelectItem>
                                 </SelectContent>
                             </Select>

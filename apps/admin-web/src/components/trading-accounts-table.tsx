@@ -7,6 +7,7 @@ import {
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
 import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import {
     keepPreviousData,
     useMutation,
@@ -156,7 +157,7 @@ export function TradingAccountsTable() {
                         filter: {
                             variant: "select",
                             options: accountStatuses.map((s) => ({
-                                label: s,
+                                label: formatEnum(s),
                                 value: s,
                             })),
                         },

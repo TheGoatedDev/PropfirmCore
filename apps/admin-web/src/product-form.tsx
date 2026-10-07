@@ -20,6 +20,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@propfirmcore/ui/components/select";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import { useFieldArray, useForm } from "react-hook-form";
 
 function emptyPhase(): ProductWrite["phases"][0] {
@@ -220,12 +221,12 @@ export function ProductForm({
                                     onValueChange={field.onChange}
                                 >
                                     <SelectTrigger>
-                                        <SelectValue />
+                                        <SelectValue>{formatEnum}</SelectValue>
                                     </SelectTrigger>
                                     <SelectContent>
                                         {payoutModes.map((m) => (
                                             <SelectItem key={m} value={m}>
-                                                {m}
+                                                {formatEnum(m)}
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -277,12 +278,14 @@ export function ProductForm({
                                         onValueChange={field.onChange}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue />
+                                            <SelectValue>
+                                                {formatEnum}
+                                            </SelectValue>
                                         </SelectTrigger>
                                         <SelectContent>
                                             {phaseKinds.map((k) => (
                                                 <SelectItem key={k} value={k}>
-                                                    {k}
+                                                    {formatEnum(k)}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>

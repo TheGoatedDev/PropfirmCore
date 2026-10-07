@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { formatAmount, formatDateTime, formatPercent } from "./format.ts";
+import {
+    formatAmount,
+    formatDateTime,
+    formatEnum,
+    formatPercent,
+} from "./format.ts";
 
 describe("formatAmount", () => {
     it("groups thousands and rounds to cents", () => {
@@ -31,5 +36,26 @@ describe("formatDateTime", () => {
 
     it("returns the input when it is not a timestamp", () => {
         expect(formatDateTime("not a date")).toBe("not a date");
+    });
+});
+
+describe("formatEnum", () => {
+    it("capitalises a lowercase value", () => {
+        expect(formatEnum("active")).toBe("Active");
+        expect(formatEnum("trader")).toBe("Trader");
+    });
+
+    it("splits camelCase into words", () => {
+        expect(formatEnum("debitOnApprove")).toBe("Debit on approve");
+        expect(formatEnum("multiBrand")).toBe("Multi brand");
+    });
+
+    it("splits snake and kebab case", () => {
+        expect(formatEnum("not_verified")).toBe("Not verified");
+        expect(formatEnum("fail-approve")).toBe("Fail approve");
+    });
+
+    it("keeps known acronyms upper case", () => {
+        expect(formatEnum("kyc")).toBe("KYC");
     });
 });

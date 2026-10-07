@@ -7,7 +7,7 @@ import {
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
 import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
-import { formatAmount } from "@propfirmcore/ui/lib/format";
+import { formatAmount, formatEnum } from "@propfirmcore/ui/lib/format";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { SquareMousePointer } from "lucide-react";
@@ -61,7 +61,7 @@ const columns = col.columns([
             filter: {
                 variant: "select",
                 options: accountStatuses.map((s) => ({
-                    label: s,
+                    label: formatEnum(s),
                     value: s,
                 })),
             },

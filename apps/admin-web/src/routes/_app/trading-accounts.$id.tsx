@@ -23,6 +23,7 @@ import {
 import {
     formatAmount,
     formatDateTime,
+    formatEnum,
     formatPercent,
 } from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
@@ -145,12 +146,12 @@ function TradingAccount() {
         [
             "Phase",
             phase
-                ? `${acc.phaseIndex + 1}. ${phase.name} (${phase.kind})`
+                ? `${acc.phaseIndex + 1}. ${phase.name} (${formatEnum(phase.kind)})`
                 : acc.phaseIndex + 1,
         ],
         ["Broker", acc.brokerId],
         ["Broker login", acc.brokerLogin],
-        ["KYC", acc.kycVerified ? "verified" : "not verified"],
+        ["KYC", acc.kycVerified ? "Verified" : "Not verified"],
         ["Start balance", formatAmount(acc.startBalance)],
         ["Equity", formatAmount(acc.equity)],
         ["Balance", formatAmount(acc.balance)],
@@ -239,7 +240,9 @@ function TradingAccount() {
                                     <TableCell>
                                         <StatusBadge status={b.severity} />
                                     </TableCell>
-                                    <TableCell>{b.ruleId}</TableCell>
+                                    <TableCell>
+                                        {formatEnum(b.ruleId)}
+                                    </TableCell>
                                     <TableCell>{b.phaseIndex + 1}</TableCell>
                                     <TableCell>{b.subjectId}</TableCell>
                                     <TableCell>
@@ -283,7 +286,7 @@ function FillsSection({ fills }: { fills: Fill[] }) {
                             {visible.map((f) => (
                                 <TableRow key={f.externalId}>
                                     <TableCell>{f.symbol}</TableCell>
-                                    <TableCell>{f.side}</TableCell>
+                                    <TableCell>{formatEnum(f.side)}</TableCell>
                                     <TableCell className="text-right">
                                         {f.qty}
                                     </TableCell>

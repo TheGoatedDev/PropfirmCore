@@ -26,6 +26,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@propfirmcore/ui/components/select";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import { useForm } from "react-hook-form";
 
 type FirmSettings = Omit<FirmConfig, "brokers" | "products">;
@@ -157,12 +158,14 @@ export function FirmSettingsForm({
                                         onValueChange={field.onChange}
                                     >
                                         <SelectTrigger>
-                                            <SelectValue />
+                                            <SelectValue>
+                                                {formatEnum}
+                                            </SelectValue>
                                         </SelectTrigger>
                                         <SelectContent>
                                             {onUncoverablePolicies.map((p) => (
                                                 <SelectItem key={p} value={p}>
-                                                    {p}
+                                                    {formatEnum(p)}
                                                 </SelectItem>
                                             ))}
                                         </SelectContent>
@@ -195,7 +198,7 @@ export function FirmSettingsForm({
                                                 <FormLabel
                                                     htmlFor={`mod-${key}`}
                                                 >
-                                                    {key}
+                                                    {formatEnum(key)}
                                                 </FormLabel>
                                             </div>
                                         )}
@@ -216,7 +219,7 @@ export function FirmSettingsForm({
                                             }
                                         />
                                         <FormLabel htmlFor="mod-kyc">
-                                            kyc
+                                            KYC
                                         </FormLabel>
                                     </div>
                                 )}
@@ -237,7 +240,9 @@ export function FirmSettingsForm({
                                                 id="mod-kyc-gate"
                                                 data-testid="modules-kyc-gate"
                                             >
-                                                <SelectValue />
+                                                <SelectValue>
+                                                    {formatEnum}
+                                                </SelectValue>
                                             </SelectTrigger>
                                             <SelectContent>
                                                 {kycGates.map((g) => (
@@ -245,7 +250,7 @@ export function FirmSettingsForm({
                                                         key={g}
                                                         value={g}
                                                     >
-                                                        {g}
+                                                        {formatEnum(g)}
                                                     </SelectItem>
                                                 ))}
                                             </SelectContent>
