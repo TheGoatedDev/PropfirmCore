@@ -276,7 +276,7 @@ export function DataTable<TData extends RowData>({
               {
                   id: "_actions",
                   enableSorting: false,
-                  header: () => <span className="sr-only">Actions</span>,
+                  header: "Actions",
                   cell: ({ row }) => (
                       <RowActionsMenu
                           items={rowActions(row.original)}
