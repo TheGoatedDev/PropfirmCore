@@ -1,3 +1,4 @@
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -54,6 +55,7 @@ const accountSearch = {
 
 export function TradingAccountsTable() {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, page, pageSize, sort, order, status }, setSearch] =
@@ -246,7 +248,15 @@ export function TradingAccountsTable() {
                     label: "Fail",
                     icon: <CircleX />,
                     variant: "destructive",
-                    onSelect: () => {
+                    onSelect: async () => {
+                        const ok = await confirm({
+                            title: "Fail this trading account?",
+                            description:
+                                "A failed account is closed for good and cannot be reused.",
+                            confirmLabel: "Fail account",
+                            variant: "destructive",
+                        });
+                        if (!ok) return;
                         setError(null);
                         force.mutate({ id: row.id, action: "fail" });
                     },

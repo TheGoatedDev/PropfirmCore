@@ -1,4 +1,5 @@
 import { Badge } from "@propfirmcore/ui/components/badge";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -38,6 +39,7 @@ const brokerSearch = {
 
 export function BrokersTable({ actions }: { actions?: ReactNode }) {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
@@ -184,7 +186,15 @@ export function BrokersTable({ actions }: { actions?: ReactNode }) {
                         icon: <Trash2 />,
                         variant: "destructive",
                         testId: `broker-delete-${row.id}`,
-                        onSelect: () => {
+                        onSelect: async () => {
+                            const ok = await confirm({
+                                title: `Delete ${row.name}?`,
+                                description:
+                                    "This removes the broker from the firm config. Existing trading accounts keep their history.",
+                                confirmLabel: "Delete broker",
+                                variant: "destructive",
+                            });
+                            if (!ok) return;
                             setError(null);
                             remove.mutate(row.id);
                         },

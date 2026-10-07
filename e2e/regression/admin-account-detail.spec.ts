@@ -62,6 +62,7 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     await resynced;
 
     await admin.getByTestId("account-fail").click();
+    await admin.getByTestId("confirm-dialog-confirm").click();
     await expect(admin.getByTestId("account-detail-status")).toHaveText(
         "Failed",
     );

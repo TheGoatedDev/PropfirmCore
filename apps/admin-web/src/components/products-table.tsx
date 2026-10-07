@@ -1,3 +1,4 @@
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -32,6 +33,7 @@ const productSearch = {
 
 export function ProductsTable({ actions }: { actions?: ReactNode }) {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
@@ -159,7 +161,15 @@ export function ProductsTable({ actions }: { actions?: ReactNode }) {
                         icon: <Trash2 />,
                         variant: "destructive",
                         testId: `product-delete-${row.id}`,
-                        onSelect: () => {
+                        onSelect: async () => {
+                            const ok = await confirm({
+                                title: `Delete ${row.name}?`,
+                                description:
+                                    "This removes the product from the firm config. Existing trading accounts keep their history.",
+                                confirmLabel: "Delete product",
+                                variant: "destructive",
+                            });
+                            if (!ok) return;
                             setError(null);
                             remove.mutate(row.id);
                         },

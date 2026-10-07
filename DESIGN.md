@@ -275,6 +275,11 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Rows:** a bottom hairline and a Mist/50 hover. Selected rows fill with Mist. 8px cell padding, 14px text. Row actions sit in the first column: the first five render inline as 28px ghost icon buttons with a tooltip and an `aria-label` (destructive ones in Signal Red), and any beyond five go in a "More actions" overflow menu.
 - **Toolbar:** search on the left, table actions on the right (`actions` prop on `DataTable`). Create buttons live there as primary buttons with a plus icon ("Add product", "Add broker", "Add user"). Never put them in a separate row above the table.
 
+### Confirm Dialog
+- **Use:** `const confirm = useConfirm(); if (await confirm({...}))` before any action that cannot be undone or that cuts someone off (delete, fail, reject, ban, rotate or revoke a key). `ConfirmProvider` is mounted once in each app's `main.tsx`. Never `window.confirm`.
+- **Copy:** the title is the question with its subject ("Delete Mock?"). The description says what happens next, in one or two sentences. The confirm button names the action ("Delete broker"), never "OK" or "Yes".
+- **Look:** 448px popover surface, 14px corners, a ring rather than a border, and a dimmed backdrop. Destructive confirms show a Signal Red warning tile and a tinted destructive button. Focus opens on Cancel; Escape and the backdrop cancel.
+
 ### Description List
 - **Use:** label and value facts (account details, rulesets). Muted label column at max-content width, value column fills. 6px row gap, tabular numerals.
 - **Empty:** a missing value renders a muted em dash, never a blank.

@@ -1,3 +1,4 @@
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -57,6 +58,7 @@ export function UsersTable({
     actions?: ReactNode;
 }) {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -269,8 +271,17 @@ export function UsersTable({
                     variant: row.banned ? "default" : "destructive",
                     disabled: row.id === meId,
                     testId: `user-ban-${row.id}`,
-                    onSelect: () => {
-                        if (!row.banned && !window.confirm("Ban this user?")) {
+                    onSelect: async () => {
+                        if (
+                            !row.banned &&
+                            !(await confirm({
+                                title: `Ban ${row.email}?`,
+                                description:
+                                    "They are signed out and cannot sign in until you unban them.",
+                                confirmLabel: "Ban user",
+                                variant: "destructive",
+                            }))
+                        ) {
                             return;
                         }
                         setError(null);

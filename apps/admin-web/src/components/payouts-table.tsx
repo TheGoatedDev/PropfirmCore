@@ -1,3 +1,4 @@
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -40,6 +41,7 @@ const payoutSearch = {
 
 export function PayoutsTable() {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, status, page, pageSize }, setSearch] =
@@ -215,7 +217,16 @@ export function PayoutsTable() {
                     testId: `payout-reject-${row.id}`,
                     disabled:
                         row.status !== "pending" && row.status !== "approved",
-                    onSelect: () => run(row.id, "reject"),
+                    onSelect: async () => {
+                        const ok = await confirm({
+                            title: `Reject this payout of ${formatAmount(row.amount)}?`,
+                            description:
+                                "The trader can request a new payout. A rejected payout cannot be approved later.",
+                            confirmLabel: "Reject payout",
+                            variant: "destructive",
+                        });
+                        if (ok) run(row.id, "reject");
+                    },
                 },
             ]}
         />

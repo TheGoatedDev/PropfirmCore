@@ -6,6 +6,7 @@ import {
 } from "@propfirmcore/ui/components/alert";
 import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
@@ -42,14 +43,13 @@ function IngestKey({ broker }: { broker: BrokerView }) {
     );
     const reveal = useRevealedKey((s) => s.reveal);
     const dismiss = useRevealedKey((s) => s.dismiss);
-    const [confirm, setConfirm] = useState<"rotate" | "revoke" | null>(null);
+    const confirm = useConfirm();
     const [copied, setCopied] = useState(false);
 
     const rotate = useMutation({
         mutationFn: () => rotateIngestKey(broker.id),
         onSuccess: (key) => {
             setError(null);
-            setConfirm(null);
             setCopied(false);
             reveal(broker.id, key);
             void qc.invalidateQueries({ queryKey: keys.firm });
@@ -60,7 +60,6 @@ function IngestKey({ broker }: { broker: BrokerView }) {
         mutationFn: () => revokeIngestKey(broker.id),
         onSuccess: () => {
             setError(null);
-            setConfirm(null);
             dismiss();
             void qc.invalidateQueries({ queryKey: keys.firm });
         },
@@ -116,61 +115,53 @@ function IngestKey({ broker }: { broker: BrokerView }) {
                     </AlertDescription>
                 </Alert>
             ) : null}
-            {confirm ? (
-                <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm" role="status">
-                        {confirm === "rotate"
-                            ? "The current key stops working now."
-                            : "Ingest for this broker is refused until you rotate."}
-                    </span>
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        data-testid={`broker-ingest-${confirm}-confirm`}
-                        disabled={rotate.isPending || revoke.isPending}
-                        onClick={() =>
-                            confirm === "rotate"
-                                ? rotate.mutate()
-                                : revoke.mutate()
+            <div className="flex gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    data-testid="broker-ingest-rotate"
+                    onClick={async () => {
+                        if (
+                            broker.hasIngestKey &&
+                            !(await confirm({
+                                title: "Rotate the ingest key?",
+                                description:
+                                    "The current key stops working now. Update the bridge with the new key before it sends again.",
+                                confirmLabel: "Rotate key",
+                                variant: "destructive",
+                                testId: "broker-ingest-rotate-confirm",
+                            }))
+                        ) {
+                            return;
                         }
-                    >
-                        {confirm === "rotate" ? "Rotate key" : "Revoke key"}
-                    </Button>
+                        rotate.mutate();
+                    }}
+                    disabled={rotate.isPending}
+                >
+                    {broker.hasIngestKey ? "Rotate" : "Generate"}
+                </Button>
+                {broker.hasIngestKey ? (
                     <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => setConfirm(null)}
+                        data-testid="broker-ingest-revoke"
+                        disabled={revoke.isPending}
+                        onClick={async () => {
+                            const ok = await confirm({
+                                title: "Revoke the ingest key?",
+                                description:
+                                    "Ingest for this broker is refused until you generate a new key.",
+                                confirmLabel: "Revoke key",
+                                variant: "destructive",
+                                testId: "broker-ingest-revoke-confirm",
+                            });
+                            if (ok) revoke.mutate();
+                        }}
                     >
-                        Cancel
+                        Revoke
                     </Button>
-                </div>
-            ) : (
-                <div className="flex gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        data-testid="broker-ingest-rotate"
-                        onClick={() =>
-                            broker.hasIngestKey
-                                ? setConfirm("rotate")
-                                : rotate.mutate()
-                        }
-                        disabled={rotate.isPending}
-                    >
-                        {broker.hasIngestKey ? "Rotate" : "Generate"}
-                    </Button>
-                    {broker.hasIngestKey ? (
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            data-testid="broker-ingest-revoke"
-                            onClick={() => setConfirm("revoke")}
-                        >
-                            Revoke
-                        </Button>
-                    ) : null}
-                </div>
-            )}
+                ) : null}
+            </div>
         </div>
     );
 }

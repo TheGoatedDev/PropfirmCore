@@ -5,6 +5,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@propfirmcore/ui/components/card";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import { DescriptionList } from "@propfirmcore/ui/components/description-list";
 import {
     EmptyNote,
@@ -56,6 +57,7 @@ export const Route = createFileRoute("/_app/trading-accounts/$id")({
 function TradingAccount() {
     const { id } = Route.useParams();
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
 
     const account = useQuery({
@@ -193,7 +195,16 @@ function TradingAccount() {
                     variant="destructive"
                     data-testid="account-fail"
                     disabled={!active || act.isPending}
-                    onClick={() => act.mutate("fail")}
+                    onClick={async () => {
+                        const ok = await confirm({
+                            title: "Fail this trading account?",
+                            description:
+                                "A failed account is closed for good and cannot be reused.",
+                            confirmLabel: "Fail account",
+                            variant: "destructive",
+                        });
+                        if (ok) act.mutate("fail");
+                    }}
                 >
                     <CircleX />
                     Fail
