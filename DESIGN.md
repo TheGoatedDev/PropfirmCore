@@ -10,9 +10,24 @@ colors:
   slate-muted: "oklch(0.556 0 0)"
   hairline: "oklch(0.922 0 0)"
   focus-gray: "oklch(0.708 0 0)"
-  signal-red: "oklch(0.577 0.245 27.325)"
+  signal-red: "oklch(0.54 0.22 27)"
+  signal-red-subtle: "oklch(0.962 0.015 27)"
+  ledger-green: "oklch(0.5 0.12 155)"
+  ledger-green-subtle: "oklch(0.962 0.04 155)"
+  caution-amber: "oklch(0.52 0.115 65)"
+  caution-amber-subtle: "oklch(0.962 0.04 85)"
+  flag-violet: "oklch(0.5 0.18 300)"
+  flag-violet-subtle: "oklch(0.962 0.02 300)"
+  open-blue: "oklch(0.5 0.14 255)"
+  open-blue-subtle: "oklch(0.962 0.015 255)"
+  firm-teal: "oklch(0.48 0.08 195)"
   ink-dark-surface: "oklch(0.269 0 0)"
   signal-red-dark: "oklch(0.704 0.191 22.216)"
+  ledger-green-dark: "oklch(0.8 0.14 155)"
+  caution-amber-dark: "oklch(0.84 0.13 80)"
+  flag-violet-dark: "oklch(0.8 0.115 300)"
+  open-blue-dark: "oklch(0.8 0.1 250)"
+  firm-teal-dark: "oklch(0.74 0.1 195)"
 typography:
   headline:
     fontFamily: "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
@@ -97,6 +112,26 @@ components:
   badge-secondary:
     backgroundColor: "{colors.mist}"
     textColor: "{colors.graphite}"
+  badge-success:
+    backgroundColor: "{colors.ledger-green-subtle}"
+    textColor: "{colors.ledger-green}"
+  badge-warning:
+    backgroundColor: "{colors.caution-amber-subtle}"
+    textColor: "{colors.caution-amber}"
+  badge-flag:
+    backgroundColor: "{colors.flag-violet-subtle}"
+    textColor: "{colors.flag-violet}"
+  badge-info:
+    backgroundColor: "{colors.open-blue-subtle}"
+    textColor: "{colors.open-blue}"
+  badge-destructive:
+    backgroundColor: "{colors.signal-red-subtle}"
+    textColor: "{colors.signal-red}"
+  brand-tile:
+    backgroundColor: "{colors.firm-teal}"
+    textColor: "{colors.paper-on-ink}"
+    rounded: "{rounded.lg}"
+    size: "32px"
   nav-item-active:
     backgroundColor: "{colors.mist}"
     height: "{spacing.control}"
@@ -116,11 +151,11 @@ PropfirmCore is the room behind the counter. It ships to many prop firms, and ea
 
 The system is compact and precise. Controls are 32px tall. Tables are dense, cards are flat and outlined with a hairline ring, and nothing is decorative. Depth is almost absent. The one moment of lift is the header, which detaches into a floating, blurred island once the page scrolls. Light and dark themes are both first-class, switched by class and defaulting to the OS preference.
 
-The current palette is a **placeholder**, not a position. It is stock shadcn neutral. Status colors (pass, warn, flag, funded) and a firm accent slot are open decisions. They need to be set once, as tokens, before any screen invents its own.
+Color is spent on two things only: **status**, and the **firm's mark**. Five status tones (success, warning, flag, info, destructive) each have a strong text color and a subtle tint. They live in `globals.css` and reach the apps through one `StatusBadge`. The firm's brand color (default Firm Teal) sits in identity spots: the logo tile, the active nav icon and text selection. Everything else stays gray.
 
 **Key Characteristics:**
 - Unbranded white-label canvas, with the firm brand layered on top
-- Achromatic oklch neutral ramp. Red is the only hue.
+- Achromatic oklch neutral ramp, with color reserved for status and the firm's mark
 - Compact controls with a 32px default height
 - Flat surfaces: a hairline ring instead of shadows
 - System sans throughout, no custom fonts
@@ -128,7 +163,7 @@ The current palette is a **placeholder**, not a position. It is stock shadcn neu
 
 ## Colors
 
-The palette is achromatic oklch grays with a single red. It is provisional until status and accent tokens are decided.
+The palette is achromatic oklch grays, plus five status tones and one swappable firm brand color. Every status pair passes WCAG AA: at least 5:1 in light and 4.9:1 in dark, measured on both the page and its own tint.
 
 ### Primary
 - **Graphite** (`graphite`): primary buttons, default badges and the selected sidebar row's text. In dark mode it inverts to the light end of the ramp. It is the darkest actionable color, never used as a page background in light mode.
@@ -143,13 +178,24 @@ The palette is achromatic oklch grays with a single red. It is provisional until
 - **Focus Gray** (`focus-gray`): focus ring color, applied at 50% alpha as a 3px ring.
 - **Dark Surface** (`ink-dark-surface`): secondary and muted fills in dark mode.
 
-### Tertiary
-- **Signal Red** (`signal-red`, dark `signal-red-dark`): destructive actions and invalid fields only. It is always used as a tint (10–20% fill) with full-strength red text, never as a solid red block.
+### Secondary: Firm Brand
+- **Firm Teal** (`firm-teal`, dark `firm-teal-dark`; CSS `--brand` / `--brand-foreground`): the white-label slot, and the only color a firm overrides. It appears on the 32px logo tile, the active sidebar item's icon, and text selection at 25%. It never fills primary buttons or focus rings, so a firm whose brand is red or green can't collide with status meaning.
+
+### Tertiary: Status
+Each tone has a strong color (`--{tone}`) for text and icons and a subtle tint (`--{tone}-subtle`) for fills. In dark mode, each tone is set separately for that theme rather than inverted from light.
+- **Ledger Green** (`ledger-green`): success. Used for `passed`, `paid`, and a broker key that is Set.
+- **Caution Amber** (`caution-amber`): warning. Used for `pending` and breach `warn`, plus the KYC-required alert. It needs attention but nothing is lost yet.
+- **Flag Violet** (`flag-violet`): admin-only Flags. It is deliberately not amber, because a Flag does not count toward max warnings.
+- **Open Blue** (`open-blue`): info, for in-progress states: account `active`, payout `approved`.
+- **Signal Red** (`signal-red`): destructive, failed, rejected, banned, invalid. Light mode was darkened from stock shadcn (0.577 to 0.54 L) so 12px badge text clears 4.5:1 on its tint.
+- `canceled` and any unknown status fall back to the outline badge.
 
 ### Named Rules
-**The Placeholder Palette Rule.** Gray is provisional. Do not add a hue in a single screen (`text-green-600` for "passed", `bg-amber-100` for a warning). Status and accent colors enter the system as named tokens in `globals.css`, and only there. Today the codebase has zero ad-hoc color utilities. Keep it that way.
+**The Tokens Only Rule.** Every hue enters through `globals.css`. App code never uses Tailwind palette utilities (`text-green-600`, `bg-amber-100`). A new status gets a tone in `StatusBadge`'s map, not a new color.
 
-**The Red Is Destructive Rule.** Signal Red means "this deletes, fails, or is invalid". Do not reuse it for decoration, emphasis, or negative P&L until a status palette exists to tell those apart.
+**The Brand Stays Out of State Rule.** `--brand` marks identity, never status or action. Primary buttons stay Graphite.
+
+**The Red Is Destructive Rule.** Signal Red means "this deletes, fails, or is invalid". Negative P&L is not a failure state and does not get red by default.
 
 ## Typography
 
@@ -206,7 +252,8 @@ Buttons are compact and quiet. There are six variants, and the outline and ghost
 
 ### Badges
 - **Style:** a 20px pill with 12px medium text. The default is Graphite. Secondary is Mist. Destructive is a red tint. Outline is Hairline.
-- **State:** this is where statuses (`active`, `passed`, `failed`, payout states) should live once the status palette exists. They must carry a text label, never color alone.
+- **Tones:** `success`, `warning`, `flag`, `info` and `destructive` use a subtle tint fill with strong text.
+- **StatusBadge:** use `<StatusBadge status={x} />` from `@propfirmcore/ui/components/status-badge` for any domain status. It maps the status to a tone plus a lucide icon (circle-dot, check, x, clock, banknote, ban, triangle-alert, flag), so the shape and the text label carry meaning without color.
 
 ### Cards / Containers
 - **Corner Style:** 14px.
@@ -228,7 +275,7 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 ### Navigation
 - **Sidebar:** 32px items with a 16px icon and an 8px gap. The active item (`aria-current=page`) gets a Mist fill. Collapsed, the labels become `sr-only` and show as tooltips on the right.
 - **Header:** a sidebar toggle, then the breadcrumb, then on the right the theme toggle, the signed-in email in Slate Muted, and an outline "Sign out".
-- **Brand slot:** a 32px rounded tile in Ink with an inverted lucide `Building2` glyph, followed by the app name in Headline. This is a placeholder for the firm's logo.
+- **Brand slot:** a 32px rounded tile in Firm Teal (`bg-brand text-brand-foreground`) with a lucide `Building2` glyph, followed by the app name in Headline. The glyph is a placeholder for the firm's logo. The active nav item's icon also takes `--brand`.
 
 ### Floating Header Island (signature)
 At rest, the header is a full-width bar with a bottom border. When a sentinel scrolls out of view, it animates over 200ms into an inset 16px-radius island: 80% background, `backdrop-blur-md`, small shadow. It is the system's only expressive motion, and it respects reduced motion.
@@ -236,7 +283,8 @@ At rest, the header is a full-width bar with a bottom border. When a sentinel sc
 ## Do's and Don'ts
 
 ### Do:
-- **Do** take every color from a token in `packages/ui/src/styles/globals.css`, and define new status or accent colors there first.
+- **Do** take every color from a token in `packages/ui/src/styles/globals.css`, and render domain statuses with `StatusBadge`.
+- **Do** white-label by overriding `--brand` and `--brand-foreground` only. Re-check 4.5:1 for the foreground on the tile.
 - **Do** keep interactive controls at 32px (the default size) and text at 0.875rem.
 - **Do** separate containers with the hairline ring or border, not shadows.
 - **Do** build both apps from `@propfirmcore/ui` components. Add a missing primitive to the package, not to an app.
@@ -244,7 +292,8 @@ At rest, the header is a full-width bar with a bottom border. When a sentinel sc
 - **Do** check every new surface in both light and dark themes.
 
 ### Don't:
-- **Don't** add ad-hoc Tailwind palette colors (`green-600`, `amber-100`, …) in app code. The palette is a placeholder, and status colors are an open token decision.
+- **Don't** add ad-hoc Tailwind palette colors (`green-600`, `amber-100`, …) in app code.
+- **Don't** use `--brand` on buttons, focus rings or status.
 - **Don't** render a heading that repeats the breadcrumb page title.
 - **Don't** nest a Card (or any card-like surface) inside another Card.
 - **Don't** use Signal Red for anything other than destructive, failed or invalid.

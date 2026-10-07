@@ -1,4 +1,3 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Card,
@@ -6,6 +5,7 @@ import {
     CardHeader,
     CardTitle,
 } from "@propfirmcore/ui/components/card";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     Table,
     TableBody,
@@ -185,9 +185,10 @@ function TradingAccount() {
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         {acc.id}
-                        <Badge data-testid="account-detail-status">
-                            {acc.status}
-                        </Badge>
+                        <StatusBadge
+                            data-testid="account-detail-status"
+                            status={acc.status}
+                        />
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -239,15 +240,7 @@ function TradingAccount() {
                                 key={`${b.phaseIndex}-${b.ruleId}-${b.subjectId}-${b.ts}`}
                             >
                                 <TableCell>
-                                    <Badge
-                                        variant={
-                                            b.severity === "warn"
-                                                ? "destructive"
-                                                : "secondary"
-                                        }
-                                    >
-                                        {b.severity}
-                                    </Badge>
+                                    <StatusBadge status={b.severity} />
                                 </TableCell>
                                 <TableCell>{b.ruleId}</TableCell>
                                 <TableCell>{b.phaseIndex + 1}</TableCell>

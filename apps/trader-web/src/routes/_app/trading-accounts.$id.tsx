@@ -1,4 +1,3 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Card,
@@ -8,6 +7,7 @@ import {
 } from "@propfirmcore/ui/components/card";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     Table,
     TableBody,
@@ -176,7 +176,9 @@ function AccountDetail({ id }: { id: string }) {
                     <CardTitle>{acc.id}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1">
-                    <p>Status: {acc.status}</p>
+                    <p className="flex items-center gap-2">
+                        Status: <StatusBadge status={acc.status} />
+                    </p>
                     <p>Equity: {acc.equity}</p>
                     <p>Balance: {acc.balance}</p>
                     <p>Broker: {acc.brokerId}</p>
@@ -252,7 +254,7 @@ function AccountDetail({ id }: { id: string }) {
                             <TableCell>{p.id}</TableCell>
                             <TableCell>{p.amount}</TableCell>
                             <TableCell>
-                                <Badge>{p.status}</Badge>
+                                <StatusBadge status={p.status} />
                             </TableCell>
                         </TableRow>
                     ))}

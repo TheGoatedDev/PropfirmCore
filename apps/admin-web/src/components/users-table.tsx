@@ -1,4 +1,3 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -7,6 +6,7 @@ import {
     type PaginationState,
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     keepPreviousData,
     useMutation,
@@ -191,7 +191,9 @@ export function UsersTable({ meId }: { meId: string }) {
                         },
                     },
                     cell: ({ row }) =>
-                        row.original.banned ? <Badge>Banned</Badge> : null,
+                        row.original.banned ? (
+                            <StatusBadge status="banned">Banned</StatusBadge>
+                        ) : null,
                 }),
                 col.accessor("createdAt", {
                     header: ({ column }) => (

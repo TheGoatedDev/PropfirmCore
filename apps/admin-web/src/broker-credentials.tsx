@@ -28,7 +28,7 @@ export const useRevealedKey = create<{
 
 function KeyStatus({ set, testId }: { set: boolean; testId: string }) {
     return (
-        <Badge variant={set ? "secondary" : "destructive"} data-testid={testId}>
+        <Badge variant={set ? "success" : "destructive"} data-testid={testId}>
             {set ? "Set" : "Missing"}
         </Badge>
     );

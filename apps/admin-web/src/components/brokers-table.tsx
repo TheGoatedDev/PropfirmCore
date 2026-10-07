@@ -125,7 +125,7 @@ export function BrokersTable() {
                             <Badge
                                 variant={
                                     c.getValue() === "Set"
-                                        ? "secondary"
+                                        ? "success"
                                         : "destructive"
                                 }
                                 data-testid={`broker-ingest-status-${c.row.original.id}`}

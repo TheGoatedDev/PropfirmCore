@@ -1,5 +1,5 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     Table,
     TableBody,
@@ -70,7 +70,7 @@ function Payouts() {
                             <TableCell>{p.tradingAccountId}</TableCell>
                             <TableCell>{p.amount}</TableCell>
                             <TableCell>
-                                <Badge>{p.status}</Badge>
+                                <StatusBadge status={p.status} />
                             </TableCell>
                             <TableCell className="space-x-2">
                                 <Button

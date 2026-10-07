@@ -1,4 +1,3 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -7,6 +6,7 @@ import {
     type PaginationState,
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     keepPreviousData,
     useMutation,
@@ -162,9 +162,10 @@ export function TradingAccountsTable() {
                         },
                     },
                     cell: ({ row }) => (
-                        <Badge data-testid="account-status">
-                            {row.original.status}
-                        </Badge>
+                        <StatusBadge
+                            data-testid="account-status"
+                            status={row.original.status}
+                        />
                     ),
                 }),
             ])}
