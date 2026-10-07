@@ -13,7 +13,13 @@ import {
     useQuery,
     useQueryClient,
 } from "@tanstack/react-query";
-import { BadgeCheck, CircleCheck, CircleX } from "lucide-react";
+import { useNavigate } from "@tanstack/react-router";
+import {
+    BadgeCheck,
+    CircleCheck,
+    CircleX,
+    SquareMousePointer,
+} from "lucide-react";
 import {
     parseAsIndex,
     parseAsInteger,
@@ -48,6 +54,7 @@ const accountSearch = {
 export function TradingAccountsTable() {
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
+    const navigate = useNavigate();
     const [{ q, page, pageSize, sort, order, status }, setSearch] =
         useQueryStates(accountSearch);
     const [filter, setFilter] = useState(q);
@@ -203,6 +210,16 @@ export function TradingAccountsTable() {
             }}
             loading={accounts.isFetching}
             rowActions={(row) => [
+                {
+                    label: "Inspect",
+                    icon: <SquareMousePointer />,
+                    testId: `account-inspect-${row.id}`,
+                    onSelect: () =>
+                        void navigate({
+                            to: "/trading-accounts/$id",
+                            params: { id: row.id },
+                        }),
+                },
                 {
                     label: row.kycVerified ? "Unverify" : "Verify",
                     icon: <BadgeCheck />,
