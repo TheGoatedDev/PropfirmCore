@@ -1,0 +1,252 @@
+---
+name: PropfirmCore
+description: Unbranded back-office UI for a self-hosted prop firm. Trader and admin apps share one shadcn system in packages/ui.
+colors:
+  ink: "oklch(0.145 0 0)"
+  graphite: "oklch(0.205 0 0)"
+  paper: "oklch(1 0 0)"
+  paper-on-ink: "oklch(0.985 0 0)"
+  mist: "oklch(0.97 0 0)"
+  slate-muted: "oklch(0.556 0 0)"
+  hairline: "oklch(0.922 0 0)"
+  focus-gray: "oklch(0.708 0 0)"
+  signal-red: "oklch(0.577 0.245 27.325)"
+  ink-dark-surface: "oklch(0.269 0 0)"
+  signal-red-dark: "oklch(0.704 0.191 22.216)"
+typography:
+  headline:
+    fontFamily: "ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji'"
+    fontSize: "1.125rem"
+    fontWeight: 600
+    lineHeight: 1.556
+  title:
+    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 500
+    lineHeight: 1.375
+  body:
+    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.875rem"
+    fontWeight: 400
+    lineHeight: 1.429
+  label:
+    fontFamily: "ui-sans-serif, system-ui, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 500
+    lineHeight: 1.333
+rounded:
+  sm: "6px"
+  md: "8px"
+  lg: "10px"
+  xl: "14px"
+  island: "16px"
+  pill: "32px"
+spacing:
+  control: "32px"
+  control-sm: "28px"
+  table-head: "40px"
+  cell-x: "8px"
+  card-sm: "12px"
+  card: "16px"
+  page: "24px"
+  section: "24px"
+  sidebar: "208px"
+  sidebar-collapsed: "64px"
+  header: "56px"
+components:
+  button-primary:
+    backgroundColor: "{colors.graphite}"
+    textColor: "{colors.paper-on-ink}"
+    typography: "{typography.body}"
+    rounded: "{rounded.lg}"
+    padding: "0 10px"
+    height: "{spacing.control}"
+  button-outline:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    padding: "0 10px"
+    height: "{spacing.control}"
+  button-outline-hover:
+    backgroundColor: "{colors.mist}"
+  button-ghost-hover:
+    backgroundColor: "{colors.mist}"
+    textColor: "{colors.ink}"
+  button-destructive:
+    textColor: "{colors.signal-red}"
+    rounded: "{rounded.lg}"
+    height: "{spacing.control}"
+  input:
+    backgroundColor: "transparent"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.lg}"
+    padding: "4px 10px"
+    height: "{spacing.control}"
+  card:
+    backgroundColor: "{colors.paper}"
+    textColor: "{colors.ink}"
+    rounded: "{rounded.xl}"
+    padding: "{spacing.card}"
+  badge:
+    backgroundColor: "{colors.graphite}"
+    textColor: "{colors.paper-on-ink}"
+    typography: "{typography.label}"
+    rounded: "{rounded.pill}"
+    padding: "2px 8px"
+    height: "20px"
+  badge-secondary:
+    backgroundColor: "{colors.mist}"
+    textColor: "{colors.graphite}"
+  nav-item-active:
+    backgroundColor: "{colors.mist}"
+    height: "{spacing.control}"
+  table-head:
+    textColor: "{colors.ink}"
+    typography: "{typography.body}"
+    height: "{spacing.table-head}"
+---
+
+# Design System: PropfirmCore
+
+## Overview
+
+**Creative North Star: "The Back Office"**
+
+PropfirmCore is the room behind the counter. It ships to many prop firms, and each one puts its own name on the trader-facing door. The system is unbranded on purpose: gray surfaces, system type, and no logo beyond a placeholder glyph. What carries the identity is the firm's brand on top and the precision of the operations underneath. Trader-web and admin-web share one component library (`packages/ui`, shadcn `base-nova` on `@base-ui/react`), one token sheet, and one shell. Neither app gets a dialect of its own.
+
+The system is compact and precise. Controls are 32px tall. Tables are dense, cards are flat and outlined with a hairline ring, and nothing is decorative. Depth is almost absent. The one moment of lift is the header, which detaches into a floating, blurred island once the page scrolls. Light and dark themes are both first-class, switched by class and defaulting to the OS preference.
+
+The current palette is a **placeholder**, not a position. It is stock shadcn neutral. Status colors (pass, warn, flag, funded) and a firm accent slot are open decisions. They need to be set once, as tokens, before any screen invents its own.
+
+**Key Characteristics:**
+- Unbranded white-label canvas, with the firm brand layered on top
+- Achromatic oklch neutral ramp. Red is the only hue.
+- Compact controls with a 32px default height
+- Flat surfaces: a hairline ring instead of shadows
+- System sans throughout, no custom fonts
+- One shell for both apps: collapsible sidebar, breadcrumb title bar, floating header on scroll
+
+## Colors
+
+The palette is achromatic oklch grays with a single red. It is provisional until status and accent tokens are decided.
+
+### Primary
+- **Graphite** (`graphite`): primary buttons, default badges and the selected sidebar row's text. In dark mode it inverts to the light end of the ramp. It is the darkest actionable color, never used as a page background in light mode.
+
+### Neutral
+- **Ink** (`ink`): body text and headings in light mode. It is the page background in dark mode.
+- **Paper** (`paper`): page and card background in light mode.
+- **Paper on Ink** (`paper-on-ink`): text on Graphite fills, and foreground in dark mode.
+- **Mist** (`mist`): secondary, muted and accent fills. Used for hover rows, the active nav item, secondary badges and ghost-button hover.
+- **Slate Muted** (`slate-muted`): descriptions, placeholder text, the signed-in email and other secondary copy.
+- **Hairline** (`hairline`): every border and input stroke in light mode. Dark mode uses white at 10% for borders and 15% for inputs.
+- **Focus Gray** (`focus-gray`): focus ring color, applied at 50% alpha as a 3px ring.
+- **Dark Surface** (`ink-dark-surface`): secondary and muted fills in dark mode.
+
+### Tertiary
+- **Signal Red** (`signal-red`, dark `signal-red-dark`): destructive actions and invalid fields only. It is always used as a tint (10–20% fill) with full-strength red text, never as a solid red block.
+
+### Named Rules
+**The Placeholder Palette Rule.** Gray is provisional. Do not add a hue in a single screen (`text-green-600` for "passed", `bg-amber-100` for a warning). Status and accent colors enter the system as named tokens in `globals.css`, and only there. Today the codebase has zero ad-hoc color utilities. Keep it that way.
+
+**The Red Is Destructive Rule.** Signal Red means "this deletes, fails, or is invalid". Do not reuse it for decoration, emphasis, or negative P&L until a status palette exists to tell those apart.
+
+## Typography
+
+**Display Font:** none. The system has no display tier.
+**Body Font:** Tailwind's default system sans (`ui-sans-serif, system-ui, sans-serif`)
+**Label/Mono Font:** system monospace, used once, for shown-once secret keys.
+
+**Character:** The platform's own sans, with no web fonts. It reads as native and neutral, and gives the firm's brand nothing to fight.
+
+### Hierarchy
+- **Headline** (600, 1.125rem): the brand mark in the sidebar ("Trader", "Admin", or the firm name later). Page titles are not rendered in content, because the breadcrumb owns them.
+- **Title** (500, 1rem): card titles. Drops to 0.875rem in small cards.
+- **Body** (400, 0.875rem): almost everything: tables, card content, buttons, breadcrumbs. Inputs use 1rem below the `md` breakpoint to stop iOS zoom, and 0.875rem above it.
+- **Label** (500, 0.75rem): badges and form helper text.
+
+### Named Rules
+**The Crumb Is the Title Rule.** The breadcrumb's last item (`staticData.crumb`) is the page title. No heading in the main content may repeat it.
+
+**The Fourteen Pixel Rule.** Operational text is 0.875rem. Add size only for structure (card title, brand), never for emphasis inside a table.
+
+## Layout
+
+There are two full-height columns. The sidebar is 208px wide and collapses to 64px, showing icon-only items with tooltips. Its width animates over 200ms with `cubic-bezier(0.16,1,0.3,1)`, and the animation is disabled under reduced motion. The main column has a 56px header and a scrolling body padded 24px, with 24px vertical rhythm between sections. There is no max content width yet: tables and cards fill the column.
+
+Controls run 32px tall by default and 28px at the small size. Table header rows are 40px with 8px cell padding. Cards pad 16px, or 12px in `size="sm"`. Responsive work is minimal. Only the input font-size switches at `md` (768px). Both apps are desktop-first (see PRODUCT.md), and the sidebar does not yet become a drawer on narrow screens.
+
+### Named Rules
+**The 32px Rule.** The default interactive height is 32px. Go to 28px only inside dense rows. Never exceed 36px (`lg`) in the apps.
+
+## Elevation & Depth
+
+The system is flat by default. Cards carry a 1px ring at 10% of the foreground color instead of a shadow, and borders do the rest of the separation. There is exactly one elevated moment: once content scrolls under the header, the header detaches into an island. It insets 12px, rounds to 16px, and becomes 80% opaque with a medium backdrop blur and a small shadow. Popovers and dropdowns use the shadcn defaults.
+
+### Shadow Vocabulary
+- **Island** (`box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)`): the scrolled header only.
+
+### Named Rules
+**The Ring Not Shadow Rule.** Containers separate with a hairline ring or border. A shadow means "this floats above scrolling content", and only the header island and transient overlays float.
+
+## Shapes
+
+Corners are gently curved. The base radius is 10px (`--radius: 0.625rem`), and the scale derives from it: 6px, 8px, 10px, 14px. Buttons, inputs and the logo tile use 10px. Cards use 14px, the header island 16px, and badges are full pills. Small buttons step down to at most 10–12px. Borders are always 1px.
+
+## Components
+
+### Buttons
+Buttons are compact and quiet. There are six variants, and the outline and ghost variants do most of the work.
+- **Shape:** gently curved (10px), 32px tall, 10px side padding, 14px medium text, 16px icons with a 6px gap.
+- **Primary:** Graphite fill with Paper on Ink text. Hover drops the fill to 80%. Use it for the single committing action in a view ("Buy", "Request", "Save").
+- **Outline:** Paper background, Hairline border, Mist on hover. Use it for secondary actions and "Sign out".
+- **Ghost:** no chrome until hover (Mist). Use it for icon buttons such as the sidebar toggle.
+- **Destructive:** a 10% Signal Red tint with red text, 20% on hover. Never a solid red block.
+- **Focus / Active:** a 3px Focus Gray ring at 50%. The button nudges down 1px when pressed. Disabled buttons sit at 50% opacity.
+
+### Badges
+- **Style:** a 20px pill with 12px medium text. The default is Graphite. Secondary is Mist. Destructive is a red tint. Outline is Hairline.
+- **State:** this is where statuses (`active`, `passed`, `failed`, payout states) should live once the status palette exists. They must carry a text label, never color alone.
+
+### Cards / Containers
+- **Corner Style:** 14px.
+- **Background:** Paper, or Graphite-family in dark mode.
+- **Shadow Strategy:** none. A 1px ring at foreground/10 (see Elevation & Depth).
+- **Border:** the footer gets a top border and a Mist/50 fill.
+- **Internal Padding:** 16px, or 12px in small cards. Header, content and footer share the same spacing variable.
+
+### Inputs / Fields
+- **Style:** a transparent fill (Hairline/30 in dark mode), a 1px Hairline stroke, 10px corners, 32px height, 10px side padding.
+- **Focus:** the border shifts to Focus Gray, plus the 3px ring at 50%.
+- **Error / Disabled:** `aria-invalid` turns the border red and adds a 20% red ring. Disabled inputs sit at 50% opacity with an `input/50` fill.
+
+### Tables
+These are the workhorse of both apps (TanStack Table through `DataTable`).
+- **Header:** 40px rows, medium weight, left aligned, no wrap.
+- **Rows:** a bottom hairline and a Mist/50 hover. Selected rows fill with Mist. 8px cell padding, 14px text. Row actions are outline or ghost buttons at the small size.
+
+### Navigation
+- **Sidebar:** 32px items with a 16px icon and an 8px gap. The active item (`aria-current=page`) gets a Mist fill. Collapsed, the labels become `sr-only` and show as tooltips on the right.
+- **Header:** a sidebar toggle, then the breadcrumb, then on the right the theme toggle, the signed-in email in Slate Muted, and an outline "Sign out".
+- **Brand slot:** a 32px rounded tile in Ink with an inverted lucide `Building2` glyph, followed by the app name in Headline. This is a placeholder for the firm's logo.
+
+### Floating Header Island (signature)
+At rest, the header is a full-width bar with a bottom border. When a sentinel scrolls out of view, it animates over 200ms into an inset 16px-radius island: 80% background, `backdrop-blur-md`, small shadow. It is the system's only expressive motion, and it respects reduced motion.
+
+## Do's and Don'ts
+
+### Do:
+- **Do** take every color from a token in `packages/ui/src/styles/globals.css`, and define new status or accent colors there first.
+- **Do** keep interactive controls at 32px (the default size) and text at 0.875rem.
+- **Do** separate containers with the hairline ring or border, not shadows.
+- **Do** build both apps from `@propfirmcore/ui` components. Add a missing primitive to the package, not to an app.
+- **Do** pair every status with a text label (badge text, cell text). Pass, fail, warn and flag carry money consequences.
+- **Do** check every new surface in both light and dark themes.
+
+### Don't:
+- **Don't** add ad-hoc Tailwind palette colors (`green-600`, `amber-100`, …) in app code. The palette is a placeholder, and status colors are an open token decision.
+- **Don't** render a heading that repeats the breadcrumb page title.
+- **Don't** nest a Card (or any card-like surface) inside another Card.
+- **Don't** use Signal Red for anything other than destructive, failed or invalid.
+- **Don't** put PropfirmCore branding on trader-facing surfaces. The brand slot belongs to the firm.
+- **Don't** add web fonts or a display type tier to operational screens.
