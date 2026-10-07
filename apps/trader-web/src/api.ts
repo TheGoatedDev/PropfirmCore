@@ -10,6 +10,7 @@ export const keys = {
     fills: (id: string) => ["trading-accounts", id, "fills"] as const,
     snapshots: (id: string) => ["trading-accounts", id, "snapshots"] as const,
     payouts: (id: string) => ["trading-accounts", id, "payouts"] as const,
+    breaches: (id: string) => ["trading-accounts", id, "breaches"] as const,
 };
 
 export async function authPost(path: string, body?: Record<string, unknown>) {

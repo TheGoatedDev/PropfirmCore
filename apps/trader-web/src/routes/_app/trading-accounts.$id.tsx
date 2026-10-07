@@ -43,6 +43,12 @@ type Snapshot = {
     ts: string;
 };
 
+const ruleLabels: Record<string, string> = {
+    weekend: "Weekend",
+    maxLot: "Max lot",
+    consistency: "Consistency",
+};
+
 export const Route = createFileRoute("/_app/trading-accounts/$id")({
     component: Account,
     staticData: { crumb: "Trading account" },
@@ -100,6 +106,17 @@ function AccountDetail({ id }: { id: string }) {
             return data ?? [];
         },
     });
+    const warnings = useQuery({
+        queryKey: keys.breaches(id),
+        queryFn: async () => {
+            const { data, error } = await api.GET(
+                "/trading-accounts/{id}/breaches",
+                { params: { path: { id } } },
+            );
+            if (error) throw error;
+            return data ?? [];
+        },
+    });
     const products = useQuery({
         queryKey: keys.products,
         queryFn: async () => {
@@ -136,6 +153,9 @@ function AccountDetail({ id }: { id: string }) {
             acc.phaseIndex
         ]?.kind === "funded";
 
+    const warned = warnings.data ?? [];
+    const max = acc.ruleset.maxWarnings;
+
     async function submitPayout(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
         setError(null);
@@ -164,6 +184,40 @@ function AccountDetail({ id }: { id: string }) {
                     <p>Password: {acc.brokerPassword}</p>
                 </CardContent>
             </Card>
+            <h3 className="font-medium">Warnings</h3>
+            <p
+                className="text-sm text-muted-foreground"
+                data-testid="account-warnings-count"
+            >
+                {max === undefined
+                    ? `${warned.length} ${warned.length === 1 ? "warning" : "warnings"}`
+                    : `${warned.length} of ${max} warnings`}
+            </p>
+            {warned.length > 0 ? (
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Rule</TableHead>
+                            <TableHead>Phase</TableHead>
+                            <TableHead>Time</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {warned.map((w, i) => (
+                            <TableRow
+                                key={`${w.phaseIndex}-${w.ruleId}-${w.subjectId}`}
+                                data-testid={`account-warning-${i}`}
+                            >
+                                <TableCell>
+                                    {ruleLabels[w.ruleId] ?? w.ruleId}
+                                </TableCell>
+                                <TableCell>{w.phaseIndex + 1}</TableCell>
+                                <TableCell>{w.ts}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            ) : null}
             {funded ? (
                 <form
                     className="flex items-end gap-3"
