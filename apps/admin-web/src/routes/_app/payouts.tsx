@@ -8,6 +8,7 @@ import {
     TableHeader,
     TableRow,
 } from "@propfirmcore/ui/components/table";
+import { formatAmount } from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { api, failMsg, keys } from "../../api.ts";
@@ -58,7 +59,7 @@ function Payouts() {
                     <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Account</TableHead>
-                        <TableHead>Amount</TableHead>
+                        <TableHead className="text-right">Amount</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead />
                     </TableRow>
@@ -68,7 +69,9 @@ function Payouts() {
                         <TableRow key={p.id}>
                             <TableCell>{p.id}</TableCell>
                             <TableCell>{p.tradingAccountId}</TableCell>
-                            <TableCell>{p.amount}</TableCell>
+                            <TableCell className="text-right">
+                                {formatAmount(p.amount)}
+                            </TableCell>
                             <TableCell>
                                 <StatusBadge status={p.status} />
                             </TableCell>

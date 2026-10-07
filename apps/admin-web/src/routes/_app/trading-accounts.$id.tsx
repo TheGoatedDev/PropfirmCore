@@ -5,6 +5,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@propfirmcore/ui/components/card";
+import { DescriptionList } from "@propfirmcore/ui/components/description-list";
+import {
+    EmptyNote,
+    PageSection,
+} from "@propfirmcore/ui/components/page-section";
+import { useShowMore } from "@propfirmcore/ui/components/show-more";
 import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     Table,
@@ -14,6 +20,11 @@ import {
     TableHeader,
     TableRow,
 } from "@propfirmcore/ui/components/table";
+import {
+    formatAmount,
+    formatDateTime,
+    formatPercent,
+} from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck, CircleX, RefreshCw } from "lucide-react";
@@ -40,10 +51,6 @@ export const Route = createFileRoute("/_app/trading-accounts/$id")({
     component: TradingAccount,
     staticData: { crumb: "Trading account" },
 });
-
-function pct(n: number) {
-    return `${n * 100}%`;
-}
 
 function TradingAccount() {
     const { id } = Route.useParams();
@@ -115,8 +122,18 @@ function TradingAccount() {
         onError: (error) => setError(failMsg(error, "Action failed")),
     });
 
-    if (account.isError) return <p>Not found</p>;
-    if (!account.data) return <p>Loading</p>;
+    // ISO timestamps sort lexically; newest first.
+    const recentFills = [...(fills.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+    const recentSnapshots = [...(snapshots.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+
+    if (account.isError) {
+        return <EmptyNote>Trading account not found.</EmptyNote>;
+    }
+    if (!account.data) return <EmptyNote>Loading…</EmptyNote>;
 
     const acc = account.data;
     const product = firm.data?.products.find((p) => p.id === acc.productId);
@@ -134,16 +151,16 @@ function TradingAccount() {
         ["Broker", acc.brokerId],
         ["Broker login", acc.brokerLogin],
         ["KYC", acc.kycVerified ? "verified" : "not verified"],
-        ["Start balance", acc.startBalance],
-        ["Equity", acc.equity],
-        ["Balance", acc.balance],
-        ["Daily start equity", acc.dailyStartEquity],
+        ["Start balance", formatAmount(acc.startBalance)],
+        ["Equity", formatAmount(acc.equity)],
+        ["Balance", formatAmount(acc.balance)],
+        ["Daily start equity", formatAmount(acc.dailyStartEquity)],
         ["Trading days", acc.tradingDays.length],
     ];
     const rules: [string, string | number][] = [
-        ["Profit target", pct(acc.ruleset.profitTarget)],
-        ["Max drawdown", pct(acc.ruleset.maxDrawdown)],
-        ["Daily drawdown", pct(acc.ruleset.dailyDrawdown)],
+        ["Profit target", formatPercent(acc.ruleset.profitTarget)],
+        ["Max drawdown", formatPercent(acc.ruleset.maxDrawdown)],
+        ["Daily drawdown", formatPercent(acc.ruleset.dailyDrawdown)],
         ["Min trading days", acc.ruleset.minTradingDays],
     ];
     if (acc.ruleset.maxWarnings !== undefined) {
@@ -151,8 +168,8 @@ function TradingAccount() {
     }
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-end gap-2">
+        <div className="space-y-6">
+            <div className="flex flex-wrap items-center justify-end gap-2">
                 <Button
                     variant="outline"
                     data-testid="account-resync"
@@ -183,7 +200,7 @@ function TradingAccount() {
             </div>
             <Card>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+                    <CardTitle className="flex flex-wrap items-center gap-2 break-all">
                         {acc.id}
                         <StatusBadge
                             data-testid="account-detail-status"
@@ -192,107 +209,140 @@ function TradingAccount() {
                     </CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 text-sm">
-                        {facts.map(([k, v]) => (
-                            <div key={k} className="contents">
-                                <dt className="text-muted-foreground">{k}</dt>
-                                <dd>{v}</dd>
-                            </div>
-                        ))}
-                    </dl>
+                    <DescriptionList items={facts} />
                 </CardContent>
             </Card>
-            <h3 className="font-medium">Ruleset</h3>
-            <Table>
-                <TableBody>
-                    {rules.map(([k, v]) => (
-                        <TableRow key={k}>
-                            <TableCell className="text-muted-foreground">
-                                {k}
-                            </TableCell>
-                            <TableCell>{v}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Breaches</h3>
-            {breaches.data?.length === 0 ? (
-                <p
-                    className="text-sm text-muted-foreground"
-                    data-testid="account-breaches-empty"
-                >
-                    No warnings or flags.
-                </p>
-            ) : (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Severity</TableHead>
-                            <TableHead>Rule</TableHead>
-                            <TableHead>Phase</TableHead>
-                            <TableHead>Subject</TableHead>
-                            <TableHead>Time</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {(breaches.data ?? []).map((b) => (
-                            <TableRow
-                                key={`${b.phaseIndex}-${b.ruleId}-${b.subjectId}-${b.ts}`}
-                            >
-                                <TableCell>
-                                    <StatusBadge status={b.severity} />
-                                </TableCell>
-                                <TableCell>{b.ruleId}</TableCell>
-                                <TableCell>{b.phaseIndex + 1}</TableCell>
-                                <TableCell>{b.subjectId}</TableCell>
-                                <TableCell>{b.ts}</TableCell>
+            <PageSection title="Ruleset">
+                <DescriptionList items={rules} />
+            </PageSection>
+            <PageSection title="Breaches">
+                {breaches.data?.length === 0 ? (
+                    <EmptyNote data-testid="account-breaches-empty">
+                        No warnings or flags.
+                    </EmptyNote>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Severity</TableHead>
+                                <TableHead>Rule</TableHead>
+                                <TableHead>Phase</TableHead>
+                                <TableHead>Subject</TableHead>
+                                <TableHead>Time</TableHead>
                             </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            )}
-            <h3 className="font-medium">Fills</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>Side</TableHead>
-                        <TableHead>Qty</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(fills.data ?? []).map((f) => (
-                        <TableRow key={f.externalId}>
-                            <TableCell>{f.symbol}</TableCell>
-                            <TableCell>{f.side}</TableCell>
-                            <TableCell>{f.qty}</TableCell>
-                            <TableCell>{f.price}</TableCell>
-                            <TableCell>{f.ts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Snapshots</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Equity</TableHead>
-                        <TableHead>Balance</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(snapshots.data ?? []).map((s) => (
-                        <TableRow key={s.externalId}>
-                            <TableCell>{s.equity}</TableCell>
-                            <TableCell>{s.balance}</TableCell>
-                            <TableCell>{s.ts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                        </TableHeader>
+                        <TableBody>
+                            {(breaches.data ?? []).map((b) => (
+                                <TableRow
+                                    key={`${b.phaseIndex}-${b.ruleId}-${b.subjectId}-${b.ts}`}
+                                >
+                                    <TableCell>
+                                        <StatusBadge status={b.severity} />
+                                    </TableCell>
+                                    <TableCell>{b.ruleId}</TableCell>
+                                    <TableCell>{b.phaseIndex + 1}</TableCell>
+                                    <TableCell>{b.subjectId}</TableCell>
+                                    <TableCell>
+                                        {formatDateTime(b.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </PageSection>
+            <FillsSection fills={recentFills} />
+            <SnapshotsSection snapshots={recentSnapshots} />
         </div>
+    );
+}
+
+function FillsSection({ fills }: { fills: Fill[] }) {
+    const { visible, footer } = useShowMore(fills);
+    return (
+        <PageSection title="Fills">
+            {fills.length === 0 ? (
+                <EmptyNote>No fills yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Symbol</TableHead>
+                                <TableHead>Side</TableHead>
+                                <TableHead className="text-right">
+                                    Qty
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Price
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((f) => (
+                                <TableRow key={f.externalId}>
+                                    <TableCell>{f.symbol}</TableCell>
+                                    <TableCell>{f.side}</TableCell>
+                                    <TableCell className="text-right">
+                                        {f.qty}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {f.price}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(f.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
+    );
+}
+
+function SnapshotsSection({ snapshots }: { snapshots: Snapshot[] }) {
+    const { visible, footer } = useShowMore(snapshots);
+    return (
+        <PageSection title="Snapshots">
+            {snapshots.length === 0 ? (
+                <EmptyNote>No snapshots yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-right">
+                                    Equity
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Balance
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((s) => (
+                                <TableRow key={s.externalId}>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.equity)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.balance)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(s.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
     );
 }

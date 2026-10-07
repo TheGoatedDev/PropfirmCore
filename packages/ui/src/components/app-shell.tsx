@@ -88,7 +88,12 @@ export function AppShell({
     const scrollerRef = useRef<HTMLDivElement>(null);
     const sentinelRef = useRef<HTMLDivElement>(null);
     const [island, setIsland] = useState(false);
-    const [collapsed, setCollapsed] = useState(false);
+    // Narrow screens start on the icon rail so content keeps its width.
+    const [collapsed, setCollapsed] = useState(
+        () =>
+            typeof window !== "undefined" &&
+            window.matchMedia("(max-width: 767px)").matches,
+    );
 
     useEffect(() => {
         const scroller = scrollerRef.current;
@@ -209,7 +214,7 @@ export function AppShell({
                     {user ? (
                         <div className="flex shrink-0 items-center gap-3">
                             <ModeToggle />
-                            <span className="text-sm text-muted-foreground">
+                            <span className="hidden text-sm text-muted-foreground md:inline">
                                 {user.email}
                             </span>
                             {onSignOut ? (

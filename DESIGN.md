@@ -220,7 +220,9 @@ Each tone has a strong color (`--{tone}`) for text and icons and a subtle tint (
 
 There are two full-height columns. The sidebar is 208px wide and collapses to 64px, showing icon-only items with tooltips. Its width animates over 200ms with `cubic-bezier(0.16,1,0.3,1)`, and the animation is disabled under reduced motion. The main column has a 56px header and a scrolling body padded 24px, with 24px vertical rhythm between sections. There is no max content width yet: tables and cards fill the column.
 
-Controls run 32px tall by default and 28px at the small size. Table header rows are 40px with 8px cell padding. Cards pad 16px, or 12px in `size="sm"`. Responsive work is minimal. Only the input font-size switches at `md` (768px). Both apps are desktop-first (see PRODUCT.md), and the sidebar does not yet become a drawer on narrow screens.
+Controls run 32px tall by default and 28px at the small size. Table header rows are 40px with 8px cell padding. Cards pad 16px, or 12px in `size="sm"`. Both apps are desktop-first (see PRODUCT.md). Below `md` (768px), the sidebar starts on the 64px icon rail, the signed-in email hides, and inputs use 1rem text.
+
+Page content is a stack of `PageSection`s (h2, 1rem medium) 24px apart. A card holds the page's lead facts. Supporting facts sit in a bare `DescriptionList` under a section heading, not in another card.
 
 ### Named Rules
 **The 32px Rule.** The default interactive height is 32px. Go to 28px only inside dense rows. Never exceed 36px (`lg`) in the apps.
@@ -272,6 +274,19 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Header:** 40px rows, medium weight, left aligned, no wrap.
 - **Rows:** a bottom hairline and a Mist/50 hover. Selected rows fill with Mist. 8px cell padding, 14px text. Row actions are outline or ghost buttons at the small size.
 
+### Description List
+- **Use:** label and value facts (account details, rulesets). Muted label column at max-content width, value column fills. 6px row gap, tabular numerals.
+- **Empty:** a missing value renders a muted em dash, never a blank.
+
+### Long Lists
+- **Fills and snapshots** sort newest first and cap at 20 rows through `useShowMore`. A footer reads "Showing 20 of N" with a ghost Show all / Show less toggle.
+- **Empty states** use `EmptyNote` (muted 14px): "No fills yet.", "No payouts yet."
+
+### Numbers and Time
+- **Amounts** use `formatAmount` (`packages/ui/src/lib/format.ts`): grouped, two decimals, no currency symbol. The trader API does not expose the firm currency, and Sim is not cash.
+- **Rule fractions** use `formatPercent`. **Timestamps** use `formatDateTime` (Luxon, medium date with seconds, viewer's zone).
+- **Tables** render tabular numerals. Numeric columns (amount, equity, qty, price) align right.
+
 ### Navigation
 - **Sidebar:** 32px items with a 16px icon and an 8px gap. The active item (`aria-current=page`) gets a Mist fill. Collapsed, the labels become `sr-only` and show as tooltips on the right.
 - **Header:** a sidebar toggle, then the breadcrumb, then on the right the theme toggle, the signed-in email in Slate Muted, and an outline "Sign out".
@@ -290,6 +305,7 @@ At rest, the header is a full-width bar with a bottom border. When a sentinel sc
 - **Do** build both apps from `@propfirmcore/ui` components. Add a missing primitive to the package, not to an app.
 - **Do** pair every status with a text label (badge text, cell text). Pass, fail, warn and flag carry money consequences.
 - **Do** check every new surface in both light and dark themes.
+- **Do** run every amount, percent and timestamp through `lib/format`. Raw floats and ISO strings never reach the screen.
 
 ### Don't:
 - **Don't** add ad-hoc Tailwind palette colors (`green-600`, `amber-100`, …) in app code.

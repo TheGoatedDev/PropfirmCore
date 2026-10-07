@@ -380,6 +380,9 @@ importers:
       lucide-react:
         specifier: 1.38.0
         version: 1.38.0(react@19.2.8)
+      luxon:
+        specifier: 3.7.2
+        version: 3.7.2
       react:
         specifier: 19.2.8
         version: 19.2.8
@@ -393,6 +396,9 @@ importers:
         specifier: 3.6.0
         version: 3.6.0
     devDependencies:
+      '@types/luxon':
+        specifier: 3.7.5
+        version: 3.7.5
       '@types/react':
         specifier: 19.2.18
         version: 19.2.18
