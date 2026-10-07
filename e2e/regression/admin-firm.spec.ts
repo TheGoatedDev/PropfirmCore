@@ -93,7 +93,6 @@ test("broker rows open via the Inspect action, not a row click", async ({
     await expect(page).toHaveURL(/\/brokers$/);
     await page.getByTestId("table-row-0").click();
     await expect(page).toHaveURL(/\/brokers$/);
-    await page.getByTestId("row-actions-0").click();
     await page.getByTestId("broker-inspect-loopback").click();
     await expect(page).toHaveURL(/\/brokers\/loopback$/);
 });

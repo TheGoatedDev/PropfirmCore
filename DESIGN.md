@@ -272,7 +272,7 @@ Buttons are compact and quiet. There are six variants, and the outline and ghost
 ### Tables
 These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Header:** 40px rows, medium weight, left aligned, no wrap.
-- **Rows:** a bottom hairline and a Mist/50 hover. Selected rows fill with Mist. 8px cell padding, 14px text. Row actions are outline or ghost buttons at the small size.
+- **Rows:** a bottom hairline and a Mist/50 hover. Selected rows fill with Mist. 8px cell padding, 14px text. Row actions sit in the first column: the first five render inline as 28px ghost icon buttons with a tooltip and an `aria-label` (destructive ones in Signal Red), and any beyond five go in a "More actions" overflow menu.
 - **Toolbar:** search on the left, table actions on the right (`actions` prop on `DataTable`). Create buttons live there as primary buttons with a plus icon ("Add product", "Add broker", "Add user"). Never put them in a separate row above the table.
 
 ### Description List

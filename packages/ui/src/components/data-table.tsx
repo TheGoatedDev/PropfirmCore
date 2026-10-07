@@ -183,6 +183,9 @@ export type DataTableRowAction = {
     testId?: string;
 };
 
+// Inline up to this many row actions; the rest go in the overflow menu.
+const INLINE_ROW_ACTIONS = 5;
+
 function RowActionsMenu({
     items,
     testId,
@@ -191,39 +194,72 @@ function RowActionsMenu({
     testId: string;
 }) {
     if (!items.length) return null;
+    const inline = items.slice(0, INLINE_ROW_ACTIONS);
+    const overflow = items.slice(INLINE_ROW_ACTIONS);
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger
-                render={
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Actions"
-                        data-testid={testId}
-                        onClick={(event) => event.stopPropagation()}
-                    />
-                }
-            >
-                <Ellipsis />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="start"
-                onClick={(event) => event.stopPropagation()}
-            >
-                {items.map((item) => (
-                    <DropdownMenuItem
-                        key={item.label}
-                        variant={item.variant ?? "default"}
-                        disabled={item.disabled}
-                        data-testid={item.testId}
-                        onClick={() => item.onSelect()}
+        <div className="flex items-center gap-0.5">
+            {inline.map((item) => (
+                <Tooltip key={item.label}>
+                    <TooltipTrigger
+                        render={
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                aria-label={item.label}
+                                disabled={item.disabled}
+                                data-testid={item.testId}
+                                className={
+                                    item.variant === "destructive"
+                                        ? "text-destructive hover:bg-destructive-subtle hover:text-destructive"
+                                        : undefined
+                                }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    item.onSelect();
+                                }}
+                            />
+                        }
                     >
-                        {item.icon}
-                        {item.label}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+                        {item.icon ?? <span>{item.label.charAt(0)}</span>}
+                    </TooltipTrigger>
+                    <TooltipContent>{item.label}</TooltipContent>
+                </Tooltip>
+            ))}
+            {overflow.length ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger
+                        render={
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                aria-label="More actions"
+                                data-testid={testId}
+                                onClick={(event) => event.stopPropagation()}
+                            />
+                        }
+                    >
+                        <Ellipsis />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="start"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {overflow.map((item) => (
+                            <DropdownMenuItem
+                                key={item.label}
+                                variant={item.variant ?? "default"}
+                                disabled={item.disabled}
+                                data-testid={item.testId}
+                                onClick={() => item.onSelect()}
+                            >
+                                {item.icon}
+                                {item.label}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : null}
+        </div>
     );
 }
 
