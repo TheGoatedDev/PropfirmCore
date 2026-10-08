@@ -1,11 +1,10 @@
+import { barX, barY, defineChart, text } from "@tanstack/charts";
+import { Chart } from "@tanstack/charts/react";
+import { scaleBand } from "@tanstack/charts/scales/band";
+import { scaleLinear } from "@tanstack/charts/scales/linear";
+import { tooltip } from "@tanstack/charts/tooltip";
 import { Table2 } from "lucide-react";
-import {
-    type ReactNode,
-    useId,
-    useLayoutEffect,
-    useRef,
-    useState,
-} from "react";
+import { type ReactNode, useId, useMemo, useState } from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -20,10 +19,12 @@ import {
 } from "./card";
 
 /*
- * Small hand-built SVG charts. Specs follow the dataviz method: bars <= 24px
- * with a 4px rounded data end and a square baseline, 2px surface gaps between
- * stacked segments, hairline solid grid, text in text tokens (never the series
- * colour), a legend for >= 2 series, hover + focus tooltips, and a table view.
+ * Charts render with TanStack Charts (`@tanstack/charts`). Never shadcn/ui
+ * charts or Recharts. Specs follow the dataviz method: bars <= 24px with a
+ * 4px rounded data end, a 2px surface gap between stacked segments (a stroke
+ * in the card colour), solid hairline grid, and text in text tokens. Each
+ * chart pairs with an HTML legend (status icons) and a table view, because
+ * the SVG legend is hidden from assistive tech.
  */
 
 export type ChartSeries = {
@@ -40,90 +41,11 @@ const compact = new Intl.NumberFormat("en-US", {
 });
 const whole = new Intl.NumberFormat("en-US");
 
-/** Round tick step (1, 2 or 5 x 10^n) giving about four intervals. */
-function niceTicks(max: number): number[] {
-    if (max <= 0) return [0, 1, 2, 3, 4];
-    const raw = max / 4;
-    const mag = 10 ** Math.floor(Math.log10(raw));
-    const step = Math.max(
-        1,
-        [1, 2, 5, 10].map((m) => m * mag).find((s) => s >= raw) ?? raw,
-    );
-    const top = Math.ceil(max / step) * step;
-    return Array.from(
-        { length: Math.round(top / step) + 1 },
-        (_, i) => i * step,
-    );
-}
-
-function useWidth<T extends HTMLElement>() {
-    const ref = useRef<T>(null);
-    const [width, setWidth] = useState(0);
-    useLayoutEffect(() => {
-        const el = ref.current;
-        if (!el) return;
-        setWidth(el.clientWidth);
-        const ro = new ResizeObserver(([e]) => setWidth(e.contentRect.width));
-        ro.observe(el);
-        return () => ro.disconnect();
-    }, []);
-    return [ref, width] as const;
-}
-
-/** Rect with only the top corners (or right corners) rounded. */
-function barPath(
-    x: number,
-    y: number,
-    w: number,
-    h: number,
-    r: number,
-    end: "top" | "right" | "none",
-): string {
-    if (w <= 0 || h <= 0) return "";
-    const rr = Math.min(r, w / 2, h / 2);
-    if (end === "top") {
-        return `M${x},${y + h}V${y + rr}Q${x},${y} ${x + rr},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${y + h}Z`;
-    }
-    if (end === "right") {
-        return `M${x},${y}H${x + w - rr}Q${x + w},${y} ${x + w},${y + rr}V${y + h - rr}Q${x + w},${y + h} ${x + w - rr},${y + h}H${x}Z`;
-    }
-    return `M${x},${y}h${w}v${h}h${-w}Z`;
-}
-
-type Tip = {
-    x: number;
-    y: number;
-    title: string;
-    rows: { s: ChartSeries; v: number }[];
-};
-
-function Tooltip({ tip, width }: { tip: Tip | null; width: number }) {
-    if (!tip) return null;
-    // Keep the tooltip inside the chart; cards clip overflow.
-    const x = Math.min(Math.max(tip.x, 76), Math.max(76, width - 76));
-    return (
-        <div
-            role="presentation"
-            className="pointer-events-none absolute z-10 min-w-36 -translate-x-1/2 -translate-y-full rounded-lg bg-popover px-2.5 py-2 text-xs text-popover-foreground shadow-md ring-1 ring-foreground/10"
-            style={{ left: x, top: tip.y - 8 }}
-        >
-            <div className="mb-1 text-muted-foreground">{tip.title}</div>
-            {tip.rows.map(({ s, v }) => (
-                <div key={s.key} className="flex items-center gap-2">
-                    <span
-                        aria-hidden
-                        className="h-0.5 w-3 rounded-full"
-                        style={{ background: s.color }}
-                    />
-                    <span className="font-medium tabular-nums">
-                        {whole.format(v)}
-                    </span>
-                    <span className="text-muted-foreground">{s.label}</span>
-                </div>
-            ))}
-        </div>
-    );
-}
+// Text and grid inherit `currentColor`; the card sets it to muted ink.
+// Tooltip variables map the built-in tooltip onto the popover tokens.
+const chartClass =
+    "text-muted-foreground [&_text]:text-[11px] [--ts-chart-tooltip-background:var(--popover)] [--ts-chart-tooltip-color:var(--popover-foreground)] [--ts-chart-tooltip-border:1px_solid_var(--border)] [--ts-chart-tooltip-border-radius:var(--radius-lg)] [--ts-chart-tooltip-font:500_12px/1.4_ui-sans-serif,system-ui,sans-serif]";
+const surfaceGap = { stroke: "var(--card)", strokeWidth: 2 } as const;
 
 export function ChartLegend({ series }: { series: ChartSeries[] }) {
     return (
@@ -152,7 +74,7 @@ export function ColumnChart({
     labels,
     series,
     data,
-    height = 168,
+    height = 176,
     emphasizeLast = false,
     title,
 }: {
@@ -166,155 +88,78 @@ export function ColumnChart({
     emphasizeLast?: boolean;
     title: string;
 }) {
-    const [ref, width] = useWidth<HTMLDivElement>();
-    const [tip, setTip] = useState<Tip | null>(null);
-    const left = 36;
-    const bottom = 22;
-    const top = 8;
-    const plotW = Math.max(0, width - left);
-    const plotH = height - bottom - top;
-    const totals = categories.map((_, i) =>
-        series.reduce((n, s) => n + (data[s.key]?.[i] ?? 0), 0),
-    );
-    const ticks = niceTicks(Math.max(0, ...totals));
-    const max = ticks[ticks.length - 1] ?? 1;
-    const band = categories.length ? plotW / categories.length : 0;
-    const barW = Math.min(24, band * 0.6);
-    const y = (v: number) => top + plotH - (v / max) * plotH;
-    const labelEvery = Math.max(
-        1,
-        Math.ceil(categories.length / Math.max(1, Math.floor(plotW / 56))),
-    );
-
-    function show(i: number) {
-        setTip({
-            x: left + band * i + band / 2,
-            y: y(totals[i]),
-            title: labels[i],
-            rows: series.map((s) => ({ s, v: data[s.key]?.[i] ?? 0 })),
+    const definition = useMemo(() => {
+        const last = categories.length - 1;
+        const rows = series.flatMap((s) =>
+            categories.map((_, i) => ({
+                day: labels[i] ?? "",
+                series: s.label,
+                value: data[s.key]?.[i] ?? 0,
+                fill:
+                    series.length === 1 && emphasizeLast && i === last
+                        ? "var(--foreground)"
+                        : s.color,
+            })),
+        );
+        // Every third day, counted back from today, so labels never collide.
+        const tickDays = labels.filter((_, i) => (last - i) % 3 === 0);
+        return defineChart({
+            marks: [
+                barY(rows, {
+                    x: "day",
+                    y: "value",
+                    z: "series",
+                    fill: (r) => r.fill,
+                    maxThickness: 24,
+                    radius: { end: 4 },
+                    ...(series.length > 1 ? surfaceGap : {}),
+                }),
+            ],
+            scales: {
+                x: {
+                    scale: () => scaleBand<string>().padding(0.3),
+                    axis: { ticks: { values: tickDays } },
+                },
+                y: {
+                    scale: scaleLinear,
+                    nice: true,
+                    grid: { strokeOpacity: 0.15 },
+                    axis: {
+                        line: false,
+                        ticks: {
+                            count: 4,
+                            format: (v: number) => compact.format(v),
+                        },
+                    },
+                },
+            },
+            focus: "group-x",
+            tooltip: {
+                use: tooltip,
+                items: [
+                    { channel: "x", label: "Day" },
+                    {
+                        channel: "y",
+                        label:
+                            series.length === 1
+                                ? (series[0]?.label ?? "")
+                                : "Count",
+                        text: (pt) => whole.format(pt.yValue),
+                    },
+                    ...(series.length > 1 ? (["group"] as const) : []),
+                ],
+            },
         });
-    }
+    }, [categories, labels, series, data, emphasizeLast]);
 
     return (
-        <div
-            ref={ref}
-            className="relative w-full"
-            onPointerLeave={() => setTip(null)}
-        >
-            {width > 0 ? (
-                <svg
-                    width={width}
-                    height={height}
-                    role="img"
-                    aria-label={`${title}. Use the table view for exact values.`}
-                    className="block overflow-visible"
-                >
-                    {ticks.map((t) => (
-                        <g key={t}>
-                            <line
-                                x1={left}
-                                x2={width}
-                                y1={y(t)}
-                                y2={y(t)}
-                                className="stroke-border"
-                                strokeWidth={1}
-                            />
-                            <text
-                                x={left - 6}
-                                y={y(t)}
-                                dy="0.32em"
-                                textAnchor="end"
-                                className="fill-muted-foreground text-[10px] tabular-nums"
-                            >
-                                {compact.format(t)}
-                            </text>
-                        </g>
-                    ))}
-                    {categories.map((c, i) => {
-                        const x = left + band * i + (band - barW) / 2;
-                        let acc = 0;
-                        const visible = series.filter(
-                            (s) => (data[s.key]?.[i] ?? 0) > 0,
-                        );
-                        const last = visible[visible.length - 1];
-                        return (
-                            // biome-ignore lint/a11y/useSemanticElements: an SVG group is the column's focus target
-                            <g
-                                key={c}
-                                role="button"
-                                tabIndex={0}
-                                aria-label={`${labels[i]}: ${series
-                                    .map(
-                                        (s) =>
-                                            `${whole.format(data[s.key]?.[i] ?? 0)} ${s.label}`,
-                                    )
-                                    .join(", ")}`}
-                                className="outline-none [&:focus-visible>rect:first-child]:fill-muted"
-                                onPointerEnter={() => show(i)}
-                                onFocus={() => show(i)}
-                                onBlur={() => setTip(null)}
-                            >
-                                <rect
-                                    x={left + band * i}
-                                    y={top}
-                                    width={band}
-                                    height={plotH}
-                                    className={cn(
-                                        "fill-transparent",
-                                        tip?.title === labels[i] &&
-                                            "fill-muted/60",
-                                    )}
-                                />
-                                {visible.map((s) => {
-                                    const v = data[s.key]?.[i] ?? 0;
-                                    const y0 = y(acc);
-                                    acc += v;
-                                    const y1 = y(acc);
-                                    const isTop = s === last;
-                                    const gap = isTop ? 0 : 2;
-                                    const fill =
-                                        series.length === 1 &&
-                                        emphasizeLast &&
-                                        i === categories.length - 1
-                                            ? "var(--foreground)"
-                                            : s.color;
-                                    return (
-                                        <path
-                                            key={s.key}
-                                            d={barPath(
-                                                x,
-                                                y1 + gap,
-                                                barW,
-                                                y0 - y1 - gap,
-                                                4,
-                                                isTop ? "top" : "none",
-                                            )}
-                                            style={{ fill }}
-                                        />
-                                    );
-                                })}
-                            </g>
-                        );
-                    })}
-                    {categories.map((c, i) =>
-                        i % labelEvery === 0 || i === categories.length - 1 ? (
-                            <text
-                                key={c}
-                                x={left + band * i + band / 2}
-                                y={height - 6}
-                                textAnchor="middle"
-                                className="fill-muted-foreground text-[10px]"
-                            >
-                                {labels[i]}
-                            </text>
-                        ) : null,
-                    )}
-                </svg>
-            ) : (
-                <div style={{ height }} />
-            )}
-            <Tooltip tip={tip} width={width} />
-        </div>
+        <Chart
+            definition={definition}
+            height={height}
+            ariaLabel={title}
+            ariaDescription="Use the table view for exact values."
+            className={chartClass}
+        />
     );
 }
 
@@ -328,109 +173,77 @@ export function StackedBars({
     series: ChartSeries[];
     title: string;
 }) {
-    const [ref, width] = useWidth<HTMLDivElement>();
-    const [tip, setTip] = useState<Tip | null>(null);
-    const totals = rows.map((r) =>
-        series.reduce((n, s) => n + (r.values[s.key] ?? 0), 0),
-    );
-    const max = Math.max(1, ...totals);
-    const valueW = 48;
-    const barH = 16;
-    const rowH = 44;
-    const trackW = Math.max(0, width - valueW);
+    const definition = useMemo(() => {
+        const segments = rows.flatMap((r) =>
+            series.map((s) => ({
+                category: r.label,
+                series: s.label,
+                value: r.values[s.key] ?? 0,
+                fill: s.color,
+            })),
+        );
+        const totals = rows.map((r) => ({
+            category: r.label,
+            total: series.reduce((n, s) => n + (r.values[s.key] ?? 0), 0),
+        }));
+        return defineChart({
+            marks: [
+                barX(segments, {
+                    x: "value",
+                    y: "category",
+                    z: "series",
+                    fill: (d) => d.fill,
+                    maxThickness: 16,
+                    radius: { end: 4 },
+                    ...surfaceGap,
+                }),
+                text(totals, {
+                    x: "total",
+                    y: "category",
+                    text: (d) => whole.format(d.total),
+                    anchor: "start",
+                    dx: 6,
+                    fill: "var(--foreground)",
+                    fontWeight: 500,
+                }),
+            ],
+            scales: {
+                y: {
+                    scale: () => scaleBand<string>().padding(0.35),
+                    axis: { line: false, ticks: { size: 0 } },
+                },
+                x: {
+                    scale: scaleLinear,
+                    nice: true,
+                    grid: { strokeOpacity: 0.15 },
+                    axis: {
+                        line: false,
+                        ticks: {
+                            count: 4,
+                            format: (v: number) => compact.format(v),
+                        },
+                    },
+                },
+            },
+            focus: "nearest-y",
+            tooltip: {
+                use: tooltip,
+                items: [
+                    // Stacked segments report their own length, not the stack end.
+                    { channel: "x", label: "Accounts" },
+                ],
+            },
+        });
+    }, [rows, series]);
 
     return (
-        <div
-            ref={ref}
-            className="relative w-full"
-            onPointerLeave={() => setTip(null)}
-        >
-            {width > 0 ? (
-                <svg
-                    width={width}
-                    height={rows.length * rowH}
-                    role="img"
-                    aria-label={`${title}. Use the table view for exact values.`}
-                    className="block overflow-visible"
-                >
-                    {rows.map((r, ri) => {
-                        const y0 = ri * rowH + 18;
-                        let acc = 0;
-                        const visible = series.filter(
-                            (s) => (r.values[s.key] ?? 0) > 0,
-                        );
-                        const last = visible[visible.length - 1];
-                        return (
-                            <g key={r.key}>
-                                <text
-                                    x={0}
-                                    y={y0 - 6}
-                                    className="fill-foreground text-xs"
-                                >
-                                    {r.label}
-                                </text>
-                                {visible.map((s) => {
-                                    const v = r.values[s.key] ?? 0;
-                                    const x = (acc / max) * trackW;
-                                    acc += v;
-                                    const w =
-                                        (v / max) * trackW -
-                                        (s === last ? 0 : 2);
-                                    return (
-                                        // biome-ignore lint/a11y/useSemanticElements: an SVG path is the segment's focus target
-                                        <path
-                                            key={s.key}
-                                            role="button"
-                                            tabIndex={0}
-                                            aria-label={`${r.label}, ${s.label}: ${whole.format(v)}`}
-                                            d={barPath(
-                                                x,
-                                                y0,
-                                                Math.max(w, 1),
-                                                barH,
-                                                4,
-                                                s === last ? "right" : "none",
-                                            )}
-                                            style={{ fill: s.color }}
-                                            className="outline-none hover:opacity-80 focus-visible:opacity-80"
-                                            onPointerEnter={() =>
-                                                setTip({
-                                                    x: x + w / 2,
-                                                    y: y0,
-                                                    title: r.label,
-                                                    rows: [{ s, v }],
-                                                })
-                                            }
-                                            onFocus={() =>
-                                                setTip({
-                                                    x: x + w / 2,
-                                                    y: y0,
-                                                    title: r.label,
-                                                    rows: [{ s, v }],
-                                                })
-                                            }
-                                            onBlur={() => setTip(null)}
-                                        />
-                                    );
-                                })}
-                                <text
-                                    x={width}
-                                    y={y0 + barH / 2}
-                                    dy="0.32em"
-                                    textAnchor="end"
-                                    className="fill-foreground text-xs font-medium tabular-nums"
-                                >
-                                    {whole.format(totals[ri])}
-                                </text>
-                            </g>
-                        );
-                    })}
-                </svg>
-            ) : (
-                <div style={{ height: rows.length * rowH }} />
-            )}
-            <Tooltip tip={tip} width={width} />
-        </div>
+        <Chart
+            definition={definition}
+            height={Math.max(96, rows.length * 44 + 32)}
+            ariaLabel={title}
+            ariaDescription="Use the table view for exact values."
+            className={chartClass}
+        />
     );
 }
 
