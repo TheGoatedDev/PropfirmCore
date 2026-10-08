@@ -1,8 +1,8 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { roleHasPermission } from "@propfirmcore/access/server";
 import type { FirmConfig } from "@propfirmcore/config";
 import { eq } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
-import { roleHasPermission } from "../auth/permissions.ts";
 import type { Db } from "../db/db.ts";
 import { payments } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";

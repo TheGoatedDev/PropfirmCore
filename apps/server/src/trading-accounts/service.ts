@@ -1,3 +1,4 @@
+import { roleHasPermission } from "@propfirmcore/access/server";
 import type { Product } from "@propfirmcore/config";
 import {
     canForceFail,
@@ -10,7 +11,6 @@ import {
     type TradingAccountStatus,
 } from "@propfirmcore/domain";
 import { and, asc, count, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { roleHasPermission } from "../auth/permissions.ts";
 import {
     type Db,
     ruleBreaches,

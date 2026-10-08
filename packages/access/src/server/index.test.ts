@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { roleHasPermission } from "./permissions.ts";
+import { roleHasPermission, setRoles } from "./index.ts";
 
 describe("roleHasPermission", () => {
     it("admin can set-role", () => {
@@ -19,8 +19,12 @@ describe("roleHasPermission", () => {
         expect(roleHasPermission("mod", "user", "list")).toBe(false);
     });
 
-    it("comma roles: trader,admin can", () => {
-        expect(roleHasPermission("trader,admin", "user", "ban")).toBe(true);
+    it("custom Role from the cache", () => {
+        setRoles(new Map([["support", { payout: ["approve"] }]]));
+        expect(roleHasPermission("support", "payout", "approve")).toBe(true);
+        expect(roleHasPermission("support", "payout", "pay")).toBe(false);
+        setRoles(new Map());
+        expect(roleHasPermission("support", "payout", "approve")).toBe(false);
     });
 
     it("admin can complete payment", () => {

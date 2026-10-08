@@ -1,4 +1,4 @@
-import { roleHasPermission } from "../auth/permissions.ts";
+import { roleHasPermission } from "@propfirmcore/access/server";
 
 export const firmRoles = ["trader", "admin"] as const;
 

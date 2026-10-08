@@ -1,4 +1,5 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { roleHasPermission } from "@propfirmcore/access/server";
 import {
     type BrokerView,
     brokerOf,
@@ -7,7 +8,6 @@ import {
 } from "@propfirmcore/config";
 import type { Context } from "hono";
 import type { Auth } from "../auth/auth.ts";
-import { roleHasPermission } from "../auth/permissions.ts";
 import type { Db } from "../db/db.ts";
 import { firmView } from "../firm/http.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";

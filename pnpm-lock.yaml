@@ -203,6 +203,9 @@ importers:
       '@nats-io/transport-node':
         specifier: 3.4.0
         version: 3.4.0
+      '@propfirmcore/access':
+        specifier: workspace:*
+        version: link:../../packages/access
       '@propfirmcore/config':
         specifier: workspace:*
         version: link:../../packages/config
@@ -313,6 +316,16 @@ importers:
       vite:
         specifier: 8.2.2
         version: 8.2.2(@types/node@26.4.0)(esbuild@0.28.2)(jiti@2.7.0)(tsx@4.23.13)(yaml@2.9.0)
+
+  packages/access:
+    dependencies:
+      zod:
+        specifier: 4.5.4
+        version: 4.5.4
+    devDependencies:
+      typescript:
+        specifier: 7.0.2
+        version: 7.0.2
 
   packages/api-client:
     dependencies:

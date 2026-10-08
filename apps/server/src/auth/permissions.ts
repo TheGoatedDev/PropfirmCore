@@ -1,50 +1,10 @@
+import { catalog } from "@propfirmcore/access";
 import { createAccessControl } from "better-auth/plugins/access";
 import { adminAc, defaultStatements } from "better-auth/plugins/admin/access";
 
-export const statement = {
-    ...defaultStatements,
-    payment: ["complete", "read", "list"],
-    tradingAccount: ["read", "list", "fail", "pass", "resync", "reactivate"],
-    payout: ["read", "list", "approve", "reject", "pay"],
-    firm: ["read", "write"],
-    broker: ["credentials"],
-    kyc: ["write"],
-} as const;
-
-export const ac = createAccessControl(statement);
+// Better Auth admin plugin wiring only. Our checks use @propfirmcore/access.
+export const ac = createAccessControl({ ...defaultStatements, ...catalog });
 
 export const trader = ac.newRole({});
 
-const staff = {
-    ...adminAc.statements,
-    payment: ["complete", "read", "list"],
-    tradingAccount: ["read", "list", "fail", "pass", "resync", "reactivate"],
-    payout: ["read", "list", "approve", "reject", "pay"],
-    firm: ["read", "write"],
-    broker: ["credentials"],
-    kyc: ["write"],
-} as const;
-
-export const admin = ac.newRole(staff);
-
-export const roles = { trader, admin };
-
-export const roleStatements: Record<
-    string,
-    Record<string, readonly string[]>
-> = {
-    trader: {},
-    admin: staff,
-};
-
-export function roleHasPermission(
-    roleCsv: string,
-    resource: string,
-    action: string,
-): boolean {
-    for (const name of roleCsv.split(",").map((s) => s.trim())) {
-        const actions = roleStatements[name]?.[resource];
-        if (actions?.includes(action)) return true;
-    }
-    return false;
-}
+export const admin = ac.newRole({ ...adminAc.statements, ...catalog });
