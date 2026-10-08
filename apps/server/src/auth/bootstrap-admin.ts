@@ -41,5 +41,6 @@ export async function bootstrapAdmin(
         name: creds.name ?? "Admin",
         role: "admin",
     });
-    if (!created) throw new Error("bootstrap admin create failed");
+    // Another process won the race to create it; its row now answers the checks.
+    if (!created) await bootstrapAdmin(db, auth, creds);
 }

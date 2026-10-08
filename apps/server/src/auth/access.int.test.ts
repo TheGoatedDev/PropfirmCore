@@ -200,3 +200,35 @@ it("racing creates with one email give one 200 and 409s", async () => {
     expect(statuses.sort()).toEqual([200, 409, 409, 409, 409]);
     expect((await signIn(email, "password12")).ok).toBe(true);
 });
+
+it("two processes bootstrapping at once both start", async () => {
+    const auth = createAuth(db, {
+        secret: "change-me-to-a-long-random-string",
+        baseURL: base,
+    });
+    const email = `boot${Date.now()}@example.com`;
+    const before = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(and(eq(user.role, "admin"), eq(user.banned, false)));
+    await db.update(user).set({ banned: true }).where(eq(user.role, "admin"));
+
+    try {
+        const results = await Promise.allSettled([
+            bootstrapAdmin(db, auth, { email, password: "changeme" }),
+            bootstrapAdmin(db, auth, { email, password: "changeme" }),
+        ]);
+        expect(results.map((r) => r.status)).toEqual([
+            "fulfilled",
+            "fulfilled",
+        ]);
+    } finally {
+        await db
+            .update(user)
+            .set({ banned: true })
+            .where(eq(user.email, email));
+        for (const { id } of before) {
+            await db.update(user).set({ banned: false }).where(eq(user.id, id));
+        }
+    }
+});
