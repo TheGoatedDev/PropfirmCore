@@ -1,4 +1,3 @@
-import { within } from "@propfirmcore/access";
 import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
@@ -25,7 +24,7 @@ import {
     useQueryStates,
 } from "nuqs";
 import { type ReactNode, useEffect, useState } from "react";
-import { useCan, useMe } from "../access.ts";
+import { useAssignableRoles, useCan } from "../access.ts";
 import { api, failMsg, fetchRoles, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
@@ -63,12 +62,8 @@ export function UsersTable({
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
     const can = useCan();
-    const me = useMe();
     const roles = useQuery({ queryKey: keys.roles, queryFn: fetchRoles });
-    // Roles this user may hand out: within their own.
-    const assignable = (roles.data ?? [])
-        .filter((r) => within(r.permissions, me.permissions))
-        .map((r) => r.name);
+    const assignable = useAssignableRoles();
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -139,6 +134,7 @@ export function UsersTable({
         },
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: keys.users });
+            await qc.invalidateQueries({ queryKey: keys.roles });
         },
         onError: (error) => setError(failMsg(error, "Role failed")),
     });

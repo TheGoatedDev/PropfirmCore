@@ -1,9 +1,11 @@
 import type { PgDatabase, PgQueryResultHKT } from "drizzle-orm/pg-core";
 import {
+    type Action,
     cleanPermissions,
     hasPermission,
     type Permissions,
     permissionsOf,
+    type Resource,
 } from "../index.ts";
 import { firmRoles } from "./schema.ts";
 
@@ -39,10 +41,10 @@ export function permissionsFor(role: string): Permissions {
     return permissionsOf(role, customRoles);
 }
 
-export function roleHasPermission(
+export function roleHasPermission<R extends Resource>(
     role: string,
-    resource: string,
-    action: string,
+    resource: R,
+    action: Action<R>,
 ): boolean {
     return hasPermission(permissionsFor(role), resource, action);
 }

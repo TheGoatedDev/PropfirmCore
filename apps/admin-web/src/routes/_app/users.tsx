@@ -1,4 +1,3 @@
-import { within } from "@propfirmcore/access";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Card,
@@ -9,13 +8,13 @@ import {
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
 import { formatEnum } from "@propfirmcore/ui/lib/format";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
-import { requires, useCan } from "../../access.ts";
-import { api, failMsg, fetchRoles, keys } from "../../api.ts";
+import { requires, useAssignableRoles, useCan } from "../../access.ts";
+import { api, failMsg, keys } from "../../api.ts";
 import { UsersTable } from "../../components/users-table.tsx";
 import { useUi } from "../../stores/ui.ts";
 import { Route as AppRoute } from "../_app.tsx";
@@ -38,10 +37,7 @@ export const Route = createFileRoute("/_app/users")({
 function Users() {
     const { me } = AppRoute.useRouteContext();
     const can = useCan();
-    const roles = useQuery({ queryKey: keys.roles, queryFn: fetchRoles });
-    const assignable = (roles.data ?? [])
-        .filter((r) => within(r.permissions, me.permissions))
-        .map((r) => r.name);
+    const assignable = useAssignableRoles();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const [creating, setCreating] = useState(false);
@@ -56,6 +52,7 @@ function Users() {
         onSuccess: async () => {
             setCreating(false);
             await qc.invalidateQueries({ queryKey: keys.users });
+            await qc.invalidateQueries({ queryKey: keys.roles });
         },
         onError: (error) => setError(failMsg(error, "Create failed")),
     });

@@ -62,14 +62,12 @@ export const roleNameSchema = z
     .string()
     .regex(/^[a-z][a-z0-9-]{1,31}$/, "lowercase letters, digits, dashes");
 
-export function hasPermission(
+export function hasPermission<R extends Resource>(
     perms: Permissions,
-    resource: string,
-    action: string,
+    resource: R,
+    action: Action<R>,
 ): boolean {
-    const actions = perms[resource as Resource] as
-        | readonly string[]
-        | undefined;
+    const actions = perms[resource] as readonly string[] | undefined;
     return actions?.includes(action) ?? false;
 }
 

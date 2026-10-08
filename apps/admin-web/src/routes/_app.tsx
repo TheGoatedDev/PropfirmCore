@@ -1,4 +1,9 @@
-import { hasPermission, isStaff } from "@propfirmcore/access";
+import {
+    type Action,
+    hasPermission,
+    isStaff,
+    type Resource,
+} from "@propfirmcore/access";
 import { AppShell, SidebarItem } from "@propfirmcore/ui/components/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -50,7 +55,7 @@ function App() {
     const qc = useQueryClient();
     const navigate = useNavigate();
     const matches = useMatches();
-    const can = (resource: string, action: string) =>
+    const can = <R extends Resource>(resource: R, action: Action<R>) =>
         hasPermission(me.permissions, resource, action);
 
     async function signOut() {
