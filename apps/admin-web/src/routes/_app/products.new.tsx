@@ -1,4 +1,5 @@
 import type { ProductWrite } from "@propfirmcore/config";
+import { EmptyNote } from "@propfirmcore/ui/components/page-section";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { failMsg, keys } from "../../api.ts";
@@ -41,13 +42,15 @@ function NewProduct() {
         onError: (err) => setError(failMsg(err, "Save failed")),
     });
 
-    if (firm.isPending) return <p>Loading</p>;
+    if (firm.isPending) return <EmptyNote>Loading…</EmptyNote>;
     if (firm.isError || !firm.data) {
-        return <p>{failMsg(firm.error, "Could not load firm")}</p>;
+        return (
+            <EmptyNote>{failMsg(firm.error, "Could not load firm")}</EmptyNote>
+        );
     }
 
     return (
-        <div className="space-y-4">
+        <div>
             <ProductForm
                 product={emptyProduct()}
                 brokers={firm.data.brokers}
