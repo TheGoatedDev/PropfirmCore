@@ -1,5 +1,12 @@
 import { type ChildProcess, spawn } from "node:child_process";
+import type { TestProject } from "vitest/node";
 import { startInfra, testAppEnv } from "./infra.ts";
+
+declare module "vitest" {
+    export interface ProvidedContext {
+        databaseUrl: string;
+    }
+}
 
 async function waitHealth(): Promise<void> {
     for (let i = 0; i < 120; i++) {
@@ -63,8 +70,9 @@ function killTree(child: ChildProcess) {
     }
 }
 
-export async function setup() {
+export async function setup(project: TestProject) {
     const infra = await startInfra();
+    project.provide("databaseUrl", infra.databaseUrl);
     const env = {
         ...process.env,
         ...testAppEnv,

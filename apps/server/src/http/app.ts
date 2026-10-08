@@ -13,6 +13,7 @@ import { mountIngest } from "../ingest/http.ts";
 import { mountKyc } from "../kyc/http.ts";
 import { log } from "../logger.ts";
 import { mountPayouts } from "../payouts/http.ts";
+import { mountRoles } from "../roles/http.ts";
 import { mountStats } from "../stats/http.ts";
 import { mountTradingAccounts } from "../trading-accounts/http.ts";
 import { mountUsers } from "../users/http.ts";
@@ -72,6 +73,7 @@ export function createApp(deps: AppDeps) {
     mountPayouts(app, deps);
     mountKyc(app, deps);
     mountUsers(app, deps);
+    mountRoles(app, deps);
     mountStats(app, deps);
     mountIngest(app, deps);
 

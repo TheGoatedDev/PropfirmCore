@@ -14,12 +14,20 @@ _Avoid_: tenant, organization, brand, mill
 A login identity. May own many trading accounts, or none.
 
 **Trader**:
-A User who buys products, trades, and requests payouts.
+A User who buys products, trades, and requests payouts. Defined by what they do, not by Role: any User may be one.
 _Avoid_: customer, client, account holder
 
+**Staff**:
+A User whose Role grants at least one Permission. Operates the Firm within that Role. May act on another User only when that User's Role is within their own; never on themselves or their own Role.
+_Avoid_: operator, employee, back office
+
 **Admin**:
-A User who operates the Firm: config, complete payments, force pass or fail, approve reject or pay payouts, set KYC.
+Staff with the builtin admin Role: every Permission. At least one Admin is never banned.
 _Avoid_: operator, superadmin
+
+**Banned**:
+A User who cannot sign in. Their trading accounts and payouts are untouched.
+_Avoid_: suspended, disabled, blocked
 
 **KYC**:
 The Firm's check that a User is verified. Off = no check.
@@ -30,8 +38,12 @@ When KYC is on: `payout` blocks sending cash; `funded` also blocks entering a fu
 _Avoid_: KYC mode, KYC stage
 
 **Role**:
-A permission set. Builtins are trader and admin. An Admin may add more.
+A named set of Permissions. Every User has exactly one. Builtins, which cannot change: trader (the default, grants nothing) and admin (grants all). Staff may add more, holding only Permissions they hold themselves.
 _Avoid_: group, organization role, tenant role, operator
+
+**Permission**:
+One action on one resource, such as approving a payout.
+_Avoid_: statement, scope, grant, capability
 
 ### Offering
 

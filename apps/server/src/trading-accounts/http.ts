@@ -1,4 +1,5 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { roleHasPermission } from "@propfirmcore/access/server";
 import type { FirmConfig } from "@propfirmcore/config";
 import {
     tradingAccountSchema,
@@ -7,7 +8,6 @@ import {
 import { eq, inArray } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { user } from "../auth/auth-schema.ts";
-import { roleHasPermission } from "../auth/permissions.ts";
 import { type Db, fills, snapshots } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";

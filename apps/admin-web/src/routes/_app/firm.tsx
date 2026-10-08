@@ -1,12 +1,14 @@
 import type { FirmConfig } from "@propfirmcore/config";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { requires } from "../../access.ts";
 import { failMsg, keys } from "../../api.ts";
 import { fetchFirm, saveFirmSlice } from "../../firm-api.ts";
 import { FirmSettingsForm } from "../../firm-settings-form.tsx";
 import { useUi } from "../../stores/ui.ts";
 
 export const Route = createFileRoute("/_app/firm")({
+    beforeLoad: requires("firm", "read"),
     component: Firm,
     staticData: { crumb: "Firm" },
 });

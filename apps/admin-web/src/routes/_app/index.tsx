@@ -28,11 +28,12 @@ import {
 } from "lucide-react";
 import { DateTime } from "luxon";
 import type { ReactNode } from "react";
+import { useCan } from "../../access.ts";
 import { api, failMsg, keys } from "../../api.ts";
 import { fetchFirm } from "../../firm-api.ts";
 
 export const Route = createFileRoute("/_app/")({
-    component: AdminHome,
+    component: Home,
     staticData: { crumb: "Home" },
 });
 
@@ -171,9 +172,25 @@ function Kpi({
     );
 }
 
+// The overview needs tradingAccount:list; other Staff get a pointer instead.
+function Home() {
+    const can = useCan();
+    if (can("tradingAccount", "list")) return <AdminHome />;
+    return (
+        <div data-testid="home-heading">
+            <EmptyNote>Pick a section from the menu.</EmptyNote>
+        </div>
+    );
+}
+
 function AdminHome() {
+    const can = useCan();
     const overview = useOverview();
-    const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
+    const firm = useQuery({
+        queryKey: keys.firm,
+        queryFn: fetchFirm,
+        enabled: can("firm", "read"),
+    });
 
     if (overview.isError) {
         return (

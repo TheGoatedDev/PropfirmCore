@@ -38,6 +38,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck, CircleX, RefreshCw, RotateCcw } from "lucide-react";
 import { DateTime } from "luxon";
+import { useCan } from "../../access.ts";
 import { api, failMsg, keys } from "../../api.ts";
 import {
     failConfirm,
@@ -88,6 +89,7 @@ function TradingAccount() {
     const { id } = Route.useParams();
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
     const qc = useQueryClient();
 
     const account = useQuery({
@@ -302,52 +304,58 @@ function TradingAccount() {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button
-                        variant="outline"
-                        data-testid="account-resync"
-                        disabled={act.isPending}
-                        onClick={() => act.mutate("resync")}
-                    >
-                        <RefreshCw />
-                        Resync ruleset
-                    </Button>
-                    <Button
-                        variant="outline"
-                        data-testid="account-pass"
-                        disabled={!active || act.isPending}
-                        onClick={() => act.mutate("pass")}
-                    >
-                        <CircleCheck />
-                        Pass
-                    </Button>
-                    {acc.status === "failed" ? (
+                    {can("tradingAccount", "resync") && (
                         <Button
                             variant="outline"
-                            data-testid="account-reactivate"
+                            data-testid="account-resync"
                             disabled={act.isPending}
-                            onClick={async () => {
-                                if (await confirm(reactivateConfirm)) {
-                                    act.mutate("reactivate");
-                                }
-                            }}
+                            onClick={() => act.mutate("resync")}
                         >
-                            <RotateCcw />
-                            Reactivate
-                        </Button>
-                    ) : (
-                        <Button
-                            variant="destructive"
-                            data-testid="account-fail"
-                            disabled={!active || act.isPending}
-                            onClick={async () => {
-                                if (await confirm(failConfirm))
-                                    act.mutate("fail");
-                            }}
-                        >
-                            <CircleX />
-                            Fail
+                            <RefreshCw />
+                            Resync ruleset
                         </Button>
                     )}
+                    {can("tradingAccount", "pass") && (
+                        <Button
+                            variant="outline"
+                            data-testid="account-pass"
+                            disabled={!active || act.isPending}
+                            onClick={() => act.mutate("pass")}
+                        >
+                            <CircleCheck />
+                            Pass
+                        </Button>
+                    )}
+                    {acc.status === "failed"
+                        ? can("tradingAccount", "reactivate") && (
+                              <Button
+                                  variant="outline"
+                                  data-testid="account-reactivate"
+                                  disabled={act.isPending}
+                                  onClick={async () => {
+                                      if (await confirm(reactivateConfirm)) {
+                                          act.mutate("reactivate");
+                                      }
+                                  }}
+                              >
+                                  <RotateCcw />
+                                  Reactivate
+                              </Button>
+                          )
+                        : can("tradingAccount", "fail") && (
+                              <Button
+                                  variant="destructive"
+                                  data-testid="account-fail"
+                                  disabled={!active || act.isPending}
+                                  onClick={async () => {
+                                      if (await confirm(failConfirm))
+                                          act.mutate("fail");
+                                  }}
+                              >
+                                  <CircleX />
+                                  Fail
+                              </Button>
+                          )}
                 </div>
             </header>
 

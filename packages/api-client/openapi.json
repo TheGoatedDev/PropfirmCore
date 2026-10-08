@@ -43,20 +43,12 @@
                     },
                     "role": {
                         "type": "string",
+                        "default": "trader",
                         "readOnly": true
                     },
                     "banned": {
                         "type": "boolean",
                         "default": false,
-                        "readOnly": true
-                    },
-                    "banReason": {
-                        "type": "string",
-                        "readOnly": true
-                    },
-                    "banExpires": {
-                        "type": "string",
-                        "format": "date-time",
                         "readOnly": true
                     },
                     "kycVerified": {
@@ -104,10 +96,6 @@
                     },
                     "userId": {
                         "type": "string"
-                    },
-                    "impersonatedBy": {
-                        "type": "string",
-                        "readOnly": true
                     }
                 },
                 "required": [
@@ -259,6 +247,99 @@
                                         "role": {
                                             "type": "string"
                                         },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "user": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "list",
+                                                            "create",
+                                                            "ban",
+                                                            "set-role"
+                                                        ]
+                                                    }
+                                                },
+                                                "role": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "payment": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "complete",
+                                                            "read",
+                                                            "list"
+                                                        ]
+                                                    }
+                                                },
+                                                "tradingAccount": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "fail",
+                                                            "pass",
+                                                            "resync",
+                                                            "reactivate"
+                                                        ]
+                                                    }
+                                                },
+                                                "payout": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "approve",
+                                                            "reject",
+                                                            "pay"
+                                                        ]
+                                                    }
+                                                },
+                                                "firm": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "broker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "credentials"
+                                                        ]
+                                                    }
+                                                },
+                                                "kyc": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
                                         "kycVerified": {
                                             "type": "boolean"
                                         },
@@ -287,6 +368,7 @@
                                         "id",
                                         "email",
                                         "role",
+                                        "permissions",
                                         "kycVerified",
                                         "kyc"
                                     ]
@@ -5884,10 +5966,7 @@
                     {
                         "schema": {
                             "type": "string",
-                            "enum": [
-                                "trader",
-                                "admin"
-                            ]
+                            "minLength": 1
                         },
                         "required": false,
                         "name": "role",
@@ -5929,13 +6008,7 @@
                                                         "type": "string"
                                                     },
                                                     "role": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "enum": [
-                                                            "trader",
-                                                            "admin",
-                                                            null
-                                                        ]
+                                                        "type": "string"
                                                     },
                                                     "banned": {
                                                         "type": "boolean"
@@ -6031,10 +6104,7 @@
                                     },
                                     "role": {
                                         "type": "string",
-                                        "enum": [
-                                            "trader",
-                                            "admin"
-                                        ]
+                                        "minLength": 1
                                     }
                                 },
                                 "required": [
@@ -6065,13 +6135,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6223,13 +6287,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6306,6 +6364,25 @@
                                 }
                             }
                         }
+                    },
+                    "409": {
+                        "description": "This would leave no unbanned Admin.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -6335,10 +6412,7 @@
                                 "properties": {
                                     "role": {
                                         "type": "string",
-                                        "enum": [
-                                            "trader",
-                                            "admin"
-                                        ]
+                                        "minLength": 1
                                     }
                                 },
                                 "required": [
@@ -6366,13 +6440,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6452,6 +6520,932 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "This would leave no unbanned Admin.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/roles": {
+            "get": {
+                "tags": [
+                    "Roles"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Builtin and custom Roles. Any Staff.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "name": {
+                                                "type": "string"
+                                            },
+                                            "builtin": {
+                                                "type": "boolean"
+                                            },
+                                            "permissions": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "user": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "list",
+                                                                "create",
+                                                                "ban",
+                                                                "set-role"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "role": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "write"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "payment": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "complete",
+                                                                "read",
+                                                                "list"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "tradingAccount": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "read",
+                                                                "list",
+                                                                "fail",
+                                                                "pass",
+                                                                "resync",
+                                                                "reactivate"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "payout": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "read",
+                                                                "list",
+                                                                "approve",
+                                                                "reject",
+                                                                "pay"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "firm": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "read",
+                                                                "write"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "broker": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "credentials"
+                                                            ]
+                                                        }
+                                                    },
+                                                    "kyc": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "write"
+                                                            ]
+                                                        }
+                                                    }
+                                                },
+                                                "additionalProperties": false
+                                            },
+                                            "userCount": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": [
+                                            "name",
+                                            "builtin",
+                                            "permissions",
+                                            "userCount"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "Roles"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "pattern": "^[a-z][a-z0-9-]{1,31}$"
+                                    },
+                                    "permissions": {
+                                        "type": "object",
+                                        "properties": {
+                                            "user": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "list",
+                                                        "create",
+                                                        "ban",
+                                                        "set-role"
+                                                    ]
+                                                }
+                                            },
+                                            "role": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "write"
+                                                    ]
+                                                }
+                                            },
+                                            "payment": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "complete",
+                                                        "read",
+                                                        "list"
+                                                    ]
+                                                }
+                                            },
+                                            "tradingAccount": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "list",
+                                                        "fail",
+                                                        "pass",
+                                                        "resync",
+                                                        "reactivate"
+                                                    ]
+                                                }
+                                            },
+                                            "payout": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "list",
+                                                        "approve",
+                                                        "reject",
+                                                        "pay"
+                                                    ]
+                                                }
+                                            },
+                                            "firm": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "write"
+                                                    ]
+                                                }
+                                            },
+                                            "broker": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "credentials"
+                                                    ]
+                                                }
+                                            },
+                                            "kyc": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "write"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                },
+                                "required": [
+                                    "name",
+                                    "permissions"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The created Role.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "builtin": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "user": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "list",
+                                                            "create",
+                                                            "ban",
+                                                            "set-role"
+                                                        ]
+                                                    }
+                                                },
+                                                "role": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "payment": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "complete",
+                                                            "read",
+                                                            "list"
+                                                        ]
+                                                    }
+                                                },
+                                                "tradingAccount": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "fail",
+                                                            "pass",
+                                                            "resync",
+                                                            "reactivate"
+                                                        ]
+                                                    }
+                                                },
+                                                "payout": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "approve",
+                                                            "reject",
+                                                            "pay"
+                                                        ]
+                                                    }
+                                                },
+                                                "firm": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "broker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "credentials"
+                                                        ]
+                                                    }
+                                                },
+                                                "kyc": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "userCount": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "builtin",
+                                        "permissions",
+                                        "userCount"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission, or the Role is builtin, your own, or holds Permissions you do not.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "A resource with this id already exists.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/roles/{name}": {
+            "put": {
+                "tags": [
+                    "Roles"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "name",
+                        "in": "path"
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "permissions": {
+                                        "type": "object",
+                                        "properties": {
+                                            "user": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "list",
+                                                        "create",
+                                                        "ban",
+                                                        "set-role"
+                                                    ]
+                                                }
+                                            },
+                                            "role": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "write"
+                                                    ]
+                                                }
+                                            },
+                                            "payment": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "complete",
+                                                        "read",
+                                                        "list"
+                                                    ]
+                                                }
+                                            },
+                                            "tradingAccount": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "list",
+                                                        "fail",
+                                                        "pass",
+                                                        "resync",
+                                                        "reactivate"
+                                                    ]
+                                                }
+                                            },
+                                            "payout": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "list",
+                                                        "approve",
+                                                        "reject",
+                                                        "pay"
+                                                    ]
+                                                }
+                                            },
+                                            "firm": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "read",
+                                                        "write"
+                                                    ]
+                                                }
+                                            },
+                                            "broker": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "credentials"
+                                                    ]
+                                                }
+                                            },
+                                            "kyc": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string",
+                                                    "enum": [
+                                                        "write"
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        "additionalProperties": false
+                                    }
+                                },
+                                "required": [
+                                    "permissions"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "The edited Role.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "name": {
+                                            "type": "string"
+                                        },
+                                        "builtin": {
+                                            "type": "boolean"
+                                        },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "user": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "list",
+                                                            "create",
+                                                            "ban",
+                                                            "set-role"
+                                                        ]
+                                                    }
+                                                },
+                                                "role": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "payment": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "complete",
+                                                            "read",
+                                                            "list"
+                                                        ]
+                                                    }
+                                                },
+                                                "tradingAccount": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "fail",
+                                                            "pass",
+                                                            "resync",
+                                                            "reactivate"
+                                                        ]
+                                                    }
+                                                },
+                                                "payout": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "approve",
+                                                            "reject",
+                                                            "pay"
+                                                        ]
+                                                    }
+                                                },
+                                                "firm": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "broker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "credentials"
+                                                        ]
+                                                    }
+                                                },
+                                                "kyc": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
+                                        "userCount": {
+                                            "type": "integer"
+                                        }
+                                    },
+                                    "required": [
+                                        "name",
+                                        "builtin",
+                                        "permissions",
+                                        "userCount"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "The request was invalid. Check the body and parameters.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission, or the Role is builtin, your own, or holds Permissions you do not.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Roles"
+                ],
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "name",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Deleted."
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission, or the Role is builtin, your own, or holds Permissions you do not.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "Users still hold this Role. Move them to another Role first.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -12722,2395 +13716,6 @@
                     }
                 }
             }
-        },
-        "/auth/admin/set-role": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Set the role of a user",
-                "operationId": "setUserRole",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    },
-                                    "role": {
-                                        "anyOf": [
-                                            {
-                                                "type": "string",
-                                                "description": "The role to set. `admin` or `user` by default"
-                                            },
-                                            {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string",
-                                                    "description": "The roles to set. `admin` or `user` by default"
-                                                }
-                                            }
-                                        ],
-                                        "description": "The role to set, this can be a string or an array of strings. Eg: `admin` or `[admin, user]`"
-                                    }
-                                },
-                                "required": [
-                                    "userId",
-                                    "role"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User role updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/get-user": {
-            "get": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Get an existing user",
-                "operationId": "getUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "description": "The id of the User"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "User",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/create-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Create a new user",
-                "operationId": "createUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "email": {
-                                        "type": "string",
-                                        "description": "The email of the user"
-                                    },
-                                    "password": {
-                                        "type": "string"
-                                    },
-                                    "name": {
-                                        "type": "string",
-                                        "description": "The name of the user"
-                                    },
-                                    "role": {
-                                        "anyOf": [
-                                            {
-                                                "type": "string",
-                                                "description": "The role of the user"
-                                            },
-                                            {
-                                                "type": "array",
-                                                "items": {
-                                                    "type": "string",
-                                                    "description": "The roles of user"
-                                                }
-                                            }
-                                        ]
-                                    },
-                                    "data": {
-                                        "type": "object",
-                                        "propertyNames": {
-                                            "type": "string"
-                                        },
-                                        "additionalProperties": {}
-                                    }
-                                },
-                                "required": [
-                                    "email",
-                                    "name"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/update-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Update a user's details",
-                "operationId": "adminUpdateUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    },
-                                    "data": {
-                                        "type": "object",
-                                        "propertyNames": {},
-                                        "additionalProperties": {},
-                                        "description": "The user data to update"
-                                    }
-                                },
-                                "required": [
-                                    "userId",
-                                    "data"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User updated",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/list-users": {
-            "get": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "List users",
-                "operationId": "listUsers",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [
-                    {
-                        "name": "searchValue",
-                        "in": "query",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    {
-                        "name": "searchField",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "email",
-                                "name"
-                            ],
-                            "description": "The field to search in, defaults to email. Can be `email` or `name`. Eg: \"name\""
-                        }
-                    },
-                    {
-                        "name": "searchOperator",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "contains",
-                                "starts_with",
-                                "ends_with"
-                            ],
-                            "description": "The operator to use for the search. Can be `contains`, `starts_with` or `ends_with`. Eg: \"contains\""
-                        }
-                    },
-                    {
-                        "name": "limit",
-                        "in": "query",
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "description": "The number of users to return"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "offset",
-                        "in": "query",
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "type": "string",
-                                    "description": "The offset to start from"
-                                },
-                                {
-                                    "type": "number"
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "sortBy",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "description": "The field to sort by"
-                        }
-                    },
-                    {
-                        "name": "sortDirection",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "asc",
-                                "desc"
-                            ],
-                            "description": "The direction to sort by"
-                        }
-                    },
-                    {
-                        "name": "filterField",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "description": "The field to filter by"
-                        }
-                    },
-                    {
-                        "name": "filterValue",
-                        "in": "query",
-                        "schema": {
-                            "anyOf": [
-                                {
-                                    "anyOf": [
-                                        {
-                                            "anyOf": [
-                                                {
-                                                    "anyOf": [
-                                                        {
-                                                            "type": "string",
-                                                            "description": "The value to filter by"
-                                                        },
-                                                        {
-                                                            "type": "number"
-                                                        }
-                                                    ]
-                                                },
-                                                {
-                                                    "type": "boolean"
-                                                }
-                                            ]
-                                        },
-                                        {
-                                            "type": "array",
-                                            "items": {
-                                                "type": "string"
-                                            }
-                                        }
-                                    ]
-                                },
-                                {
-                                    "type": "array",
-                                    "items": {
-                                        "type": "number"
-                                    }
-                                }
-                            ]
-                        }
-                    },
-                    {
-                        "name": "filterOperator",
-                        "in": "query",
-                        "schema": {
-                            "type": "string",
-                            "enum": [
-                                "eq",
-                                "ne",
-                                "lt",
-                                "lte",
-                                "gt",
-                                "gte",
-                                "in",
-                                "not_in",
-                                "contains",
-                                "starts_with",
-                                "ends_with"
-                            ],
-                            "description": "The operator to use for the filter"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "List of users",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "users": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/User"
-                                            }
-                                        },
-                                        "total": {
-                                            "type": "number"
-                                        },
-                                        "limit": {
-                                            "type": "number"
-                                        },
-                                        "offset": {
-                                            "type": "number"
-                                        }
-                                    },
-                                    "required": [
-                                        "users",
-                                        "total"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/list-user-sessions": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "List user sessions",
-                "operationId": "adminListUserSessions",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "List of user sessions",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "sessions": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/Session"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/unban-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Unban a user",
-                "operationId": "unbanUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User unbanned",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/ban-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Ban a user",
-                "operationId": "banUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    },
-                                    "banReason": {
-                                        "type": "string",
-                                        "description": "The reason for the ban"
-                                    },
-                                    "banExpiresIn": {
-                                        "type": "number",
-                                        "description": "The number of seconds until the ban expires"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User banned",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/impersonate-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Impersonate a user",
-                "operationId": "impersonateUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Impersonation session created",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "session": {
-                                            "$ref": "#/components/schemas/Session"
-                                        },
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/stop-impersonating": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "responses": {
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/revoke-user-session": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Revoke a user session",
-                "operationId": "revokeUserSession",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "sessionToken": {
-                                        "type": "string",
-                                        "description": "The session token"
-                                    }
-                                },
-                                "required": [
-                                    "sessionToken"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Session revoked",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/revoke-user-sessions": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Revoke all user sessions",
-                "operationId": "revokeUserSessions",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Sessions revoked",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/remove-user": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Delete a user and all their sessions and accounts. Cannot be undone.",
-                "operationId": "removeUser",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "userId": {
-                                        "type": "string",
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "User removed",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/set-user-password": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Set a user's password",
-                "operationId": "setUserPassword",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "newPassword": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "description": "The new password"
-                                    },
-                                    "userId": {
-                                        "type": "string",
-                                        "minLength": 1,
-                                        "description": "The user id"
-                                    }
-                                },
-                                "required": [
-                                    "newPassword",
-                                    "userId"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Password set",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "boolean"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
-        },
-        "/auth/admin/has-permission": {
-            "post": {
-                "tags": [
-                    "Authentication - Admin"
-                ],
-                "description": "Check if the user has permission",
-                "security": [
-                    {
-                        "bearerAuth": []
-                    }
-                ],
-                "parameters": [],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "type": "object",
-                                "properties": {
-                                    "permissions": {
-                                        "type": "object",
-                                        "description": "The permission to check"
-                                    }
-                                },
-                                "required": [
-                                    "permissions"
-                                ]
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Success",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "error": {
-                                            "type": "string"
-                                        },
-                                        "success": {
-                                            "type": "boolean"
-                                        }
-                                    },
-                                    "required": [
-                                        "success"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "400": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Bad Request. Usually due to missing parameters, or invalid parameters."
-                    },
-                    "401": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "message"
-                                    ]
-                                }
-                            }
-                        },
-                        "description": "Unauthorized. Due to missing or invalid authentication."
-                    },
-                    "403": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Forbidden. You do not have permission to access this resource or to perform this action."
-                    },
-                    "404": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Not Found. The requested resource was not found."
-                    },
-                    "429": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Too Many Requests. You have exceeded the rate limit. Try again later."
-                    },
-                    "500": {
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "message": {
-                                            "type": "string"
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "description": "Internal Server Error. This is a problem with the server that you cannot fix."
-                    }
-                }
-            }
         }
     },
     "tags": [
@@ -15147,16 +13752,16 @@
             "description": "Users: list, create, ban, and set Role."
         },
         {
+            "name": "Roles",
+            "description": "Roles: builtin and custom Permission sets. Staff grant only what they hold."
+        },
+        {
             "name": "Stats",
             "description": "Admin home figures: counts, money totals, daily activity."
         },
         {
             "name": "Ingest",
             "description": "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key."
-        },
-        {
-            "name": "Authentication - Admin",
-            "description": "Better Auth admin plugin: users, roles, bans, impersonation."
         }
     ]
 }

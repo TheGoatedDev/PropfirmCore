@@ -1,5 +1,6 @@
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { firmRoles } from "@propfirmcore/access/server";
 import {
     kycGates,
     onUncoverablePolicies,
@@ -258,6 +259,7 @@ export function createDb(url: string) {
             payments,
             payouts,
             ruleBreaches,
+            firmRoles,
         },
     });
     return { db, sql };

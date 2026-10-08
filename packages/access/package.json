@@ -1,0 +1,25 @@
+{
+    "name": "@propfirmcore/access",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "exports": {
+        ".": "./src/index.ts",
+        "./server": "./src/server/index.ts"
+    },
+    "scripts": {
+        "typecheck": "tsc --noEmit -p tsconfig.json"
+    },
+    "dependencies": {
+        "zod": "4.5.4"
+    },
+    "devDependencies": {
+        "better-auth": "1.7.2",
+        "drizzle-orm": "0.45.2",
+        "typescript": "7.0.2"
+    },
+    "peerDependencies": {
+        "better-auth": "1.7.2",
+        "drizzle-orm": "0.45.2"
+    }
+}

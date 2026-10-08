@@ -35,6 +35,7 @@ import { SaveBar, SettingsSection } from "@propfirmcore/ui/components/settings";
 import { Switch } from "@propfirmcore/ui/components/switch";
 import { formatEnum } from "@propfirmcore/ui/lib/format";
 import { useForm } from "react-hook-form";
+import { useCan } from "./access.ts";
 
 function utcOffset(tz: string): string {
     const part = new Intl.DateTimeFormat("en-US", {
@@ -131,6 +132,7 @@ export function FirmSettingsForm({
     onSave: (next: FirmSettings) => void;
     saving: boolean;
 }) {
+    const can = useCan();
     const { brokers: _, products: __, ...settings } = firm;
     const form = useForm<FirmSettings>({
         resolver: zodResolver(firmSettingsSchema),
@@ -412,13 +414,15 @@ export function FirmSettingsForm({
                     />
                 </SettingsSection>
 
-                <SaveBar
-                    dirty={dirty}
-                    saving={saving}
-                    onDiscard={() => form.reset(settings)}
-                    error={form.formState.errors.root?.message}
-                    testId="firm-save"
-                />
+                {can("firm", "write") && (
+                    <SaveBar
+                        dirty={dirty}
+                        saving={saving}
+                        onDiscard={() => form.reset(settings)}
+                        error={form.formState.errors.root?.message}
+                        testId="firm-save"
+                    />
+                )}
             </form>
         </Form>
     );

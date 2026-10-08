@@ -18,6 +18,7 @@
         "@hono/zod-openapi": "1.6.1",
         "@nats-io/jetstream": "3.4.0",
         "@nats-io/transport-node": "3.4.0",
+        "@propfirmcore/access": "workspace:*",
         "@propfirmcore/config": "workspace:*",
         "@propfirmcore/domain": "workspace:*",
         "@t3-oss/env-core": "0.13.11",

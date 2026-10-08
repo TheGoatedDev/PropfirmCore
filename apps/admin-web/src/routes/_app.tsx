@@ -1,3 +1,9 @@
+import {
+    type Action,
+    hasPermission,
+    isStaff,
+    type Resource,
+} from "@propfirmcore/access";
 import { AppShell, SidebarItem } from "@propfirmcore/ui/components/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -15,6 +21,7 @@ import {
     House,
     Landmark,
     Package,
+    ShieldCheck,
     Users,
     Wallet,
 } from "lucide-react";
@@ -28,7 +35,9 @@ export const Route = createFileRoute("/_app")({
             queryFn: fetchMe,
             staleTime: "static",
         });
-        if (me?.role !== "admin") throw redirect({ to: "/signin" });
+        if (!me || !isStaff(me.permissions)) {
+            throw redirect({ to: "/signin" });
+        }
         return { me };
     },
     pendingComponent: Pending,
@@ -46,6 +55,8 @@ function App() {
     const qc = useQueryClient();
     const navigate = useNavigate();
     const matches = useMatches();
+    const can = <R extends Resource>(resource: R, action: Action<R>) =>
+        hasPermission(me.permissions, resource, action);
 
     async function signOut() {
         await qc.cancelQueries({ queryKey: keys.me });
@@ -85,58 +96,83 @@ function App() {
                     >
                         <SidebarItem icon={<House />}>Home</SidebarItem>
                     </Link>
+                    {can("firm", "read") && (
+                        <Link
+                            to="/firm"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-firm"
+                        >
+                            <SidebarItem icon={<Building2 />}>Firm</SidebarItem>
+                        </Link>
+                    )}
+                    {can("firm", "read") && (
+                        <Link
+                            to="/brokers"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-brokers"
+                        >
+                            <SidebarItem icon={<Cable />}>Brokers</SidebarItem>
+                        </Link>
+                    )}
+                    {can("firm", "read") && (
+                        <Link
+                            to="/products"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-products"
+                        >
+                            <SidebarItem icon={<Package />}>
+                                Products
+                            </SidebarItem>
+                        </Link>
+                    )}
+                    {can("payment", "list") && (
+                        <Link
+                            to="/payments"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-payments"
+                        >
+                            <SidebarItem icon={<CreditCard />}>
+                                Payments
+                            </SidebarItem>
+                        </Link>
+                    )}
+                    {can("payout", "list") && (
+                        <Link
+                            to="/payouts"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-payouts"
+                        >
+                            <SidebarItem icon={<Landmark />}>
+                                Payouts
+                            </SidebarItem>
+                        </Link>
+                    )}
+                    {can("tradingAccount", "list") && (
+                        <Link
+                            to="/trading-accounts"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-trading-accounts"
+                        >
+                            <SidebarItem icon={<Wallet />}>
+                                Trading accounts
+                            </SidebarItem>
+                        </Link>
+                    )}
+                    {can("user", "list") && (
+                        <Link
+                            to="/users"
+                            className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                            data-testid="nav-users"
+                        >
+                            <SidebarItem icon={<Users />}>Users</SidebarItem>
+                        </Link>
+                    )}
                     <Link
-                        to="/firm"
+                        to="/roles"
                         className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-firm"
+                        data-testid="nav-roles"
                     >
-                        <SidebarItem icon={<Building2 />}>Firm</SidebarItem>
-                    </Link>
-                    <Link
-                        to="/brokers"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-brokers"
-                    >
-                        <SidebarItem icon={<Cable />}>Brokers</SidebarItem>
-                    </Link>
-                    <Link
-                        to="/products"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-products"
-                    >
-                        <SidebarItem icon={<Package />}>Products</SidebarItem>
-                    </Link>
-                    <Link
-                        to="/payments"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-payments"
-                    >
-                        <SidebarItem icon={<CreditCard />}>
-                            Payments
-                        </SidebarItem>
-                    </Link>
-                    <Link
-                        to="/payouts"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-payouts"
-                    >
-                        <SidebarItem icon={<Landmark />}>Payouts</SidebarItem>
-                    </Link>
-                    <Link
-                        to="/trading-accounts"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-trading-accounts"
-                    >
-                        <SidebarItem icon={<Wallet />}>
-                            Trading accounts
-                        </SidebarItem>
-                    </Link>
-                    <Link
-                        to="/users"
-                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
-                        data-testid="nav-users"
-                    >
-                        <SidebarItem icon={<Users />}>Users</SidebarItem>
+                        <SidebarItem icon={<ShieldCheck />}>Roles</SidebarItem>
                     </Link>
                 </nav>
             }

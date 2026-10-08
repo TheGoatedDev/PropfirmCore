@@ -1,4 +1,5 @@
-import { and, asc, count, desc, eq, ilike, isNull, or } from "drizzle-orm";
+import { createStaffUser } from "@propfirmcore/access/server";
+import { and, asc, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { session, user } from "../auth/auth-schema.ts";
 import type { Db } from "../db/db.ts";
@@ -6,7 +7,6 @@ import {
     type Actor,
     banPlan,
     createPlan,
-    type FirmRole,
     listScope,
     setRolePlan,
     userOut,
@@ -28,7 +28,7 @@ export async function listUsers(
         q?: string;
         sort?: UserListSort;
         order: "asc" | "desc";
-        role?: FirmRole;
+        role?: string;
         banned?: boolean;
     },
 ): Promise<{ items: ReturnType<typeof userOut>[]; total: number }> {
@@ -50,7 +50,7 @@ export async function listUsers(
     if (input.role) parts.push(eq(user.role, input.role));
     if (input.banned === true) parts.push(eq(user.banned, true));
     if (input.banned === false) {
-        parts.push(or(eq(user.banned, false), isNull(user.banned)));
+        parts.push(eq(user.banned, false));
     }
     const where = parts.length ? and(...parts) : undefined;
     const col = sortColumns[input.sort ?? "createdAt"];
@@ -71,21 +71,46 @@ export async function listUsers(
     };
 }
 
-async function byId(db: Db, id: string) {
+type Tx = Parameters<Parameters<Db["transaction"]>[0]>[0];
+
+async function byId(db: Db | Tx, id: string) {
     const rows = await db.select().from(user).where(eq(user.id, id)).limit(1);
     return rows[0];
+}
+
+/**
+ * Serialize ban and Role changes, then check an unbanned Admin other than
+ * `id` survives. Two Staff banning each other's Admins at once would
+ * otherwise both see the other still standing.
+ */
+async function anotherAdmin(tx: Tx, id: string): Promise<boolean> {
+    const rows = await tx
+        .select({ id: user.id })
+        .from(user)
+        .where(
+            and(
+                eq(user.role, "admin"),
+                eq(user.banned, false),
+                ne(user.id, id),
+            ),
+        )
+        .limit(1);
+    return rows.length > 0;
+}
+
+async function lockUserAdmin(tx: Tx): Promise<void> {
+    await tx.execute(sql`select pg_advisory_xact_lock(hashtext('user-admin'))`);
 }
 
 export async function createListedUser(
     db: Db,
     auth: Auth,
-    headers: Headers,
     who: Actor,
     input: {
         email: string;
         name: string;
         password: string;
-        role: FirmRole;
+        role: string;
     },
 ): Promise<
     | { status: "ok"; user: ReturnType<typeof userOut> }
@@ -95,29 +120,16 @@ export async function createListedUser(
 > {
     const plan = createPlan(who, input);
     if (!plan.ok) return { status: plan.error };
-    const dup = await db
-        .select({ id: user.id })
-        .from(user)
-        .where(eq(user.email, input.email))
-        .limit(1);
-    if (dup[0]) return { status: "exists" };
-    try {
-        const created = await auth.api.createUser({
-            body: {
-                email: input.email,
-                password: input.password,
-                name: input.name,
-                role: plan.role,
-            },
-            headers,
-        });
-        const id = created.user.id;
-        const row = await byId(db, id);
-        if (!row) return { status: "badRequest" };
-        return { status: "ok", user: userOut(row) };
-    } catch {
-        return { status: "exists" };
-    }
+    const created = await createStaffUser(auth, {
+        email: input.email,
+        password: input.password,
+        name: input.name,
+        role: input.role,
+    });
+    if (!created) return { status: "exists" };
+    const row = await byId(db, created.id);
+    if (!row) return { status: "badRequest" };
+    return { status: "ok", user: userOut(row) };
 }
 
 export async function setUserBanned(
@@ -129,38 +141,57 @@ export async function setUserBanned(
     | { status: "ok"; user: ReturnType<typeof userOut> }
     | { status: "forbidden" }
     | { status: "notFound" }
+    | { status: "lastAdmin" }
 > {
-    const target = await byId(db, id);
-    const plan = banPlan(who, target);
-    if (!plan.ok) return { status: plan.error };
-    await db
-        .update(user)
-        .set({ banned, banReason: null, banExpires: null })
-        .where(eq(user.id, id));
-    if (banned) {
-        await db.delete(session).where(eq(session.userId, id));
-    }
-    const row = await byId(db, id);
-    if (!row) return { status: "notFound" };
-    return { status: "ok", user: userOut(row) };
+    return db.transaction(async (tx) => {
+        await lockUserAdmin(tx);
+        const target = await byId(tx, id);
+        const plan = banPlan(who, target);
+        if (!plan.ok) return { status: plan.error };
+        if (
+            banned &&
+            target?.role === "admin" &&
+            !(await anotherAdmin(tx, id))
+        ) {
+            return { status: "lastAdmin" };
+        }
+        await tx.update(user).set({ banned }).where(eq(user.id, id));
+        if (banned) {
+            await tx.delete(session).where(eq(session.userId, id));
+        }
+        const row = await byId(tx, id);
+        if (!row) return { status: "notFound" };
+        return { status: "ok", user: userOut(row) };
+    });
 }
 
 export async function setUserRole(
     db: Db,
     who: Actor,
     id: string,
-    role: FirmRole,
+    role: string,
 ): Promise<
     | { status: "ok"; user: ReturnType<typeof userOut> }
     | { status: "forbidden" }
     | { status: "notFound" }
     | { status: "badRequest" }
+    | { status: "lastAdmin" }
 > {
-    const target = await byId(db, id);
-    const plan = setRolePlan(who, target, role);
-    if (!plan.ok) return { status: plan.error };
-    await db.update(user).set({ role }).where(eq(user.id, id));
-    const row = await byId(db, id);
-    if (!row) return { status: "notFound" };
-    return { status: "ok", user: userOut(row) };
+    return db.transaction(async (tx) => {
+        await lockUserAdmin(tx);
+        const target = await byId(tx, id);
+        const plan = setRolePlan(who, target, role);
+        if (!plan.ok) return { status: plan.error };
+        if (
+            target?.role === "admin" &&
+            role !== "admin" &&
+            !(await anotherAdmin(tx, id))
+        ) {
+            return { status: "lastAdmin" };
+        }
+        await tx.update(user).set({ role }).where(eq(user.id, id));
+        const row = await byId(tx, id);
+        if (!row) return { status: "notFound" };
+        return { status: "ok", user: userOut(row) };
+    });
 }

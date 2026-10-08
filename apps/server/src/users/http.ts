@@ -1,11 +1,10 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { roleHasPermission } from "@propfirmcore/access/server";
 import type { Auth } from "../auth/auth.ts";
-import { roleHasPermission } from "../auth/permissions.ts";
 import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
 import { tags } from "../http/openapi.ts";
 import { actorOf } from "../http/session.ts";
-import { firmRoles } from "./scope.ts";
 import {
     createListedUser,
     listUsers,
@@ -20,14 +19,14 @@ const listQuery = z.object({
     q: z.string().optional(),
     sort: z.enum(["email", "createdAt"]).default("createdAt"),
     order: z.enum(["asc", "desc"]).default("desc"),
-    role: z.enum(firmRoles).optional(),
+    role: z.string().min(1).optional(),
     banned: z.enum(["true", "false"]).optional(),
 });
 const userOutSchema = z.object({
     id: z.string(),
     email: z.string(),
     name: z.string(),
-    role: z.enum(firmRoles).nullable(),
+    role: z.string(),
     banned: z.boolean(),
     createdAt: z.string(),
 });
@@ -39,10 +38,10 @@ const createBody = z.object({
     email: z.email(),
     name: z.string().min(1),
     password: z.string().min(8),
-    role: z.enum(firmRoles),
+    role: z.string().min(1),
 });
 const banBody = z.object({ banned: z.boolean() });
-const roleBody = z.object({ role: z.enum(firmRoles) });
+const roleBody = z.object({ role: z.string().min(1) });
 
 type Deps = { db: Db; auth: Auth };
 
@@ -144,7 +143,6 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             const result = await createListedUser(
                 deps.db,
                 deps.auth,
-                c.req.raw.headers,
                 actorOf(session.user),
                 body,
             );
@@ -192,6 +190,10 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                409: {
+                    description: httpDesc.lastAdmin,
+                    content: { "application/json": { schema: errorSchema } },
+                },
             },
         }),
         async (c) => {
@@ -210,6 +212,9 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             }
             if (result.status === "notFound") {
                 return c.json({ error: "not found" }, 404);
+            }
+            if (result.status === "lastAdmin") {
+                return c.json({ error: "last admin" }, 409);
             }
             return c.json(result.user, 200);
         },
@@ -250,6 +255,10 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                409: {
+                    description: httpDesc.lastAdmin,
+                    content: { "application/json": { schema: errorSchema } },
+                },
             },
         }),
         async (c) => {
@@ -268,6 +277,9 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             }
             if (result.status === "notFound") {
                 return c.json({ error: "not found" }, 404);
+            }
+            if (result.status === "lastAdmin") {
+                return c.json({ error: "last admin" }, 409);
             }
             if (result.status === "badRequest") {
                 return c.json({ error: "invalid" }, 400);

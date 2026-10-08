@@ -1,6 +1,7 @@
 import type { BrokerWrite } from "@propfirmcore/config";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { requires } from "../../access.ts";
 import { failMsg, keys } from "../../api.ts";
 import { useRevealedKey } from "../../broker-credentials.tsx";
 import { BrokerForm, emptyBroker } from "../../broker-form.tsx";
@@ -8,6 +9,7 @@ import { rotateIngestKey, saveFirmSlice } from "../../firm-api.ts";
 import { useUi } from "../../stores/ui.ts";
 
 export const Route = createFileRoute("/_app/brokers/new")({
+    beforeLoad: requires("firm", "write"),
     component: NewBroker,
     staticData: { crumb: "New broker" },
 });

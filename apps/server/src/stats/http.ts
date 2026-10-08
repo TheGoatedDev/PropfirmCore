@@ -1,10 +1,10 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { roleHasPermission } from "@propfirmcore/access/server";
 import type { FirmConfig } from "@propfirmcore/config";
 import { count, sql, sum } from "drizzle-orm";
 import { DateTime } from "luxon";
 import type { Auth } from "../auth/auth.ts";
 import { user } from "../auth/auth-schema.ts";
-import { roleHasPermission } from "../auth/permissions.ts";
 import type { Db } from "../db/db.ts";
 import {
     fills,

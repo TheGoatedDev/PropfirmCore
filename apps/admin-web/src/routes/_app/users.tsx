@@ -7,11 +7,13 @@ import {
 } from "@propfirmcore/ui/components/card";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
+import { requires, useAssignableRoles, useCan } from "../../access.ts";
 import { api, failMsg, keys } from "../../api.ts";
 import { UsersTable } from "../../components/users-table.tsx";
 import { useUi } from "../../stores/ui.ts";
@@ -21,18 +23,21 @@ const createSchema = z.object({
     email: z.email(),
     name: z.string().min(1),
     password: z.string().min(8),
-    role: z.enum(["trader", "admin"]),
+    role: z.string().min(1),
 });
 const selectClass =
     "h-8 rounded-lg border border-input bg-transparent px-2 text-sm";
 
 export const Route = createFileRoute("/_app/users")({
+    beforeLoad: requires("user", "list"),
     component: Users,
     staticData: { crumb: "Users" },
 });
 
 function Users() {
     const { me } = AppRoute.useRouteContext();
+    const can = useCan();
+    const assignable = useAssignableRoles();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const [creating, setCreating] = useState(false);
@@ -47,6 +52,7 @@ function Users() {
         onSuccess: async () => {
             setCreating(false);
             await qc.invalidateQueries({ queryKey: keys.users });
+            await qc.invalidateQueries({ queryKey: keys.roles });
         },
         onError: (error) => setError(failMsg(error, "Create failed")),
     });
@@ -118,8 +124,11 @@ function Users() {
                                     data-testid="user-create-role"
                                     defaultValue="trader"
                                 >
-                                    <option value="trader">Trader</option>
-                                    <option value="admin">Admin</option>
+                                    {assignable.map((name) => (
+                                        <option key={name} value={name}>
+                                            {formatEnum(name)}
+                                        </option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="sm:col-span-2">
@@ -137,14 +146,16 @@ function Users() {
             <UsersTable
                 meId={me.id}
                 actions={
-                    <Button
-                        data-testid="user-create"
-                        aria-expanded={creating}
-                        onClick={() => setCreating((v) => !v)}
-                    >
-                        <Plus />
-                        Add user
-                    </Button>
+                    can("user", "create") && (
+                        <Button
+                            data-testid="user-create"
+                            aria-expanded={creating}
+                            onClick={() => setCreating((v) => !v)}
+                        >
+                            <Plus />
+                            Add user
+                        </Button>
+                    )
                 }
             />
         </section>

@@ -8,6 +8,7 @@ import {
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
 import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import {
     keepPreviousData,
     useMutation,
@@ -23,7 +24,8 @@ import {
     useQueryStates,
 } from "nuqs";
 import { type ReactNode, useEffect, useState } from "react";
-import { api, failMsg, keys } from "../api.ts";
+import { useAssignableRoles, useCan } from "../access.ts";
+import { api, failMsg, fetchRoles, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
 
@@ -31,7 +33,7 @@ type User = {
     id: string;
     email: string;
     name: string;
-    role: "trader" | "admin" | null;
+    role: string;
     banned: boolean;
     createdAt: string;
 };
@@ -44,7 +46,7 @@ const userSearch = {
     pageSize: parseAsInteger.withDefault(10),
     sort: parseAsStringLiteral(sortIds).withDefault("createdAt"),
     order: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
-    role: parseAsStringLiteral(["trader", "admin"]),
+    role: parseAsString,
     banned: parseAsStringLiteral(["true", "false"]),
 };
 const selectClass =
@@ -59,6 +61,9 @@ export function UsersTable({
 }) {
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
+    const roles = useQuery({ queryKey: keys.roles, queryFn: fetchRoles });
+    const assignable = useAssignableRoles();
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -120,7 +125,7 @@ export function UsersTable({
     });
 
     const setRole = useMutation({
-        mutationFn: async (input: { id: string; role: "trader" | "admin" }) => {
+        mutationFn: async (input: { id: string; role: string }) => {
             const { error } = await api.POST("/users/{id}/role", {
                 params: { path: { id: input.id } },
                 body: { role: input.role },
@@ -129,6 +134,7 @@ export function UsersTable({
         },
         onSuccess: async () => {
             await qc.invalidateQueries({ queryKey: keys.users });
+            await qc.invalidateQueries({ queryKey: keys.roles });
         },
         onError: (error) => setError(failMsg(error, "Role failed")),
     });
@@ -152,37 +158,45 @@ export function UsersTable({
                     meta: {
                         filter: {
                             variant: "select",
-                            options: [
-                                { label: "Trader", value: "trader" },
-                                { label: "Admin", value: "admin" },
-                            ],
+                            options: (roles.data ?? []).map((r) => ({
+                                label: formatEnum(r.name),
+                                value: r.name,
+                            })),
                         },
                     },
                     cell: ({ row }) => {
                         const self = row.original.id === meId;
                         const roleValue = row.original.role;
-                        if (!roleValue) return "—";
+                        const reachable = assignable.includes(roleValue);
                         return (
                             <select
                                 className={selectClass}
                                 data-testid={`user-role-${row.original.id}`}
                                 value={roleValue}
-                                disabled={self}
+                                disabled={
+                                    self ||
+                                    !reachable ||
+                                    !can("user", "set-role")
+                                }
                                 onClick={(ev) => ev.stopPropagation()}
                                 onChange={(ev) => {
-                                    const next = ev.target.value;
-                                    if (next !== "trader" && next !== "admin") {
-                                        return;
-                                    }
                                     setError(null);
                                     setRole.mutate({
                                         id: row.original.id,
-                                        role: next,
+                                        role: ev.target.value,
                                     });
                                 }}
                             >
-                                <option value="trader">Trader</option>
-                                <option value="admin">Admin</option>
+                                {reachable ? null : (
+                                    <option value={roleValue}>
+                                        {formatEnum(roleValue)}
+                                    </option>
+                                )}
+                                {assignable.map((name) => (
+                                    <option key={name} value={name}>
+                                        {formatEnum(name)}
+                                    </option>
+                                ))}
                             </select>
                         );
                     },
@@ -253,9 +267,7 @@ export function UsersTable({
                 const bannedVal = next.find((f) => f.id === "banned")?.value;
                 void setSearch({
                     role:
-                        roleVal === "trader" || roleVal === "admin"
-                            ? roleVal
-                            : null,
+                        typeof roleVal === "string" && roleVal ? roleVal : null,
                     banned:
                         bannedVal === "true" || bannedVal === "false"
                             ? bannedVal
@@ -271,6 +283,7 @@ export function UsersTable({
                     variant: row.banned ? "default" : "destructive",
                     disabled: row.id === meId,
                     testId: `user-ban-${row.id}`,
+                    hidden: !can("user", "ban"),
                     onSelect: async () => {
                         if (
                             !row.banned &&

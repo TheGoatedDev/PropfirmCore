@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { loadRoles } from "@propfirmcore/access/server";
 import { createAuth } from "./auth/auth.ts";
 import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
 import { brokerSecrets, loadBrokerSecrets } from "./brokers/credentials.ts";
@@ -27,6 +28,17 @@ if (env.BOOTSTRAP_ADMIN_EMAIL && env.BOOTSTRAP_ADMIN_PASSWORD) {
         password: env.BOOTSTRAP_ADMIN_PASSWORD,
     });
 }
+
+async function reloadRoles() {
+    try {
+        await loadRoles(db);
+    } catch (err) {
+        log.error({ err }, "roles reload");
+    }
+}
+// onlisten runs on every (re)connect: catch NOTIFYs missed while down.
+await sql.listen("firm_roles", reloadRoles, reloadRoles);
+await loadRoles(db);
 
 await sql.listen("firm_config", async () => {
     try {

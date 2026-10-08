@@ -10,6 +10,7 @@ export const keys = {
     payouts: ["payouts"] as const,
     payments: ["payments"] as const,
     users: ["users"] as const,
+    roles: ["roles"] as const,
 };
 
 export async function authPost(path: string, body?: Record<string, unknown>) {
@@ -35,4 +36,10 @@ export function failMsg(error: unknown, fallback: string) {
 export async function fetchMe() {
     const { data } = await api.GET("/auth/me");
     return data ?? null;
+}
+
+export async function fetchRoles() {
+    const { data, error } = await api.GET("/roles");
+    if (error) throw error;
+    return data;
 }

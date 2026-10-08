@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { roleHasPermission } from "./permissions.ts";
+import { loadRoles, roleHasPermission, setRoles } from "./index.ts";
 
 describe("roleHasPermission", () => {
     it("admin can set-role", () => {
@@ -19,8 +19,12 @@ describe("roleHasPermission", () => {
         expect(roleHasPermission("mod", "user", "list")).toBe(false);
     });
 
-    it("comma roles: trader,admin can", () => {
-        expect(roleHasPermission("trader,admin", "user", "ban")).toBe(true);
+    it("custom Role from the cache", () => {
+        setRoles(new Map([["support", { payout: ["approve"] }]]));
+        expect(roleHasPermission("support", "payout", "approve")).toBe(true);
+        expect(roleHasPermission("support", "payout", "pay")).toBe(false);
+        setRoles(new Map());
+        expect(roleHasPermission("support", "payout", "approve")).toBe(false);
     });
 
     it("admin can complete payment", () => {
@@ -66,5 +70,24 @@ describe("roleHasPermission", () => {
 
     it("trader cannot write kyc", () => {
         expect(roleHasPermission("trader", "kyc", "write")).toBe(false);
+    });
+});
+
+describe("loadRoles", () => {
+    it("an older reload finishing last does not win", async () => {
+        const pending: ((rows: unknown[]) => void)[] = [];
+        const db = {
+            select: () => ({
+                from: () => new Promise((resolve) => pending.push(resolve)),
+            }),
+        } as unknown as Parameters<typeof loadRoles>[0];
+        const older = loadRoles(db);
+        const newer = loadRoles(db);
+        pending[1]?.([{ name: "ops", permissions: { payout: ["pay"] } }]);
+        await newer;
+        pending[0]?.([{ name: "ops", permissions: {} }]);
+        await older;
+        expect(roleHasPermission("ops", "payout", "pay")).toBe(true);
+        setRoles(new Map());
     });
 });

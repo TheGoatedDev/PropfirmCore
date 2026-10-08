@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { describeTags, withAuthOpenAPI } from "./openapi.ts";
 
 describe("withAuthOpenAPI", () => {
-    it("retags auth vs admin and describes groups", async () => {
+    it("retags auth paths and describes groups", async () => {
         const spec = await withAuthOpenAPI(
             {
                 paths: {},
@@ -12,7 +12,6 @@ describe("withAuthOpenAPI", () => {
                     generateOpenAPISchema: async () => ({
                         paths: {
                             "/sign-in/email": { post: { tags: ["Default"] } },
-                            "/admin/ban-user": { post: { tags: ["Admin"] } },
                         },
                     }),
                 },
@@ -21,17 +20,10 @@ describe("withAuthOpenAPI", () => {
         const signIn = spec.paths?.["/auth/sign-in/email"]?.post as
             | { tags: string[] }
             | undefined;
-        const ban = spec.paths?.["/auth/admin/ban-user"]?.post as
-            | { tags: string[] }
-            | undefined;
         expect(signIn?.tags).toEqual(["Authentication"]);
-        expect(ban?.tags).toEqual(["Authentication - Admin"]);
         const tags = spec.tags ?? [];
         expect(tags.every((t) => t.description)).toBe(true);
-        expect(tags.map((t) => t.name).sort()).toEqual([
-            "Authentication",
-            "Authentication - Admin",
-        ]);
+        expect(tags.map((t) => t.name)).toEqual(["Authentication"]);
     });
 });
 

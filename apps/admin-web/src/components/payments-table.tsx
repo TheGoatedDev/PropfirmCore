@@ -18,6 +18,7 @@ import {
     useQueryStates,
 } from "nuqs";
 import { useMemo } from "react";
+import { useCan } from "../access.ts";
 import { api, failMsg, keys } from "../api.ts";
 import { fetchFirm } from "../firm-api.ts";
 import { useUi } from "../stores/ui.ts";
@@ -48,6 +49,7 @@ const paymentSearch = {
 export function PaymentsTable() {
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, status, page, pageSize }, setSearch] =
@@ -197,6 +199,7 @@ export function PaymentsTable() {
                     label: "Complete",
                     icon: <CircleCheck />,
                     testId: `payment-complete-${row.id}`,
+                    hidden: !can("payment", "complete"),
                     disabled: row.status !== "pending" || complete.isPending,
                     onSelect: async () => {
                         const ok = await confirm({
@@ -214,6 +217,7 @@ export function PaymentsTable() {
                     label: "Inspect account",
                     icon: <SquareMousePointer />,
                     testId: `payment-inspect-${row.id}`,
+                    hidden: !can("tradingAccount", "read"),
                     disabled: !row.tradingAccountId,
                     onSelect: () => {
                         if (!row.tradingAccountId) return;

@@ -29,7 +29,6 @@ export const openApiInfo = {
 
 export const tags = {
     authentication: "Authentication",
-    authenticationAdmin: "Authentication - Admin",
     firm: "Firm",
     products: "Products",
     tradingAccounts: "Trading Accounts",
@@ -38,6 +37,7 @@ export const tags = {
     ingest: "Ingest",
     kyc: "KYC",
     users: "Users",
+    roles: "Roles",
     stats: "Stats",
 } as const;
 
@@ -45,8 +45,6 @@ const tagMeta: Record<string, string> = {
     [tags.firm]: "Live Firm config. Admin only.",
     [tags.authentication]:
         "Sign-up, sign-in, session, password, and linked accounts.",
-    [tags.authenticationAdmin]:
-        "Better Auth admin plugin: users, roles, bans, impersonation.",
     [tags.products]: "Challenge products this firm sells, including checkout.",
     [tags.tradingAccounts]:
         "Trading accounts: session access and force pass or fail.",
@@ -57,14 +55,10 @@ const tagMeta: Record<string, string> = {
         "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key.",
     [tags.kyc]: "KYC: admin sets verified on a User.",
     [tags.users]: "Users: list, create, ban, and set Role.",
+    [tags.roles]:
+        "Roles: builtin and custom Permission sets. Staff grant only what they hold.",
     [tags.stats]: "Admin home figures: counts, money totals, daily activity.",
 };
-
-function authTag(path: string): string {
-    return path.startsWith("/auth/admin")
-        ? tags.authenticationAdmin
-        : tags.authentication;
-}
 
 function retagAuthPath(item: PathItem, tag: string): PathItem {
     const next: PathItem = { ...item };
@@ -111,7 +105,7 @@ export async function withAuthOpenAPI(
     const paths = { ...spec.paths };
     for (const [path, item] of Object.entries(authSpec.paths ?? {})) {
         const prefixed = path.startsWith("/auth") ? path : `/auth${path}`;
-        paths[prefixed] = retagAuthPath(item, authTag(prefixed));
+        paths[prefixed] = retagAuthPath(item, tags.authentication);
     }
     return {
         ...spec,
