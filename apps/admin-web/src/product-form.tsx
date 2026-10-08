@@ -32,6 +32,7 @@ import { formatAmount, formatEnum } from "@propfirmcore/ui/lib/format";
 import { Plus, Trash2 } from "lucide-react";
 import { type Resolver, useFieldArray, useForm } from "react-hook-form";
 import type { z } from "zod";
+import { useCan } from "./access.ts";
 import { defaultPayout, productForSave } from "./product-payout.ts";
 
 function emptyPhase(): ProductWrite["phases"][0] {
@@ -159,6 +160,7 @@ export function ProductForm({
     onSave: (next: ProductWrite) => void;
     saving: boolean;
 }) {
+    const can = useCan();
     const locked = Boolean(product.id);
     const initial = {
         ...product,
@@ -573,15 +575,19 @@ export function ProductForm({
                     )}
                 </SettingsSection>
 
-                <SaveBar
-                    // isDirty also counts keys a field adds as undefined (a phase with no fee).
-                    dirty={Object.keys(form.formState.dirtyFields).length > 0}
-                    saving={saving}
-                    onDiscard={() => form.reset(initial)}
-                    error={form.formState.errors.root?.message}
-                    saveLabel={locked ? "Save changes" : "Create product"}
-                    testId="product-save"
-                />
+                {can("firm", "write") && (
+                    <SaveBar
+                        // isDirty also counts keys a field adds as undefined (a phase with no fee).
+                        dirty={
+                            Object.keys(form.formState.dirtyFields).length > 0
+                        }
+                        saving={saving}
+                        onDiscard={() => form.reset(initial)}
+                        error={form.formState.errors.root?.message}
+                        saveLabel={locked ? "Save changes" : "Create product"}
+                        testId="product-save"
+                    />
+                )}
             </form>
         </Form>
     );

@@ -12,6 +12,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Plus } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
+import { requires, useCan } from "../../access.ts";
 import { api, failMsg, keys } from "../../api.ts";
 import { UsersTable } from "../../components/users-table.tsx";
 import { useUi } from "../../stores/ui.ts";
@@ -27,12 +28,14 @@ const selectClass =
     "h-8 rounded-lg border border-input bg-transparent px-2 text-sm";
 
 export const Route = createFileRoute("/_app/users")({
+    beforeLoad: requires("user", "list"),
     component: Users,
     staticData: { crumb: "Users" },
 });
 
 function Users() {
     const { me } = AppRoute.useRouteContext();
+    const can = useCan();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const [creating, setCreating] = useState(false);
@@ -137,14 +140,16 @@ function Users() {
             <UsersTable
                 meId={me.id}
                 actions={
-                    <Button
-                        data-testid="user-create"
-                        aria-expanded={creating}
-                        onClick={() => setCreating((v) => !v)}
-                    >
-                        <Plus />
-                        Add user
-                    </Button>
+                    can("user", "create") && (
+                        <Button
+                            data-testid="user-create"
+                            aria-expanded={creating}
+                            onClick={() => setCreating((v) => !v)}
+                        >
+                            <Plus />
+                            Add user
+                        </Button>
+                    )
                 }
             />
         </section>

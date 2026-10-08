@@ -2,6 +2,7 @@ import type { BrokerWrite } from "@propfirmcore/config";
 import { EmptyNote } from "@propfirmcore/ui/components/page-section";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { useCan } from "../../access.ts";
 import { failMsg, keys } from "../../api.ts";
 import { BrokerCredentials } from "../../broker-credentials.tsx";
 import { BrokerForm } from "../../broker-form.tsx";
@@ -15,6 +16,7 @@ export const Route = createFileRoute("/_app/brokers/$id")({
 
 function EditBroker() {
     const { id } = Route.useParams();
+    const can = useCan();
     const setError = useUi((s) => s.setError);
     const qc = useQueryClient();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
@@ -54,7 +56,9 @@ function EditBroker() {
                 saving={save.isPending}
                 onSave={(next) => save.mutate(next)}
             />
-            <BrokerCredentials broker={broker} />
+            {can("broker", "credentials") && (
+                <BrokerCredentials broker={broker} />
+            )}
         </div>
     );
 }

@@ -18,6 +18,7 @@ import {
     useQueryStates,
 } from "nuqs";
 import { useMemo } from "react";
+import { useCan } from "../access.ts";
 import { api, failMsg, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -42,6 +43,7 @@ const payoutSearch = {
 export function PayoutsTable() {
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, status, page, pageSize }, setSearch] =
@@ -190,6 +192,7 @@ export function PayoutsTable() {
                     label: "Inspect account",
                     icon: <SquareMousePointer />,
                     testId: `payout-inspect-${row.id}`,
+                    hidden: !can("tradingAccount", "read"),
                     onSelect: () =>
                         void navigate({
                             to: "/trading-accounts/$id",
@@ -200,6 +203,7 @@ export function PayoutsTable() {
                     label: "Approve",
                     icon: <Check />,
                     testId: `payout-approve-${row.id}`,
+                    hidden: !can("payout", "approve"),
                     disabled: row.status !== "pending",
                     onSelect: () => run(row.id, "approve"),
                 },
@@ -207,6 +211,7 @@ export function PayoutsTable() {
                     label: "Mark paid",
                     icon: <Banknote />,
                     testId: `payout-pay-${row.id}`,
+                    hidden: !can("payout", "pay"),
                     disabled: row.status !== "approved",
                     onSelect: () => run(row.id, "pay"),
                 },
@@ -215,6 +220,7 @@ export function PayoutsTable() {
                     icon: <X />,
                     variant: "destructive",
                     testId: `payout-reject-${row.id}`,
+                    hidden: !can("payout", "reject"),
                     disabled:
                         row.status !== "pending" && row.status !== "approved",
                     onSelect: async () => {

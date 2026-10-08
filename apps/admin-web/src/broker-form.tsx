@@ -16,6 +16,7 @@ import { Input } from "@propfirmcore/ui/components/input";
 import { SaveBar, SettingsSection } from "@propfirmcore/ui/components/settings";
 import { useForm } from "react-hook-form";
 import type { z } from "zod";
+import { useCan } from "./access.ts";
 
 export function emptyBroker(): BrokerWrite {
     return {
@@ -48,6 +49,7 @@ export function BrokerForm({
     onSave: (next: BrokerWrite) => void;
     saving: boolean;
 }) {
+    const can = useCan();
     const form = useForm<
         z.input<typeof brokerWriteSchema>,
         unknown,
@@ -170,14 +172,16 @@ export function BrokerForm({
                     ) : null}
                 </SettingsSection>
 
-                <SaveBar
-                    dirty={form.formState.isDirty}
-                    saving={saving}
-                    onDiscard={() => form.reset(broker)}
-                    error={form.formState.errors.root?.message}
-                    saveLabel={locked ? "Save changes" : "Create broker"}
-                    testId="broker-save"
-                />
+                {can("firm", "write") && (
+                    <SaveBar
+                        dirty={form.formState.isDirty}
+                        saving={saving}
+                        onDiscard={() => form.reset(broker)}
+                        error={form.formState.errors.root?.message}
+                        saveLabel={locked ? "Save changes" : "Create broker"}
+                        testId="broker-save"
+                    />
+                )}
             </form>
         </Form>
     );

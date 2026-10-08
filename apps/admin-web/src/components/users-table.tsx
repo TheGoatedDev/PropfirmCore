@@ -23,6 +23,7 @@ import {
     useQueryStates,
 } from "nuqs";
 import { type ReactNode, useEffect, useState } from "react";
+import { useCan } from "../access.ts";
 import { api, failMsg, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
@@ -59,6 +60,7 @@ export function UsersTable({
 }) {
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -166,7 +168,7 @@ export function UsersTable({
                                 className={selectClass}
                                 data-testid={`user-role-${row.original.id}`}
                                 value={roleValue}
-                                disabled={self}
+                                disabled={self || !can("user", "set-role")}
                                 onClick={(ev) => ev.stopPropagation()}
                                 onChange={(ev) => {
                                     const next = ev.target.value;
@@ -273,6 +275,7 @@ export function UsersTable({
                     variant: row.banned ? "default" : "destructive",
                     disabled: row.id === meId,
                     testId: `user-ban-${row.id}`,
+                    hidden: !can("user", "ban"),
                     onSelect: async () => {
                         if (
                             !row.banned &&

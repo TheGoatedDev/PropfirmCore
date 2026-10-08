@@ -2,12 +2,14 @@ import type { ProductWrite } from "@propfirmcore/config";
 import { EmptyNote } from "@propfirmcore/ui/components/page-section";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { requires } from "../../access.ts";
 import { failMsg, keys } from "../../api.ts";
 import { fetchFirm, saveFirmSlice } from "../../firm-api.ts";
 import { emptyProduct, ProductForm } from "../../product-form.tsx";
 import { useUi } from "../../stores/ui.ts";
 
 export const Route = createFileRoute("/_app/products/new")({
+    beforeLoad: requires("firm", "write"),
     component: NewProduct,
     staticData: { crumb: "New product" },
 });

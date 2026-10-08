@@ -180,6 +180,8 @@ export type DataTableRowAction = {
     onSelect: () => void;
     variant?: "default" | "destructive";
     disabled?: boolean;
+    /** Leave the action out, e.g. when the user lacks the Permission. */
+    hidden?: boolean;
     testId?: string;
 };
 
@@ -278,7 +280,7 @@ export function DataTable<TData extends RowData>({
     placeholder = "Search…",
     loading = false,
     empty = "No results.",
-    rowActions,
+    rowActions: allRowActions,
     actions,
 }: {
     columns: ColumnDef<DataTableFeatures, TData>[];
@@ -307,6 +309,9 @@ export function DataTable<TData extends RowData>({
     /** Table-level actions (create, export). Sits opposite the search. */
     actions?: ReactNode;
 }) {
+    const rowActions =
+        allRowActions &&
+        ((row: TData) => allRowActions(row).filter((a) => !a.hidden));
     const tableColumns = rowActions
         ? [
               {

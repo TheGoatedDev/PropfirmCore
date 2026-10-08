@@ -31,6 +31,7 @@ import {
     useQueryStates,
 } from "nuqs";
 import { useEffect, useState } from "react";
+import { useCan } from "../access.ts";
 import { api, failMsg, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -72,6 +73,7 @@ export const reactivateConfirm = {
 export function TradingAccountsTable() {
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
+    const can = useCan();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, page, pageSize, sort, order, status }, setSearch] =
@@ -239,6 +241,7 @@ export function TradingAccountsTable() {
                     label: "Inspect",
                     icon: <SquareMousePointer />,
                     testId: `account-inspect-${row.id}`,
+                    hidden: !can("tradingAccount", "read"),
                     onSelect: () =>
                         void navigate({
                             to: "/trading-accounts/$id",
@@ -249,6 +252,7 @@ export function TradingAccountsTable() {
                     label: row.kycVerified ? "Unverify" : "Verify",
                     icon: <BadgeCheck />,
                     testId: `kyc-verify-${row.userId}`,
+                    hidden: !can("kyc", "write"),
                     onSelect: () => {
                         setError(null);
                         setKyc.mutate({
@@ -261,6 +265,7 @@ export function TradingAccountsTable() {
                     label: "Pass",
                     icon: <CircleCheck />,
                     testId: `account-pass-${row.id}`,
+                    hidden: !can("tradingAccount", "pass"),
                     disabled: row.status !== "active",
                     onSelect: () => {
                         setError(null);
@@ -273,6 +278,7 @@ export function TradingAccountsTable() {
                           label: "Reactivate",
                           icon: <RotateCcw />,
                           testId: `account-reactivate-${row.id}`,
+                          hidden: !can("tradingAccount", "reactivate"),
                           onSelect: async () => {
                               const ok = await confirm(reactivateConfirm);
                               if (!ok) return;
@@ -288,6 +294,7 @@ export function TradingAccountsTable() {
                           icon: <CircleX />,
                           variant: "destructive",
                           testId: `account-fail-${row.id}`,
+                          hidden: !can("tradingAccount", "fail"),
                           disabled: row.status !== "active",
                           onSelect: async () => {
                               const ok = await confirm(failConfirm);

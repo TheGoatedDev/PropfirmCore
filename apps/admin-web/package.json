@@ -10,6 +10,7 @@
     },
     "dependencies": {
         "@hookform/resolvers": "5.9.1",
+        "@propfirmcore/access": "workspace:*",
         "@propfirmcore/api-client": "workspace:*",
         "@propfirmcore/config": "workspace:*",
         "@propfirmcore/ui": "workspace:*",
