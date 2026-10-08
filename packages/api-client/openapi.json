@@ -247,6 +247,99 @@
                                         "role": {
                                             "type": "string"
                                         },
+                                        "permissions": {
+                                            "type": "object",
+                                            "properties": {
+                                                "user": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "list",
+                                                            "create",
+                                                            "ban",
+                                                            "set-role"
+                                                        ]
+                                                    }
+                                                },
+                                                "role": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "payment": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "complete",
+                                                            "read",
+                                                            "list"
+                                                        ]
+                                                    }
+                                                },
+                                                "tradingAccount": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "fail",
+                                                            "pass",
+                                                            "resync",
+                                                            "reactivate"
+                                                        ]
+                                                    }
+                                                },
+                                                "payout": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "list",
+                                                            "approve",
+                                                            "reject",
+                                                            "pay"
+                                                        ]
+                                                    }
+                                                },
+                                                "firm": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "read",
+                                                            "write"
+                                                        ]
+                                                    }
+                                                },
+                                                "broker": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "credentials"
+                                                        ]
+                                                    }
+                                                },
+                                                "kyc": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "string",
+                                                        "enum": [
+                                                            "write"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "additionalProperties": false
+                                        },
                                         "kycVerified": {
                                             "type": "boolean"
                                         },
@@ -275,6 +368,7 @@
                                         "id",
                                         "email",
                                         "role",
+                                        "permissions",
                                         "kycVerified",
                                         "kyc"
                                     ]

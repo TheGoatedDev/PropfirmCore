@@ -30,6 +30,16 @@ export interface paths {
                             id: string;
                             email: string;
                             role: string;
+                            permissions: {
+                                user?: ("list" | "create" | "ban" | "set-role")[];
+                                role?: "write"[];
+                                payment?: ("complete" | "read" | "list")[];
+                                tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                                payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                                firm?: ("read" | "write")[];
+                                broker?: "credentials"[];
+                                kyc?: "write"[];
+                            };
                             kycVerified: boolean;
                             kyc: {
                                 enabled: boolean;

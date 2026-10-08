@@ -123,3 +123,25 @@ it("bootstrap restores an Admin when none is unbanned", async () => {
         await db.update(user).set({ banned: false }).where(eq(user.id, id));
     }
 });
+
+it("/auth/me lists the caller's Permissions", async () => {
+    const admin = cookie(await signIn("admin@example.com", "changeme"));
+    const adminMe = (await (
+        await fetch(`${base}/auth/me`, {
+            headers: { origin: base, cookie: admin },
+        })
+    ).json()) as { permissions: Record<string, string[]> };
+    expect(adminMe.permissions.firm).toEqual(["read", "write"]);
+
+    const res = await post("/auth/sign-up/email", {
+        name: "Plain",
+        email: `plain${Date.now()}@example.com`,
+        password: "password12",
+    });
+    const traderMe = (await (
+        await fetch(`${base}/auth/me`, {
+            headers: { origin: base, cookie: cookie(res) },
+        })
+    ).json()) as { permissions: Record<string, string[]> };
+    expect(traderMe.permissions).toEqual({});
+});

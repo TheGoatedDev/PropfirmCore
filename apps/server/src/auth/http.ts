@@ -1,4 +1,6 @@
 import { createRoute, type OpenAPIHono, z } from "@hono/zod-openapi";
+import { permissionsSchema } from "@propfirmcore/access";
+import { permissionsFor } from "@propfirmcore/access/server";
 import type { FirmConfig } from "@propfirmcore/config";
 import type { Db } from "../db/db.ts";
 import { errorSchema, httpDesc } from "../http/http-desc.ts";
@@ -11,6 +13,7 @@ const meSchema = z.object({
     id: z.string(),
     email: z.string(),
     role: z.string(),
+    permissions: permissionsSchema,
     kycVerified: z.boolean(),
     kyc: z
         .object({
@@ -51,6 +54,10 @@ export function mountAuth(app: OpenAPIHono, deps: Deps) {
                     id: session.user.id,
                     email: session.user.email,
                     role: roleOf(session.user),
+                    // Readonly in @propfirmcore/access; the wire shape is not.
+                    permissions: permissionsFor(
+                        roleOf(session.user),
+                    ) as z.infer<typeof permissionsSchema>,
                     kycVerified: await kycVerifiedOf(deps.db, session.user.id),
                     kyc: kycForMe(deps.firm),
                 },
