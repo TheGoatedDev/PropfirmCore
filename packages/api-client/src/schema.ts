@@ -987,6 +987,65 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payments you can see. Admins see every payment; traders see their own. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            productId: string;
+                            amount: number;
+                            currency: string;
+                            provider: string;
+                            providerRef: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "paid" | "failed" | "canceled";
+                            brokerId: string;
+                            tradingAccountId: string | null;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/payments/{id}": {
         parameters: {
             query?: never;

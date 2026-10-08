@@ -2234,6 +2234,99 @@
                 }
             }
         },
+        "/payments": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payments you can see. Admins see every payment; traders see their own.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "userId": {
+                                                "type": "string"
+                                            },
+                                            "productId": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "number"
+                                            },
+                                            "currency": {
+                                                "type": "string"
+                                            },
+                                            "provider": {
+                                                "type": "string"
+                                            },
+                                            "providerRef": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "pending",
+                                                    "paid",
+                                                    "failed",
+                                                    "canceled"
+                                                ]
+                                            },
+                                            "brokerId": {
+                                                "type": "string"
+                                            },
+                                            "tradingAccountId": {
+                                                "type": "string",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "productId",
+                                            "amount",
+                                            "currency",
+                                            "provider",
+                                            "providerRef",
+                                            "status",
+                                            "brokerId",
+                                            "tradingAccountId"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/payments/{id}": {
             "get": {
                 "tags": [

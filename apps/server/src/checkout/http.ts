@@ -162,6 +162,44 @@ export function mountCheckout(app: OpenAPIHono, deps: Deps) {
     app.openapi(
         createRoute({
             method: "get",
+            path: "/payments",
+            tags: [tags.payments],
+            responses: {
+                200: {
+                    description:
+                        "Payments you can see. Admins see every payment; traders see their own.",
+                    content: {
+                        "application/json": { schema: z.array(paymentSchema) },
+                    },
+                },
+                401: {
+                    description: httpDesc.unauthorized,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+            },
+        }),
+        async (c) => {
+            const session = await deps.auth.api.getSession({
+                headers: c.req.raw.headers,
+            });
+            if (!session) return c.json({ error: "unauthorized" }, 401);
+            const rows = roleHasPermission(
+                roleOf(session.user),
+                "payment",
+                "list",
+            )
+                ? await deps.db.select().from(payments)
+                : await deps.db
+                      .select()
+                      .from(payments)
+                      .where(eq(payments.userId, session.user.id));
+            return c.json(rows, 200);
+        },
+    );
+
+    app.openapi(
+        createRoute({
+            method: "get",
             path: "/payments/{id}",
             tags: [tags.payments],
             request: { params: z.object({ id: z.string().min(1) }) },
