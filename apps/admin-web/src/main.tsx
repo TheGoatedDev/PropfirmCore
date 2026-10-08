@@ -1,3 +1,4 @@
+import { ConfirmProvider } from "@propfirmcore/ui/components/confirm-dialog";
 import { ThemeProvider } from "@propfirmcore/ui/components/theme-provider";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -14,7 +15,9 @@ createRoot(root).render(
     <StrictMode>
         <ThemeProvider>
             <QueryClientProvider client={queryClient}>
-                <RouterProvider router={router} context={{ queryClient }} />
+                <ConfirmProvider>
+                    <RouterProvider router={router} context={{ queryClient }} />
+                </ConfirmProvider>
                 <ReactQueryDevtools />
             </QueryClientProvider>
         </ThemeProvider>

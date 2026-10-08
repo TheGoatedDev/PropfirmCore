@@ -35,7 +35,19 @@
     "linter": {
         "enabled": true,
         "rules": {
-            "preset": "recommended"
+            "preset": "recommended",
+            "style": {
+                "noRestrictedImports": {
+                    "level": "error",
+                    "options": {
+                        "paths": {
+                            "recharts": "Charts use TanStack Charts (@tanstack/charts). shadcn/ui charts and Recharts are not allowed; see DESIGN.md \u203a Charts.",
+                            "react-charts": "Use @tanstack/charts/react, not the old react-charts beta.",
+                            "@tanstack/react-charts": "Compatibility package only; import Chart from @tanstack/charts/react."
+                        }
+                    }
+                }
+            }
         }
     },
     "overrides": [

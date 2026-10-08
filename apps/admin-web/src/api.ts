@@ -8,6 +8,7 @@ export const keys = {
     accounts: ["trading-accounts"] as const,
     account: (id: string) => ["trading-accounts", id] as const,
     payouts: ["payouts"] as const,
+    payments: ["payments"] as const,
     users: ["users"] as const,
 };
 

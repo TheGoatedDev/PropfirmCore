@@ -22,10 +22,13 @@ export type {
 export {
     applyFills,
     applySnapshot,
+    canForceFail,
+    canReactivate,
     forceFail,
     forcePass,
     onFundedPhase,
     openTradingAccount,
+    reactivate,
     resyncRuleset,
     settle,
 } from "./engine.ts";

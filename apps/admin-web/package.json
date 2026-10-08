@@ -9,6 +9,7 @@
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
+        "@hookform/resolvers": "5.9.1",
         "@propfirmcore/api-client": "workspace:*",
         "@propfirmcore/config": "workspace:*",
         "@propfirmcore/ui": "workspace:*",
@@ -16,6 +17,7 @@
         "@tanstack/react-query-devtools": "5.102.8",
         "@tanstack/react-router": "1.170.32",
         "lucide-react": "1.38.0",
+        "luxon": "3.7.2",
         "nuqs": "2.10.1",
         "react": "19.2.8",
         "react-dom": "19.2.8",
@@ -26,6 +28,7 @@
     "devDependencies": {
         "@tailwindcss/vite": "4.3.3",
         "@tanstack/router-plugin": "1.168.35",
+        "@types/luxon": "3.7.5",
         "@types/react": "19.2.18",
         "@types/react-dom": "19.2.5",
         "@vitejs/plugin-react": "6.1.1",

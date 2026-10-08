@@ -1,4 +1,4 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -7,6 +7,8 @@ import {
     type PaginationState,
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import {
     keepPreviousData,
     useMutation,
@@ -18,6 +20,7 @@ import {
     BadgeCheck,
     CircleCheck,
     CircleX,
+    RotateCcw,
     SquareMousePointer,
 } from "lucide-react";
 import {
@@ -51,8 +54,24 @@ const accountSearch = {
     status: parseAsStringLiteral(accountStatuses),
 };
 
+export const failConfirm = {
+    title: "Fail this trading account?",
+    description:
+        "The trader can no longer trade it. An admin can reactivate it later.",
+    confirmLabel: "Fail account",
+    variant: "destructive",
+} as const;
+
+export const reactivateConfirm = {
+    title: "Reactivate this trading account?",
+    description:
+        "It goes back to active on the same phase, balance and ruleset. Rules apply again on the next snapshot, so an account still below a floor fails again.",
+    confirmLabel: "Reactivate",
+} as const;
+
 export function TradingAccountsTable() {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const [{ q, page, pageSize, sort, order, status }, setSearch] =
@@ -115,11 +134,16 @@ export function TradingAccountsTable() {
     });
 
     const force = useMutation({
-        mutationFn: async (input: { id: string; action: "pass" | "fail" }) => {
+        mutationFn: async (input: {
+            id: string;
+            action: "pass" | "fail" | "reactivate";
+        }) => {
             const path =
                 input.action === "pass"
                     ? "/trading-accounts/{id}/pass"
-                    : "/trading-accounts/{id}/fail";
+                    : input.action === "fail"
+                      ? "/trading-accounts/{id}/fail"
+                      : "/trading-accounts/{id}/reactivate";
             const { error } = await api.POST(path, {
                 params: { path: { id: input.id } },
             });
@@ -156,15 +180,16 @@ export function TradingAccountsTable() {
                         filter: {
                             variant: "select",
                             options: accountStatuses.map((s) => ({
-                                label: s,
+                                label: formatEnum(s),
                                 value: s,
                             })),
                         },
                     },
                     cell: ({ row }) => (
-                        <Badge data-testid="account-status">
-                            {row.original.status}
-                        </Badge>
+                        <StatusBadge
+                            data-testid="account-status"
+                            status={row.original.status}
+                        />
                     ),
                 }),
             ])}
@@ -235,20 +260,42 @@ export function TradingAccountsTable() {
                 {
                     label: "Pass",
                     icon: <CircleCheck />,
+                    testId: `account-pass-${row.id}`,
+                    disabled: row.status !== "active",
                     onSelect: () => {
                         setError(null);
                         force.mutate({ id: row.id, action: "pass" });
                     },
                 },
-                {
-                    label: "Fail",
-                    icon: <CircleX />,
-                    variant: "destructive",
-                    onSelect: () => {
-                        setError(null);
-                        force.mutate({ id: row.id, action: "fail" });
-                    },
-                },
+                // A failed account offers Reactivate where Fail would be.
+                row.status === "failed"
+                    ? {
+                          label: "Reactivate",
+                          icon: <RotateCcw />,
+                          testId: `account-reactivate-${row.id}`,
+                          onSelect: async () => {
+                              const ok = await confirm(reactivateConfirm);
+                              if (!ok) return;
+                              setError(null);
+                              force.mutate({
+                                  id: row.id,
+                                  action: "reactivate",
+                              });
+                          },
+                      }
+                    : {
+                          label: "Fail",
+                          icon: <CircleX />,
+                          variant: "destructive",
+                          testId: `account-fail-${row.id}`,
+                          disabled: row.status !== "active",
+                          onSelect: async () => {
+                              const ok = await confirm(failConfirm);
+                              if (!ok) return;
+                              setError(null);
+                              force.mutate({ id: row.id, action: "fail" });
+                          },
+                      },
             ]}
         />
     );

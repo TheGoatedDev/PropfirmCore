@@ -1,4 +1,3 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -7,6 +6,8 @@ import {
     type PaginationState,
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import { formatAmount, formatEnum } from "@propfirmcore/ui/lib/format";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useNavigate } from "@tanstack/react-router";
 import { SquareMousePointer } from "lucide-react";
@@ -34,6 +35,7 @@ const accountSearch = {
 type Account = {
     id: string;
     productId: string;
+    productName?: string;
     status: string;
     equity: number;
 };
@@ -49,6 +51,7 @@ const columns = col.columns([
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Product" />
         ),
+        cell: ({ row }) => row.original.productName ?? row.original.productId,
     }),
     col.accessor("status", {
         header: ({ column }) => (
@@ -58,19 +61,23 @@ const columns = col.columns([
             filter: {
                 variant: "select",
                 options: accountStatuses.map((s) => ({
-                    label: s,
+                    label: formatEnum(s),
                     value: s,
                 })),
             },
         },
         cell: ({ row }) => (
-            <Badge data-testid="account-status">{row.original.status}</Badge>
+            <StatusBadge
+                data-testid="account-status"
+                status={row.original.status}
+            />
         ),
     }),
     col.accessor("equity", {
         header: ({ column }) => (
             <DataTableColumnHeader column={column} title="Equity" />
         ),
+        cell: ({ row }) => formatAmount(row.original.equity),
     }),
 ]);
 
@@ -120,11 +127,24 @@ export function TradingAccountsTable() {
         },
         placeholderData: keepPreviousData,
     });
+    const products = useQuery({
+        queryKey: keys.products,
+        queryFn: async () => {
+            const { data, error } = await api.GET("/products");
+            if (error) throw error;
+            return (data ?? []) as { id: string; name: string }[];
+        },
+    });
+    const names = new Map((products.data ?? []).map((p) => [p.id, p.name]));
+    const rows = (accounts.data?.items ?? []).map((a) => ({
+        ...a,
+        productName: names.get(a.productId),
+    }));
 
     return (
         <DataTable
             columns={columns}
-            data={accounts.data?.items ?? []}
+            data={rows}
             total={accounts.data?.total ?? 0}
             pagination={pagination}
             onPaginationChange={(updater) => {

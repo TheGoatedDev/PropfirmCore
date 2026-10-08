@@ -14,4 +14,6 @@ export const httpDesc = {
     unavailable: "The ingest bus is down. Try again.",
     conflict:
         "Trading is frozen until the pending payout is approved or rejected.",
+    statusConflict:
+        "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
 } as const;

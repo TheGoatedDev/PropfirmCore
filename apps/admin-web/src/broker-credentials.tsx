@@ -6,8 +6,10 @@ import {
 } from "@propfirmcore/ui/components/alert";
 import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
+import { SettingsSection } from "@propfirmcore/ui/components/settings";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { create } from "zustand";
@@ -28,7 +30,7 @@ export const useRevealedKey = create<{
 
 function KeyStatus({ set, testId }: { set: boolean; testId: string }) {
     return (
-        <Badge variant={set ? "secondary" : "destructive"} data-testid={testId}>
+        <Badge variant={set ? "success" : "destructive"} data-testid={testId}>
             {set ? "Set" : "Missing"}
         </Badge>
     );
@@ -42,14 +44,13 @@ function IngestKey({ broker }: { broker: BrokerView }) {
     );
     const reveal = useRevealedKey((s) => s.reveal);
     const dismiss = useRevealedKey((s) => s.dismiss);
-    const [confirm, setConfirm] = useState<"rotate" | "revoke" | null>(null);
+    const confirm = useConfirm();
     const [copied, setCopied] = useState(false);
 
     const rotate = useMutation({
         mutationFn: () => rotateIngestKey(broker.id),
         onSuccess: (key) => {
             setError(null);
-            setConfirm(null);
             setCopied(false);
             reveal(broker.id, key);
             void qc.invalidateQueries({ queryKey: keys.firm });
@@ -60,7 +61,6 @@ function IngestKey({ broker }: { broker: BrokerView }) {
         mutationFn: () => revokeIngestKey(broker.id),
         onSuccess: () => {
             setError(null);
-            setConfirm(null);
             dismiss();
             void qc.invalidateQueries({ queryKey: keys.firm });
         },
@@ -68,17 +68,23 @@ function IngestKey({ broker }: { broker: BrokerView }) {
     });
 
     return (
-        <div className="space-y-2">
-            <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Ingest key</span>
+        <SettingsSection
+            title="Ingest key"
+            description={
+                <>
+                    The broker sends this as <code>X-Api-Key</code> when it
+                    pushes snapshots and fills. Without it, ingest is refused.
+                </>
+            }
+            fields="space-y-3"
+        >
+            <div className="flex items-center gap-2 text-sm">
+                <span className="text-muted-foreground">Status</span>
                 <KeyStatus
                     set={broker.hasIngestKey}
                     testId="broker-ingest-status"
                 />
             </div>
-            <p className="text-sm text-muted-foreground">
-                The broker sends this as <code>X-Api-Key</code> on ingest.
-            </p>
             {revealed ? (
                 <Alert data-testid="broker-ingest-revealed">
                     <AlertTitle>Copy this key now</AlertTitle>
@@ -116,62 +122,54 @@ function IngestKey({ broker }: { broker: BrokerView }) {
                     </AlertDescription>
                 </Alert>
             ) : null}
-            {confirm ? (
-                <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm" role="status">
-                        {confirm === "rotate"
-                            ? "The current key stops working now."
-                            : "Ingest for this broker is refused until you rotate."}
-                    </span>
-                    <Button
-                        type="button"
-                        variant="destructive"
-                        data-testid={`broker-ingest-${confirm}-confirm`}
-                        disabled={rotate.isPending || revoke.isPending}
-                        onClick={() =>
-                            confirm === "rotate"
-                                ? rotate.mutate()
-                                : revoke.mutate()
+            <div className="flex gap-2">
+                <Button
+                    type="button"
+                    variant="outline"
+                    data-testid="broker-ingest-rotate"
+                    onClick={async () => {
+                        if (
+                            broker.hasIngestKey &&
+                            !(await confirm({
+                                title: "Rotate the ingest key?",
+                                description:
+                                    "The current key stops working now. Update the bridge with the new key before it sends again.",
+                                confirmLabel: "Rotate key",
+                                variant: "destructive",
+                                testId: "broker-ingest-rotate-confirm",
+                            }))
+                        ) {
+                            return;
                         }
-                    >
-                        {confirm === "rotate" ? "Rotate key" : "Revoke key"}
-                    </Button>
+                        rotate.mutate();
+                    }}
+                    disabled={rotate.isPending}
+                >
+                    {broker.hasIngestKey ? "Rotate" : "Generate"}
+                </Button>
+                {broker.hasIngestKey ? (
                     <Button
                         type="button"
                         variant="ghost"
-                        onClick={() => setConfirm(null)}
+                        data-testid="broker-ingest-revoke"
+                        disabled={revoke.isPending}
+                        onClick={async () => {
+                            const ok = await confirm({
+                                title: "Revoke the ingest key?",
+                                description:
+                                    "Ingest for this broker is refused until you generate a new key.",
+                                confirmLabel: "Revoke key",
+                                variant: "destructive",
+                                testId: "broker-ingest-revoke-confirm",
+                            });
+                            if (ok) revoke.mutate();
+                        }}
                     >
-                        Cancel
+                        Revoke
                     </Button>
-                </div>
-            ) : (
-                <div className="flex gap-2">
-                    <Button
-                        type="button"
-                        variant="outline"
-                        data-testid="broker-ingest-rotate"
-                        onClick={() =>
-                            broker.hasIngestKey
-                                ? setConfirm("rotate")
-                                : rotate.mutate()
-                        }
-                        disabled={rotate.isPending}
-                    >
-                        {broker.hasIngestKey ? "Rotate" : "Generate"}
-                    </Button>
-                    {broker.hasIngestKey ? (
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            data-testid="broker-ingest-revoke"
-                            onClick={() => setConfirm("revoke")}
-                        >
-                            Revoke
-                        </Button>
-                    ) : null}
-                </div>
-            )}
-        </div>
+                ) : null}
+            </div>
+        </SettingsSection>
     );
 }
 
@@ -190,65 +188,77 @@ function BridgeKey({ broker }: { broker: BrokerView }) {
     });
 
     return (
-        <form
-            className="space-y-2"
-            onSubmit={(e) => {
-                e.preventDefault();
-                if (value) save.mutate(value);
-            }}
+        <SettingsSection
+            title="Bridge key"
+            description={
+                <>
+                    Sent as <code>X-Api-Key</code> on every call to the bridge
+                    URL. Write-only: it is never shown again.
+                </>
+            }
+            fields="space-y-3"
         >
-            <div className="flex items-center gap-2">
-                <Label htmlFor="broker-bridge-key">Bridge key</Label>
-                <KeyStatus
-                    set={broker.hasBridgeKey}
-                    testId="broker-bridge-status"
-                />
-            </div>
-            <p className="text-sm text-muted-foreground">
-                Sent as <code>X-Api-Key</code> on calls to the bridge url.
-                Write-only.
-            </p>
-            <div className="flex max-w-xl gap-2">
-                <Input
-                    id="broker-bridge-key"
-                    data-testid="broker-bridge-key"
-                    type="password"
-                    autoComplete="off"
-                    placeholder={broker.hasBridgeKey ? "Replace key" : "Key"}
-                    value={value}
-                    onChange={(e) => setValue(e.target.value)}
-                />
-                <Button
-                    type="submit"
-                    data-testid="broker-bridge-key-save"
-                    disabled={!value || save.isPending}
-                >
-                    Save
-                </Button>
-                {broker.hasBridgeKey ? (
+            <form
+                className="space-y-2"
+                onSubmit={(e) => {
+                    e.preventDefault();
+                    if (value) save.mutate(value);
+                }}
+            >
+                <div className="flex items-center gap-2 text-sm">
+                    <span className="text-muted-foreground">Status</span>
+                    <KeyStatus
+                        set={broker.hasBridgeKey}
+                        testId="broker-bridge-status"
+                    />
+                </div>
+                <Label htmlFor="broker-bridge-key" className="sr-only">
+                    Bridge key
+                </Label>
+                <div className="flex gap-2">
+                    <Input
+                        id="broker-bridge-key"
+                        data-testid="broker-bridge-key"
+                        type="password"
+                        autoComplete="off"
+                        placeholder={
+                            broker.hasBridgeKey ? "Replace key" : "Key"
+                        }
+                        value={value}
+                        onChange={(e) => setValue(e.target.value)}
+                    />
                     <Button
-                        type="button"
-                        variant="ghost"
-                        data-testid="broker-bridge-key-clear"
-                        disabled={save.isPending}
-                        onClick={() => save.mutate(null)}
+                        type="submit"
+                        data-testid="broker-bridge-key-save"
+                        disabled={!value || save.isPending}
                     >
-                        Clear
+                        Save
                     </Button>
-                ) : null}
-            </div>
-        </form>
+                    {broker.hasBridgeKey ? (
+                        <Button
+                            type="button"
+                            variant="ghost"
+                            data-testid="broker-bridge-key-clear"
+                            disabled={save.isPending}
+                            onClick={() => save.mutate(null)}
+                        >
+                            Clear
+                        </Button>
+                    ) : null}
+                </div>
+            </form>
+        </SettingsSection>
     );
 }
 
 export function BrokerCredentials({ broker }: { broker: BrokerView }) {
     return (
-        <section className="max-w-xl space-y-6 border-t pt-4">
-            <h2 className="text-base font-semibold">Credentials</h2>
+        // Continues the form's section list, so the first block keeps its rule.
+        <div className="[&>section:first-child]:border-t [&>section:first-child]:pt-6">
             <IngestKey broker={broker} />
             {broker.bridge.provider === "webhook" ? (
                 <BridgeKey broker={broker} />
             ) : null}
-        </section>
+        </div>
     );
 }

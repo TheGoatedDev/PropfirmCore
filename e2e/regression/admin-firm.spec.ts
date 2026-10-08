@@ -81,7 +81,7 @@ test("admin adds broker and product; trader can buy", async ({ browser }) => {
     await expect(trader.getByText("E2E free", { exact: true })).toBeVisible();
     await trader.getByTestId(`product-buy-${productId}`).click();
     await expect(trader.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 });
 
@@ -93,7 +93,6 @@ test("broker rows open via the Inspect action, not a row click", async ({
     await expect(page).toHaveURL(/\/brokers$/);
     await page.getByTestId("table-row-0").click();
     await expect(page).toHaveURL(/\/brokers$/);
-    await page.getByTestId("row-actions-0").click();
     await page.getByTestId("broker-inspect-loopback").click();
     await expect(page).toHaveURL(/\/brokers\/loopback$/);
 });

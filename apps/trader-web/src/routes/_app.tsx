@@ -1,3 +1,4 @@
+import { Alert, AlertTitle } from "@propfirmcore/ui/components/alert";
 import { AppShell, SidebarItem } from "@propfirmcore/ui/components/app-shell";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -8,7 +9,7 @@ import {
     useMatches,
     useNavigate,
 } from "@tanstack/react-router";
-import { Building2, House } from "lucide-react";
+import { Building2, House, ShieldAlert } from "lucide-react";
 import { authPost, failMsg, fetchMe, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 
@@ -67,7 +68,7 @@ function App() {
                     to="/"
                     className="flex items-center gap-2 text-lg font-semibold"
                 >
-                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-foreground text-background">
+                    <span className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-brand text-brand-foreground">
                         <Building2 className="size-5" />
                     </span>
                     <span>Trader</span>
@@ -88,12 +89,10 @@ function App() {
             onCrumb={(to) => void navigate({ to })}
         >
             {me.kyc && !me.kycVerified ? (
-                <p
-                    className="mb-4 rounded-md border px-3 py-2 text-sm"
-                    data-testid="kyc-banner"
-                >
-                    KYC required
-                </p>
+                <Alert variant="warning" data-testid="kyc-banner">
+                    <ShieldAlert aria-hidden />
+                    <AlertTitle>KYC required</AlertTitle>
+                </Alert>
             ) : null}
             <Outlet />
         </AppShell>

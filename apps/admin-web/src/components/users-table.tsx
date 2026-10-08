@@ -1,4 +1,4 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -7,6 +7,7 @@ import {
     type PaginationState,
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     keepPreviousData,
     useMutation,
@@ -21,7 +22,7 @@ import {
     parseAsStringLiteral,
     useQueryStates,
 } from "nuqs";
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { api, failMsg, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
@@ -49,8 +50,15 @@ const userSearch = {
 const selectClass =
     "h-8 rounded-lg border border-input bg-transparent px-2 text-sm";
 
-export function UsersTable({ meId }: { meId: string }) {
+export function UsersTable({
+    meId,
+    actions,
+}: {
+    meId: string;
+    actions?: ReactNode;
+}) {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -127,6 +135,7 @@ export function UsersTable({ meId }: { meId: string }) {
 
     return (
         <DataTable
+            actions={actions}
             columns={col.columns([
                 col.accessor("email", {
                     header: ({ column }) => (
@@ -144,8 +153,8 @@ export function UsersTable({ meId }: { meId: string }) {
                         filter: {
                             variant: "select",
                             options: [
-                                { label: "trader", value: "trader" },
-                                { label: "admin", value: "admin" },
+                                { label: "Trader", value: "trader" },
+                                { label: "Admin", value: "admin" },
                             ],
                         },
                     },
@@ -172,8 +181,8 @@ export function UsersTable({ meId }: { meId: string }) {
                                     });
                                 }}
                             >
-                                <option value="trader">trader</option>
-                                <option value="admin">admin</option>
+                                <option value="trader">Trader</option>
+                                <option value="admin">Admin</option>
                             </select>
                         );
                     },
@@ -191,7 +200,9 @@ export function UsersTable({ meId }: { meId: string }) {
                         },
                     },
                     cell: ({ row }) =>
-                        row.original.banned ? <Badge>Banned</Badge> : null,
+                        row.original.banned ? (
+                            <StatusBadge status="banned">Banned</StatusBadge>
+                        ) : null,
                 }),
                 col.accessor("createdAt", {
                     header: ({ column }) => (
@@ -260,8 +271,17 @@ export function UsersTable({ meId }: { meId: string }) {
                     variant: row.banned ? "default" : "destructive",
                     disabled: row.id === meId,
                     testId: `user-ban-${row.id}`,
-                    onSelect: () => {
-                        if (!row.banned && !window.confirm("Ban this user?")) {
+                    onSelect: async () => {
+                        if (
+                            !row.banned &&
+                            !(await confirm({
+                                title: `Ban ${row.email}?`,
+                                description:
+                                    "They are signed out and cannot sign in until you unban them.",
+                                confirmLabel: "Ban user",
+                                variant: "destructive",
+                            }))
+                        ) {
                             return;
                         }
                         setError(null);

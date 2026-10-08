@@ -128,8 +128,11 @@ export interface paths {
                              *     }
                              */
                             checkout: {
-                                /** @default manual */
-                                provider: string;
+                                /**
+                                 * @default manual
+                                 * @enum {string}
+                                 */
+                                provider: "manual";
                                 /** @default usd */
                                 currency: string;
                             };
@@ -292,8 +295,11 @@ export interface paths {
                          *     }
                          */
                         checkout?: {
-                            /** @default manual */
-                            provider?: string;
+                            /**
+                             * @default manual
+                             * @enum {string}
+                             */
+                            provider?: "manual";
                             /** @default usd */
                             currency?: string;
                         };
@@ -428,8 +434,11 @@ export interface paths {
                              *     }
                              */
                             checkout: {
-                                /** @default manual */
-                                provider: string;
+                                /**
+                                 * @default manual
+                                 * @enum {string}
+                                 */
+                                provider: "manual";
                                 /** @default usd */
                                 currency: string;
                             };
@@ -981,6 +990,65 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Payments you can see. Admins see every payment; traders see their own. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            productId: string;
+                            amount: number;
+                            currency: string;
+                            provider: string;
+                            providerRef: string | null;
+                            /** @enum {string} */
+                            status: "pending" | "paid" | "failed" | "canceled";
+                            brokerId: string;
+                            tradingAccountId: string | null;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1602,6 +1670,154 @@ export interface paths {
                 };
                 /** @description Nothing exists at this id. */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trading-accounts/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Admin override: a failed trading account goes back to active on the same phase and book. Rules apply again on the next settle. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The trading account is active again. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            productId: string;
+                            phaseIndex: number;
+                            /** @enum {string} */
+                            status: "active" | "passed" | "failed";
+                            startBalance: number;
+                            equity: number;
+                            balance: number;
+                            peakEquity: number;
+                            dailyStartEquity: number;
+                            tradingDayKey: string;
+                            tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated. */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2967,6 +3183,120 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Admin home figures. Daily series cover the last 14 trading-clock days in the firm timezone, oldest first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accounts: {
+                                active: number;
+                                passed: number;
+                                failed: number;
+                                byProduct: {
+                                    active: number;
+                                    passed: number;
+                                    failed: number;
+                                    productId: string;
+                                }[];
+                            };
+                            payments: {
+                                pending: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                paid: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                failed: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                canceled: {
+                                    count: number;
+                                    amount: number;
+                                };
+                            };
+                            payouts: {
+                                pending: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                approved: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                rejected: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                paid: {
+                                    count: number;
+                                    amount: number;
+                                };
+                            };
+                            days: string[];
+                            fills: number[];
+                            signups: number[];
+                            breaches: {
+                                warn: number[];
+                                flag: number[];
+                            };
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

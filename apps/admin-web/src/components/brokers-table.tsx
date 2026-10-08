@@ -1,4 +1,5 @@
 import { Badge } from "@propfirmcore/ui/components/badge";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
     createDataTableColumnHelper,
@@ -14,7 +15,7 @@ import {
     parseAsString,
     useQueryStates,
 } from "nuqs";
-import { useMemo } from "react";
+import { type ReactNode, useMemo } from "react";
 import { failMsg, keys } from "../api.ts";
 import { fetchFirm, saveFirmSlice } from "../firm-api.ts";
 import { useUi } from "../stores/ui.ts";
@@ -36,8 +37,9 @@ const brokerSearch = {
     pageSize: parseAsInteger.withDefault(10),
 };
 
-export function BrokersTable() {
+export function BrokersTable({ actions }: { actions?: ReactNode }) {
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
     const navigate = useNavigate();
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
@@ -103,6 +105,7 @@ export function BrokersTable() {
                 <p>{failMsg(firm.error, "Could not load firm")}</p>
             ) : null}
             <DataTable
+                actions={actions}
                 columns={col.columns([
                     col.accessor("id", {
                         header: "ID",
@@ -125,7 +128,7 @@ export function BrokersTable() {
                             <Badge
                                 variant={
                                     c.getValue() === "Set"
-                                        ? "secondary"
+                                        ? "success"
                                         : "destructive"
                                 }
                                 data-testid={`broker-ingest-status-${c.row.original.id}`}
@@ -183,7 +186,15 @@ export function BrokersTable() {
                         icon: <Trash2 />,
                         variant: "destructive",
                         testId: `broker-delete-${row.id}`,
-                        onSelect: () => {
+                        onSelect: async () => {
+                            const ok = await confirm({
+                                title: `Delete ${row.name}?`,
+                                description:
+                                    "This removes the broker from the firm config. Existing trading accounts keep their history.",
+                                confirmLabel: "Delete broker",
+                                variant: "destructive",
+                            });
+                            if (!ok) return;
                             setError(null);
                             remove.mutate(row.id);
                         },

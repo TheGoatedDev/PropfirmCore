@@ -18,6 +18,8 @@ React, Vite, TanStack Router, TanStack Query, Zustand, nuqs, Tailwind.
 - Page title is the breadcrumb (`staticData.crumb`). Do not add an `h1` (or equivalent) in the page body that repeats it.
 - Do not nest `Card` or paper-like surfaces (e.g. `Alert`) inside each other.
 - No Formik, Final Form, or extra form libs.
+- Charts: TanStack Charts (`@tanstack/charts`, React adapter `@tanstack/charts/react`) through the kit in `@propfirmcore/ui/components/chart`. Read the package's bundled `llms.txt` and `docs/` before writing chart code.
+- No shadcn/ui charts (`shadcn add chart`), Recharts, the old `react-charts` beta, or `@tanstack/react-charts` (compat shim). Biome `noRestrictedImports` enforces this. `shadcn add chart` would also overwrite our `chart.tsx`; never run it.
 
 No: Next, React Router, Redux, SWR, Webpack, CRA.
 

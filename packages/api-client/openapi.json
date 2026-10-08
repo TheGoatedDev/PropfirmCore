@@ -335,7 +335,8 @@
                                         },
                                         "name": {
                                             "type": "string",
-                                            "minLength": 1
+                                            "minLength": 1,
+                                            "maxLength": 80
                                         },
                                         "dailyClose": {
                                             "type": "object",
@@ -401,12 +402,13 @@
                                             "properties": {
                                                 "provider": {
                                                     "type": "string",
-                                                    "minLength": 1,
+                                                    "enum": [
+                                                        "manual"
+                                                    ],
                                                     "default": "manual"
                                                 },
                                                 "currency": {
                                                     "type": "string",
-                                                    "minLength": 1,
                                                     "default": "usd"
                                                 }
                                             },
@@ -751,7 +753,8 @@
                                     },
                                     "name": {
                                         "type": "string",
-                                        "minLength": 1
+                                        "minLength": 1,
+                                        "maxLength": 80
                                     },
                                     "dailyClose": {
                                         "type": "object",
@@ -817,12 +820,13 @@
                                         "properties": {
                                             "provider": {
                                                 "type": "string",
-                                                "minLength": 1,
+                                                "enum": [
+                                                    "manual"
+                                                ],
                                                 "default": "manual"
                                             },
                                             "currency": {
                                                 "type": "string",
-                                                "minLength": 1,
                                                 "default": "usd"
                                             }
                                         },
@@ -1121,7 +1125,8 @@
                                         },
                                         "name": {
                                             "type": "string",
-                                            "minLength": 1
+                                            "minLength": 1,
+                                            "maxLength": 80
                                         },
                                         "dailyClose": {
                                             "type": "object",
@@ -1187,12 +1192,13 @@
                                             "properties": {
                                                 "provider": {
                                                     "type": "string",
-                                                    "minLength": 1,
+                                                    "enum": [
+                                                        "manual"
+                                                    ],
                                                     "default": "manual"
                                                 },
                                                 "currency": {
                                                     "type": "string",
-                                                    "minLength": 1,
                                                     "default": "usd"
                                                 }
                                             },
@@ -2214,6 +2220,99 @@
                     },
                     "403": {
                         "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/payments": {
+            "get": {
+                "tags": [
+                    "Payments"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Payments you can see. Admins see every payment; traders see their own.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string"
+                                            },
+                                            "userId": {
+                                                "type": "string"
+                                            },
+                                            "productId": {
+                                                "type": "string"
+                                            },
+                                            "amount": {
+                                                "type": "number"
+                                            },
+                                            "currency": {
+                                                "type": "string"
+                                            },
+                                            "provider": {
+                                                "type": "string"
+                                            },
+                                            "providerRef": {
+                                                "type": "string",
+                                                "nullable": true
+                                            },
+                                            "status": {
+                                                "type": "string",
+                                                "enum": [
+                                                    "pending",
+                                                    "paid",
+                                                    "failed",
+                                                    "canceled"
+                                                ]
+                                            },
+                                            "brokerId": {
+                                                "type": "string"
+                                            },
+                                            "tradingAccountId": {
+                                                "type": "string",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "required": [
+                                            "id",
+                                            "userId",
+                                            "productId",
+                                            "amount",
+                                            "currency",
+                                            "provider",
+                                            "providerRef",
+                                            "status",
+                                            "brokerId",
+                                            "tradingAccountId"
+                                        ]
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -3515,6 +3614,344 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/trading-accounts/{id}/reactivate": {
+            "post": {
+                "tags": [
+                    "Trading Accounts"
+                ],
+                "description": "Admin override: a failed trading account goes back to active on the same phase and book. Rules apply again on the next settle.",
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The trading account is active again.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "dailyPnls": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "day": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "pnl": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "day",
+                                                    "pnl"
+                                                ]
+                                            }
+                                        },
+                                        "ruleset": {
+                                            "type": "object",
+                                            "properties": {
+                                                "profitTarget": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "maxDrawdown": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "dailyDrawdown": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "minTradingDays": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "maxWarnings": {
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "exclusiveMinimum": true
+                                                },
+                                                "consistency": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "mode": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "bestDay",
+                                                                "bestTrade"
+                                                            ]
+                                                        },
+                                                        "threshold": {
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "maximum": 1
+                                                        },
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "mode",
+                                                        "threshold",
+                                                        "onBreach"
+                                                    ]
+                                                },
+                                                "weekend": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "onBreach"
+                                                    ]
+                                                },
+                                                "maxLot": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "qty": {
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "exclusiveMinimum": true
+                                                        },
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "qty",
+                                                        "onBreach"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "profitTarget",
+                                                "maxDrawdown",
+                                                "dailyDrawdown",
+                                                "minTradingDays"
+                                            ]
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays",
+                                        "dailyPnls",
+                                        "ruleset",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -6015,6 +6452,301 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/overview": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin home figures. Daily series cover the last 14 trading-clock days in the firm timezone, oldest first.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accounts": {
+                                            "type": "object",
+                                            "properties": {
+                                                "active": {
+                                                    "type": "number"
+                                                },
+                                                "passed": {
+                                                    "type": "number"
+                                                },
+                                                "failed": {
+                                                    "type": "number"
+                                                },
+                                                "byProduct": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "active": {
+                                                                "type": "number"
+                                                            },
+                                                            "passed": {
+                                                                "type": "number"
+                                                            },
+                                                            "failed": {
+                                                                "type": "number"
+                                                            },
+                                                            "productId": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "active",
+                                                            "passed",
+                                                            "failed",
+                                                            "productId"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "byProduct"
+                                            ]
+                                        },
+                                        "payments": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pending": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "paid": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "failed": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "canceled": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pending",
+                                                "paid",
+                                                "failed",
+                                                "canceled"
+                                            ]
+                                        },
+                                        "payouts": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pending": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "approved": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "rejected": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "paid": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "days": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "fills": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "signups": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "breaches": {
+                                            "type": "object",
+                                            "properties": {
+                                                "warn": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "flag": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "warn",
+                                                "flag"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "accounts",
+                                        "payments",
+                                        "payouts",
+                                        "days",
+                                        "fills",
+                                        "signups",
+                                        "breaches"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -14413,6 +15145,10 @@
         {
             "name": "Users",
             "description": "Users: list, create, ban, and set Role."
+        },
+        {
+            "name": "Stats",
+            "description": "Admin home figures: counts, money totals, daily activity."
         },
         {
             "name": "Ingest",

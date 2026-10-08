@@ -1,0 +1,577 @@
+{
+    "schemaVersion": 2,
+    "generatedAt": "2026-10-07T19:50:47.421Z",
+    "title": "Design System: PropfirmCore",
+    "extensions": {
+        "colorMeta": {
+            "ink": {
+                "role": "neutral",
+                "displayName": "Ink",
+                "canonical": "oklch(0.145 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "graphite": {
+                "role": "primary",
+                "displayName": "Graphite",
+                "canonical": "oklch(0.205 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "paper": {
+                "role": "neutral",
+                "displayName": "Paper",
+                "canonical": "oklch(1 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "paper-on-ink": {
+                "role": "neutral",
+                "displayName": "Paper on Ink",
+                "canonical": "oklch(0.985 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "mist": {
+                "role": "neutral",
+                "displayName": "Mist",
+                "canonical": "oklch(0.97 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "slate-muted": {
+                "role": "neutral",
+                "displayName": "Slate Muted",
+                "canonical": "oklch(0.556 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "hairline": {
+                "role": "neutral",
+                "displayName": "Hairline",
+                "canonical": "oklch(0.922 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "focus-gray": {
+                "role": "neutral",
+                "displayName": "Focus Gray",
+                "canonical": "oklch(0.708 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "signal-red": {
+                "role": "tertiary",
+                "displayName": "Signal Red",
+                "canonical": "oklch(0.54 0.22 27)",
+                "tonalRamp": [
+                    "oklch(0.15 0.08 27.3)",
+                    "oklch(0.27 0.08 27.3)",
+                    "oklch(0.39 0.2 27.3)",
+                    "oklch(0.51 0.2 27.3)",
+                    "oklch(0.63 0.2 27.3)",
+                    "oklch(0.75 0.2 27.3)",
+                    "oklch(0.87 0.08 27.3)",
+                    "oklch(0.95 0.08 27.3)"
+                ]
+            },
+            "ink-dark-surface": {
+                "role": "neutral",
+                "displayName": "Dark Surface",
+                "canonical": "oklch(0.269 0 0)",
+                "tonalRamp": [
+                    "oklch(0.15 0 0)",
+                    "oklch(0.27 0 0)",
+                    "oklch(0.39 0 0)",
+                    "oklch(0.51 0 0)",
+                    "oklch(0.63 0 0)",
+                    "oklch(0.75 0 0)",
+                    "oklch(0.87 0 0)",
+                    "oklch(0.95 0 0)"
+                ]
+            },
+            "signal-red-dark": {
+                "role": "tertiary",
+                "displayName": "Signal Red (dark)",
+                "canonical": "oklch(0.704 0.191 22.216)",
+                "tonalRamp": [
+                    "oklch(0.15 0.08 27.3)",
+                    "oklch(0.27 0.08 27.3)",
+                    "oklch(0.39 0.2 27.3)",
+                    "oklch(0.51 0.2 27.3)",
+                    "oklch(0.63 0.2 27.3)",
+                    "oklch(0.75 0.2 27.3)",
+                    "oklch(0.87 0.08 27.3)",
+                    "oklch(0.95 0.08 27.3)"
+                ]
+            },
+            "signal-red-subtle": {
+                "role": "tertiary",
+                "displayName": "Signal Red Tint",
+                "canonical": "oklch(0.962 0.015 27)",
+                "tonalRamp": [
+                    "oklch(0.15 0.07 27)",
+                    "oklch(0.27 0.07 27)",
+                    "oklch(0.39 0.2 27)",
+                    "oklch(0.51 0.2 27)",
+                    "oklch(0.63 0.2 27)",
+                    "oklch(0.75 0.2 27)",
+                    "oklch(0.87 0.07 27)",
+                    "oklch(0.95 0.07 27)"
+                ]
+            },
+            "ledger-green": {
+                "role": "tertiary",
+                "displayName": "Ledger Green",
+                "canonical": "oklch(0.5 0.12 155)",
+                "tonalRamp": [
+                    "oklch(0.15 0.042 155)",
+                    "oklch(0.27 0.042 155)",
+                    "oklch(0.39 0.12 155)",
+                    "oklch(0.51 0.12 155)",
+                    "oklch(0.63 0.12 155)",
+                    "oklch(0.75 0.12 155)",
+                    "oklch(0.87 0.042 155)",
+                    "oklch(0.95 0.042 155)"
+                ]
+            },
+            "ledger-green-subtle": {
+                "role": "tertiary",
+                "displayName": "Ledger Green Tint",
+                "canonical": "oklch(0.962 0.04 155)",
+                "tonalRamp": [
+                    "oklch(0.15 0.042 155)",
+                    "oklch(0.27 0.042 155)",
+                    "oklch(0.39 0.12 155)",
+                    "oklch(0.51 0.12 155)",
+                    "oklch(0.63 0.12 155)",
+                    "oklch(0.75 0.12 155)",
+                    "oklch(0.87 0.042 155)",
+                    "oklch(0.95 0.042 155)"
+                ]
+            },
+            "caution-amber": {
+                "role": "tertiary",
+                "displayName": "Caution Amber",
+                "canonical": "oklch(0.52 0.115 65)",
+                "tonalRamp": [
+                    "oklch(0.15 0.04 65)",
+                    "oklch(0.27 0.04 65)",
+                    "oklch(0.39 0.115 65)",
+                    "oklch(0.51 0.115 65)",
+                    "oklch(0.63 0.115 65)",
+                    "oklch(0.75 0.115 65)",
+                    "oklch(0.87 0.04 65)",
+                    "oklch(0.95 0.04 65)"
+                ]
+            },
+            "caution-amber-subtle": {
+                "role": "tertiary",
+                "displayName": "Caution Amber Tint",
+                "canonical": "oklch(0.962 0.04 85)",
+                "tonalRamp": [
+                    "oklch(0.15 0.04 75)",
+                    "oklch(0.27 0.04 75)",
+                    "oklch(0.39 0.115 75)",
+                    "oklch(0.51 0.115 75)",
+                    "oklch(0.63 0.115 75)",
+                    "oklch(0.75 0.115 75)",
+                    "oklch(0.87 0.04 75)",
+                    "oklch(0.95 0.04 75)"
+                ]
+            },
+            "flag-violet": {
+                "role": "tertiary",
+                "displayName": "Flag Violet",
+                "canonical": "oklch(0.5 0.18 300)",
+                "tonalRamp": [
+                    "oklch(0.15 0.056 300)",
+                    "oklch(0.27 0.056 300)",
+                    "oklch(0.39 0.16 300)",
+                    "oklch(0.51 0.16 300)",
+                    "oklch(0.63 0.16 300)",
+                    "oklch(0.75 0.16 300)",
+                    "oklch(0.87 0.056 300)",
+                    "oklch(0.95 0.056 300)"
+                ]
+            },
+            "flag-violet-subtle": {
+                "role": "tertiary",
+                "displayName": "Flag Violet Tint",
+                "canonical": "oklch(0.962 0.02 300)",
+                "tonalRamp": [
+                    "oklch(0.15 0.056 300)",
+                    "oklch(0.27 0.056 300)",
+                    "oklch(0.39 0.16 300)",
+                    "oklch(0.51 0.16 300)",
+                    "oklch(0.63 0.16 300)",
+                    "oklch(0.75 0.16 300)",
+                    "oklch(0.87 0.056 300)",
+                    "oklch(0.95 0.056 300)"
+                ]
+            },
+            "open-blue": {
+                "role": "tertiary",
+                "displayName": "Open Blue",
+                "canonical": "oklch(0.5 0.14 255)",
+                "tonalRamp": [
+                    "oklch(0.15 0.045 255)",
+                    "oklch(0.27 0.045 255)",
+                    "oklch(0.39 0.13 255)",
+                    "oklch(0.51 0.13 255)",
+                    "oklch(0.63 0.13 255)",
+                    "oklch(0.75 0.13 255)",
+                    "oklch(0.87 0.045 255)",
+                    "oklch(0.95 0.045 255)"
+                ]
+            },
+            "open-blue-subtle": {
+                "role": "tertiary",
+                "displayName": "Open Blue Tint",
+                "canonical": "oklch(0.962 0.015 255)",
+                "tonalRamp": [
+                    "oklch(0.15 0.045 255)",
+                    "oklch(0.27 0.045 255)",
+                    "oklch(0.39 0.13 255)",
+                    "oklch(0.51 0.13 255)",
+                    "oklch(0.63 0.13 255)",
+                    "oklch(0.75 0.13 255)",
+                    "oklch(0.87 0.045 255)",
+                    "oklch(0.95 0.045 255)"
+                ]
+            },
+            "firm-teal": {
+                "role": "secondary",
+                "displayName": "Firm Teal",
+                "canonical": "oklch(0.48 0.08 195)",
+                "tonalRamp": [
+                    "oklch(0.15 0.028 195)",
+                    "oklch(0.27 0.028 195)",
+                    "oklch(0.39 0.08 195)",
+                    "oklch(0.51 0.08 195)",
+                    "oklch(0.63 0.08 195)",
+                    "oklch(0.75 0.08 195)",
+                    "oklch(0.87 0.028 195)",
+                    "oklch(0.95 0.028 195)"
+                ]
+            },
+            "ledger-green-dark": {
+                "role": "tertiary",
+                "displayName": "Ledger Green (dark)",
+                "canonical": "oklch(0.8 0.14 155)",
+                "tonalRamp": [
+                    "oklch(0.15 0.042 155)",
+                    "oklch(0.27 0.042 155)",
+                    "oklch(0.39 0.12 155)",
+                    "oklch(0.51 0.12 155)",
+                    "oklch(0.63 0.12 155)",
+                    "oklch(0.75 0.12 155)",
+                    "oklch(0.87 0.042 155)",
+                    "oklch(0.95 0.042 155)"
+                ]
+            },
+            "caution-amber-dark": {
+                "role": "tertiary",
+                "displayName": "Caution Amber (dark)",
+                "canonical": "oklch(0.84 0.13 80)",
+                "tonalRamp": [
+                    "oklch(0.15 0.04 75)",
+                    "oklch(0.27 0.04 75)",
+                    "oklch(0.39 0.115 75)",
+                    "oklch(0.51 0.115 75)",
+                    "oklch(0.63 0.115 75)",
+                    "oklch(0.75 0.115 75)",
+                    "oklch(0.87 0.04 75)",
+                    "oklch(0.95 0.04 75)"
+                ]
+            },
+            "flag-violet-dark": {
+                "role": "tertiary",
+                "displayName": "Flag Violet (dark)",
+                "canonical": "oklch(0.8 0.115 300)",
+                "tonalRamp": [
+                    "oklch(0.15 0.056 300)",
+                    "oklch(0.27 0.056 300)",
+                    "oklch(0.39 0.16 300)",
+                    "oklch(0.51 0.16 300)",
+                    "oklch(0.63 0.16 300)",
+                    "oklch(0.75 0.16 300)",
+                    "oklch(0.87 0.056 300)",
+                    "oklch(0.95 0.056 300)"
+                ]
+            },
+            "open-blue-dark": {
+                "role": "tertiary",
+                "displayName": "Open Blue (dark)",
+                "canonical": "oklch(0.8 0.1 250)",
+                "tonalRamp": [
+                    "oklch(0.15 0.045 255)",
+                    "oklch(0.27 0.045 255)",
+                    "oklch(0.39 0.13 255)",
+                    "oklch(0.51 0.13 255)",
+                    "oklch(0.63 0.13 255)",
+                    "oklch(0.75 0.13 255)",
+                    "oklch(0.87 0.045 255)",
+                    "oklch(0.95 0.045 255)"
+                ]
+            },
+            "firm-teal-dark": {
+                "role": "secondary",
+                "displayName": "Firm Teal (dark)",
+                "canonical": "oklch(0.74 0.1 195)",
+                "tonalRamp": [
+                    "oklch(0.15 0.028 195)",
+                    "oklch(0.27 0.028 195)",
+                    "oklch(0.39 0.08 195)",
+                    "oklch(0.51 0.08 195)",
+                    "oklch(0.63 0.08 195)",
+                    "oklch(0.75 0.08 195)",
+                    "oklch(0.87 0.028 195)",
+                    "oklch(0.95 0.028 195)"
+                ]
+            }
+        },
+        "typographyMeta": {
+            "headline": {
+                "displayName": "Headline",
+                "purpose": "Brand mark in the sidebar. Page titles live in the breadcrumb."
+            },
+            "title": {
+                "displayName": "Title",
+                "purpose": "Card titles; 0.875rem in small cards."
+            },
+            "body": {
+                "displayName": "Body",
+                "purpose": "Tables, card content, buttons, breadcrumbs. Inputs use 1rem below md."
+            },
+            "label": {
+                "displayName": "Label",
+                "purpose": "Badges and helper text."
+            }
+        },
+        "shadows": [
+            {
+                "name": "island",
+                "value": "0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1)",
+                "purpose": "Scrolled floating header only."
+            }
+        ],
+        "motion": [
+            {
+                "name": "ease-out-expo",
+                "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+                "purpose": "Sidebar width and header island transitions, 200ms; disabled under prefers-reduced-motion."
+            }
+        ],
+        "breakpoints": [
+            {
+                "name": "md",
+                "value": "768px"
+            }
+        ],
+        "focus": [
+            {
+                "name": "ring",
+                "value": "0 0 0 3px color-mix(in oklch, var(--ring) 50%, transparent)",
+                "purpose": "All focusable controls; border shifts to --ring."
+            }
+        ]
+    },
+    "components": [
+        {
+            "name": "Primary Button",
+            "kind": "button",
+            "refersTo": "button-primary",
+            "description": "The one committing action in a view.",
+            "html": "<button class=\"ds-btn ds-btn-primary\">Request</button>",
+            "css": ".ds-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 10px;border-radius:10px;border:1px solid transparent;font:500 14px/1 ui-sans-serif,system-ui,sans-serif;white-space:nowrap;cursor:pointer;transition:all .15s;outline:none}.ds-btn:focus-visible{border-color:var(--ring,oklch(0.708 0 0));box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.708 0 0)) 50%,transparent)}.ds-btn:active{transform:translateY(1px)}.ds-btn-primary{background:var(--primary,oklch(0.205 0 0));color:var(--primary-foreground,oklch(0.985 0 0))}.ds-btn-primary:hover{background:color-mix(in oklch,var(--primary,oklch(0.205 0 0)) 80%,transparent)}"
+        },
+        {
+            "name": "Outline Button",
+            "kind": "button",
+            "refersTo": "button-outline",
+            "description": "Secondary actions, Sign out.",
+            "html": "<button class=\"ds-btn-outline\">Sign out</button>",
+            "css": ".ds-btn-outline{display:inline-flex;align-items:center;height:32px;padding:0 10px;border-radius:10px;border:1px solid var(--border,oklch(0.922 0 0));background:var(--background,oklch(1 0 0));color:var(--foreground,oklch(0.145 0 0));font:500 14px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;transition:all .15s;outline:none}.ds-btn-outline:hover{background:var(--muted,oklch(0.97 0 0))}.ds-btn-outline:focus-visible{border-color:var(--ring,oklch(0.708 0 0));box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.708 0 0)) 50%,transparent)}.ds-btn-outline:active{transform:translateY(1px)}"
+        },
+        {
+            "name": "Destructive Button",
+            "kind": "button",
+            "refersTo": "button-destructive",
+            "description": "Delete, Fail, Reject. Tint, never solid.",
+            "html": "<button class=\"ds-btn-destructive\">Fail</button>",
+            "css": ".ds-btn-destructive{display:inline-flex;align-items:center;height:32px;padding:0 10px;border-radius:10px;border:1px solid transparent;background:color-mix(in oklch,var(--destructive,oklch(0.577 0.245 27.325)) 10%,transparent);color:var(--destructive,oklch(0.577 0.245 27.325));font:500 14px/1 ui-sans-serif,system-ui,sans-serif;cursor:pointer;transition:all .15s;outline:none}.ds-btn-destructive:hover{background:color-mix(in oklch,var(--destructive,oklch(0.577 0.245 27.325)) 20%,transparent)}.ds-btn-destructive:focus-visible{border-color:color-mix(in oklch,var(--destructive,oklch(0.577 0.245 27.325)) 40%,transparent);box-shadow:0 0 0 3px color-mix(in oklch,var(--destructive,oklch(0.577 0.245 27.325)) 20%,transparent)}"
+        },
+        {
+            "name": "Text Input",
+            "kind": "input",
+            "refersTo": "input",
+            "description": "32px field, hairline stroke, gray focus ring.",
+            "html": "<input class=\"ds-input\" placeholder=\"Payout amount\" />",
+            "css": ".ds-input{height:32px;width:240px;padding:4px 10px;border-radius:10px;border:1px solid var(--input,oklch(0.922 0 0));background:transparent;color:var(--foreground,oklch(0.145 0 0));font:400 14px/1.4 ui-sans-serif,system-ui,sans-serif;outline:none;transition:border-color .15s,box-shadow .15s}.ds-input::placeholder{color:var(--muted-foreground,oklch(0.556 0 0))}.ds-input:focus-visible{border-color:var(--ring,oklch(0.708 0 0));box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.708 0 0)) 50%,transparent)}"
+        },
+        {
+            "name": "Status Badges",
+            "kind": "chip",
+            "refersTo": "badge",
+            "description": "StatusBadge: tone tint + strong text + icon per domain status.",
+            "html": "<span class=\"ds-badge ds-info\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"1\"/></svg>active</span> <span class=\"ds-badge ds-success\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M20 6 9 17l-5-5\"/></svg>passed</span> <span class=\"ds-badge ds-warning\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/></svg>pending</span> <span class=\"ds-badge ds-flag\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528\"/></svg>flag</span> <span class=\"ds-badge ds-destructive\"><svg width=\"12\" height=\"12\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M18 6 6 18M6 6l12 12\"/></svg>failed</span>",
+            "css": ".ds-badge{display:inline-flex;align-items:center;gap:4px;height:20px;padding:2px 8px 2px 6px;border-radius:32px;font:500 12px/1 ui-sans-serif,system-ui,sans-serif}.ds-success{background:var(--success-subtle);color:var(--success)}.ds-warning{background:var(--warning-subtle);color:var(--warning)}.ds-flag{background:var(--flag-subtle);color:var(--flag)}.ds-info{background:var(--info-subtle);color:var(--info)}.ds-destructive{background:var(--destructive-subtle);color:var(--destructive)}"
+        },
+        {
+            "name": "Card",
+            "kind": "card",
+            "refersTo": "card",
+            "description": "Flat container, hairline ring, 14px corners. Never nested.",
+            "html": "<div class=\"ds-card\"><div class=\"ds-card-title\">Warnings</div><div class=\"ds-card-body\">1 of 3 warnings</div></div>",
+            "css": ".ds-card{display:flex;flex-direction:column;gap:16px;width:280px;padding:16px;border-radius:14px;background:var(--card,oklch(1 0 0));color:var(--card-foreground,oklch(0.145 0 0));box-shadow:0 0 0 1px color-mix(in oklch,var(--foreground,oklch(0.145 0 0)) 10%,transparent);font:400 14px/1.43 ui-sans-serif,system-ui,sans-serif}.ds-card-title{font-size:16px;font-weight:500;line-height:1.375}.ds-card-body{color:var(--muted-foreground,oklch(0.556 0 0))}"
+        },
+        {
+            "name": "Sidebar Nav",
+            "kind": "nav",
+            "refersTo": "nav-item-active",
+            "description": "32px items, Mist fill on the current page.",
+            "html": "<nav class=\"ds-nav\" aria-label=\"Main\"><a href=\"#\" aria-current=\"page\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8\"/><path d=\"M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z\"/></svg>Home</a><a href=\"#\">Payouts</a><a href=\"#\">Trading accounts</a></nav>",
+            "css": ".ds-nav{display:flex;flex-direction:column;gap:2px;width:208px;padding:8px}.ds-nav a{display:flex;align-items:center;gap:8px;height:32px;padding:0 8px;border-radius:8px;color:var(--foreground,oklch(0.145 0 0));text-decoration:none;font:400 14px/1 ui-sans-serif,system-ui,sans-serif;outline:none}.ds-nav a:hover,.ds-nav a[aria-current=page]{background:var(--muted,oklch(0.97 0 0))}.ds-nav a:focus-visible{box-shadow:0 0 0 3px color-mix(in oklch,var(--ring,oklch(0.708 0 0)) 50%,transparent)}"
+        },
+        {
+            "name": "Header Island",
+            "kind": "custom",
+            "refersTo": "header",
+            "description": "Scrolled header: inset, blurred, 16px corners.",
+            "html": "<header class=\"ds-island\"><span class=\"ds-crumb\">Admin / Payouts</span><span class=\"ds-email\">admin@example.com</span></header>",
+            "css": ".ds-island{display:flex;align-items:center;justify-content:space-between;height:56px;width:520px;padding:0 16px;border-radius:16px;border:1px solid var(--border,oklch(0.922 0 0));background:color-mix(in oklch,var(--background,oklch(1 0 0)) 80%,transparent);backdrop-filter:blur(12px);box-shadow:0 1px 3px 0 rgb(0 0 0/.1),0 1px 2px -1px rgb(0 0 0/.1);font:400 14px/1 ui-sans-serif,system-ui,sans-serif}.ds-crumb{color:var(--foreground,oklch(0.145 0 0))}.ds-email{color:var(--muted-foreground,oklch(0.556 0 0))}"
+        }
+    ],
+    "narrative": {
+        "northStar": "The Back Office",
+        "overview": "PropfirmCore is the room behind the counter. It ships to many prop firms, and each one puts its own name on the trader-facing door. The system is unbranded on purpose: gray surfaces, system type, and no logo beyond a placeholder glyph. What carries the identity is the firm brand on top and the precision of the operations underneath. The system is compact and precise. Color is spent on two things only: status, and the firm mark.",
+        "keyCharacteristics": [
+            "Unbranded white-label canvas, with the firm brand layered on top",
+            "Achromatic oklch neutral ramp, with color reserved for status and the firm mark",
+            "Compact controls with a 32px default height",
+            "Flat surfaces: a hairline ring instead of shadows",
+            "System sans throughout, no custom fonts",
+            "One shell for both apps: collapsible sidebar, breadcrumb title bar, floating header on scroll"
+        ],
+        "rules": [
+            {
+                "name": "The Tokens Only Rule",
+                "section": "colors",
+                "body": "Every hue enters through globals.css. App code never uses Tailwind palette utilities. A new status gets a tone in StatusBadge map, not a new color."
+            },
+            {
+                "name": "The Brand Stays Out of Status Rule",
+                "section": "colors",
+                "body": "--brand marks identity and a control's own selected state, never status or actions. Primary buttons stay Graphite."
+            },
+            {
+                "name": "The Red Is Destructive Rule",
+                "section": "colors",
+                "body": "Signal Red means \"this deletes, fails, or is invalid\". Negative P&L is not a failure state and does not get red by default."
+            },
+            {
+                "name": "The Crumb Is the Title Rule",
+                "section": "typography",
+                "body": "The breadcrumb last item (staticData.crumb) is the page title. No heading in the main content may repeat it."
+            },
+            {
+                "name": "The Fourteen Pixel Rule",
+                "section": "typography",
+                "body": "Operational text is 0.875rem. Add size only for structure, never for emphasis inside a table."
+            },
+            {
+                "name": "The 32px Rule",
+                "section": "layout",
+                "body": "The default interactive height is 32px. Go to 28px only inside dense rows. Never exceed 36px in the apps."
+            },
+            {
+                "name": "The Ring Not Shadow Rule",
+                "section": "elevation",
+                "body": "Containers separate with a hairline ring or border. A shadow means \"this floats above scrolling content\"."
+            }
+        ],
+        "dos": [
+            "Do take every color from a token in packages/ui/src/styles/globals.css, and render domain statuses with StatusBadge.",
+            "Do white-label by overriding --brand and --brand-foreground only. Re-check 4.5:1 for the foreground on the tile.",
+            "Do keep interactive controls at 32px (the default size) and text at 0.875rem.",
+            "Do separate containers with the hairline ring or border, not shadows.",
+            "Do build both apps from @propfirmcore/ui components. Add a missing primitive to the package, not to an app.",
+            "Do pair every status with a text label (badge text, cell text). Pass, fail, warn and flag carry money consequences.",
+            "Do check every new surface in both light and dark themes."
+        ],
+        "donts": [
+            "Don't add ad-hoc Tailwind palette colors (green-600, amber-100, \u2026) in app code.",
+            "Don't use --brand on buttons, focus rings or status. Selected controls are the one exception.",
+            "Don't render a heading that repeats the breadcrumb page title.",
+            "Don't nest a Card (or any card-like surface) inside another Card.",
+            "Don't use Signal Red for anything other than destructive, failed or invalid.",
+            "Don't put PropfirmCore branding on trader-facing surfaces. The brand slot belongs to the firm.",
+            "Don't add web fonts or a display type tier to operational screens."
+        ]
+    }
+}

@@ -29,19 +29,20 @@ test("trader buys, admin completes", async ({ browser }) => {
     await admin.getByTestId("sign-in-submit").click();
     await expect(admin.getByTestId("home-heading")).toBeVisible();
     await admin.getByTestId("nav-payments").click();
-    await admin.getByTestId("payment-complete-id").fill(paymentId ?? "");
+    await admin.getByTestId("table-filter").fill(paymentId ?? "");
     const completed = admin.waitForResponse(
         (r) => r.url().includes("/complete") && r.ok(),
     );
-    await admin.getByTestId("payment-complete-submit").click();
+    await admin.getByTestId(`payment-complete-${paymentId}`).click();
+    await admin.getByTestId("confirm-dialog-confirm").click();
     await completed;
     await admin.getByTestId("nav-trading-accounts").click();
     await expect(admin.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 
     await trader.reload();
     await expect(trader.getByTestId("account-status").first()).toHaveText(
-        "active",
+        "Active",
     );
 });

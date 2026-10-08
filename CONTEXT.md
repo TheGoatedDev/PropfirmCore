@@ -100,7 +100,7 @@ Optional follow-on after a breach: the Broker is told to close that position, no
 ### Book
 
 **Trading account**:
-A book that walks a Product's phases. Always owned by a User. Status is `active`, `passed`, or `failed`. A new paid Payment opens a new book; a failed book is not reused. Holds the ruleset copied when this phase opened. Product edits do not change it unless an admin overwrites.
+A book that walks a Product's phases. Always owned by a User. Status is `active`, `passed`, or `failed`. A new paid Payment opens a new book; a failed book is not reused for a new purchase (an admin may reactivate it). Holds the ruleset copied when this phase opened. Product edits do not change it unless an admin overwrites.
 _Avoid_: Account, challenge account, reset, restart
 
 **Active**:
@@ -110,13 +110,17 @@ Currently on a phase. Eval or funded.
 No phases left. Terminal.
 
 **Failed**:
-A fail rule fired, or an admin forced it. Terminal. Open payouts are not auto-rejected.
+A fail rule fired, or an admin forced it. Final unless an admin reactivates it. Open payouts are not auto-rejected.
 
 **Force pass**:
 Admin sets status to `passed`. Skips rules.
 
 **Force fail**:
-Admin sets status to `failed`. Skips rules.
+Admin sets status to `failed`. Skips rules. Active accounts only: a passed account cannot be failed.
+
+**Reactivate**:
+Admin returns a `failed` account to `active` on the same phase, book and ruleset. Rules apply again on the next settle. Failed accounts only.
+_Avoid_: reset, restart, revive
 
 **Equity**:
 Mark-to-market value of the book. Snapshot is truth.

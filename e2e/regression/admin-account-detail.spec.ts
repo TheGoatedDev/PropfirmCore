@@ -32,15 +32,15 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     const admin = await browser.newPage();
     await signInAdmin(admin);
     await admin.getByTestId("nav-payments").click();
-    await admin.getByTestId("payment-complete-id").fill(paymentId ?? "");
+    await admin.getByTestId("table-filter").fill(paymentId ?? "");
     const completed = admin.waitForResponse(
         (r) => r.url().includes("/complete") && r.ok(),
     );
-    await admin.getByTestId("payment-complete-submit").click();
+    await admin.getByTestId(`payment-complete-${paymentId}`).click();
+    await admin.getByTestId("confirm-dialog-confirm").click();
     await completed;
 
     await trader.reload();
-    await trader.getByTestId("row-actions-0").click();
     await trader.getByTestId(/^trading-account-inspect-/).click();
     await expect(trader).toHaveURL(/\/trading-accounts\/[^/]+$/);
     const id = new URL(trader.url()).pathname.split("/").pop() ?? "";
@@ -48,12 +48,11 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     await admin.getByTestId("nav-trading-accounts").click();
     await admin.getByTestId("table-filter").fill(id);
     await expect(admin).toHaveURL(new RegExp(`[?&]q=${id}`));
-    await admin.getByTestId("row-actions-0").click();
     await admin.getByTestId(`account-inspect-${id}`).click();
     await expect(admin).toHaveURL(new RegExp(`/trading-accounts/${id}$`));
 
     await expect(admin.getByTestId("account-detail-status")).toHaveText(
-        "active",
+        "Active",
     );
     await expect(admin.getByTestId("account-breaches-empty")).toBeVisible();
 
@@ -64,8 +63,9 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     await resynced;
 
     await admin.getByTestId("account-fail").click();
+    await admin.getByTestId("confirm-dialog-confirm").click();
     await expect(admin.getByTestId("account-detail-status")).toHaveText(
-        "failed",
+        "Failed",
     );
     await expect(admin.getByTestId("account-pass")).toBeDisabled();
 });

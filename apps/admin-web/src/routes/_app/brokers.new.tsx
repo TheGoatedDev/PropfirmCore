@@ -52,7 +52,7 @@ function NewBroker() {
     });
 
     return (
-        <div className="space-y-4">
+        <div>
             <BrokerForm
                 broker={emptyBroker()}
                 saving={save.isPending}

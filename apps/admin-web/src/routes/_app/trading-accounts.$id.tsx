@@ -7,6 +7,20 @@ import {
     CardTitle,
 } from "@propfirmcore/ui/components/card";
 import {
+    ChartCard,
+    type ChartReference,
+    LineChart,
+    ReferenceLegend,
+} from "@propfirmcore/ui/components/chart";
+import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
+import { DescriptionList } from "@propfirmcore/ui/components/description-list";
+import {
+    EmptyNote,
+    PageSection,
+} from "@propfirmcore/ui/components/page-section";
+import { useShowMore } from "@propfirmcore/ui/components/show-more";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import {
     Table,
     TableBody,
     TableCell,
@@ -14,10 +28,21 @@ import {
     TableHeader,
     TableRow,
 } from "@propfirmcore/ui/components/table";
+import {
+    formatAmount,
+    formatDateTime,
+    formatEnum,
+    formatPercent,
+} from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CircleCheck, CircleX, RefreshCw } from "lucide-react";
+import { CircleCheck, CircleX, RefreshCw, RotateCcw } from "lucide-react";
+import { DateTime } from "luxon";
 import { api, failMsg, keys } from "../../api.ts";
+import {
+    failConfirm,
+    reactivateConfirm,
+} from "../../components/trading-accounts-table.tsx";
 import { fetchFirm } from "../../firm-api.ts";
 import { useUi } from "../../stores/ui.ts";
 
@@ -36,18 +61,33 @@ type Snapshot = {
     ts: string;
 };
 
+function Figure({
+    label,
+    value,
+    detail,
+}: {
+    label: string;
+    value: string;
+    detail: string;
+}) {
+    return (
+        <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">{label}</div>
+            <div className="text-2xl font-semibold tracking-tight">{value}</div>
+            <div className="text-sm text-muted-foreground">{detail}</div>
+        </div>
+    );
+}
+
 export const Route = createFileRoute("/_app/trading-accounts/$id")({
     component: TradingAccount,
     staticData: { crumb: "Trading account" },
 });
 
-function pct(n: number) {
-    return `${n * 100}%`;
-}
-
 function TradingAccount() {
     const { id } = Route.useParams();
     const setError = useUi((s) => s.setError);
+    const confirm = useConfirm();
     const qc = useQueryClient();
 
     const account = useQuery({
@@ -96,13 +136,17 @@ function TradingAccount() {
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
 
     const act = useMutation({
-        mutationFn: async (action: "pass" | "fail" | "resync") => {
+        mutationFn: async (
+            action: "pass" | "fail" | "resync" | "reactivate",
+        ) => {
             const path =
                 action === "pass"
                     ? "/trading-accounts/{id}/pass"
                     : action === "fail"
                       ? "/trading-accounts/{id}/fail"
-                      : "/trading-accounts/{id}/resync-ruleset";
+                      : action === "reactivate"
+                        ? "/trading-accounts/{id}/reactivate"
+                        : "/trading-accounts/{id}/resync-ruleset";
             const { error } = await api.POST(path, {
                 params: { path: { id } },
             });
@@ -115,191 +159,461 @@ function TradingAccount() {
         onError: (error) => setError(failMsg(error, "Action failed")),
     });
 
-    if (account.isError) return <p>Not found</p>;
-    if (!account.data) return <p>Loading</p>;
+    // ISO timestamps sort lexically; newest first.
+    const recentFills = [...(fills.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+    const recentSnapshots = [...(snapshots.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+
+    if (account.isError) {
+        return <EmptyNote>Trading account not found.</EmptyNote>;
+    }
+    if (!account.data) return <EmptyNote>Loading…</EmptyNote>;
 
     const acc = account.data;
     const product = firm.data?.products.find((p) => p.id === acc.productId);
     const phase = product?.phases[acc.phaseIndex];
     const active = acc.status === "active";
-    const facts: [string, string | number][] = [
-        ["User", acc.userId],
-        ["Product", product?.name ?? acc.productId],
-        [
-            "Phase",
-            phase
-                ? `${acc.phaseIndex + 1}. ${phase.name} (${phase.kind})`
-                : acc.phaseIndex + 1,
-        ],
-        ["Broker", acc.brokerId],
-        ["Broker login", acc.brokerLogin],
-        ["KYC", acc.kycVerified ? "verified" : "not verified"],
-        ["Start balance", acc.startBalance],
-        ["Equity", acc.equity],
-        ["Balance", acc.balance],
-        ["Daily start equity", acc.dailyStartEquity],
-        ["Trading days", acc.tradingDays.length],
+    const r = acc.ruleset;
+    const start = acc.startBalance;
+    const pnl = acc.equity - start;
+    const target = start * (1 + r.profitTarget);
+    const floor = start * (1 - r.maxDrawdown);
+    const dailyFloor = acc.dailyStartEquity - start * r.dailyDrawdown;
+    const warnings = (breaches.data ?? []).filter(
+        (b) => b.severity === "warn",
+    ).length;
+    const currency = (firm.data?.checkout.currency ?? "").toUpperCase();
+
+    const references: ChartReference[] = [
+        ...(r.profitTarget > 0
+            ? [
+                  {
+                      key: "target",
+                      label: "Profit target",
+                      value: target,
+                      color: "var(--chart-passed)",
+                  },
+              ]
+            : []),
+        {
+            key: "daily",
+            label: "Daily floor",
+            value: dailyFloor,
+            color: "var(--chart-warn)",
+        },
+        {
+            key: "floor",
+            label: "Max drawdown floor",
+            value: floor,
+            color: "var(--chart-failed)",
+        },
     ];
-    const rules: [string, string | number][] = [
-        ["Profit target", pct(acc.ruleset.profitTarget)],
-        ["Max drawdown", pct(acc.ruleset.maxDrawdown)],
-        ["Daily drawdown", pct(acc.ruleset.dailyDrawdown)],
-        ["Min trading days", acc.ruleset.minTradingDays],
+    const equityPoints = [...(snapshots.data ?? [])]
+        .map((s) => ({ t: Date.parse(s.ts), value: s.equity }))
+        .filter((p) => Number.isFinite(p.t))
+        .sort((x, y) => x.t - y.t);
+
+    const above = (v: number, limit: number) =>
+        v >= limit ? `${formatAmount(v - limit)} above` : "Breached";
+    const ruleRows: {
+        rule: string;
+        limit: string;
+        threshold: string;
+        now: string;
+        headroom: string;
+    }[] = [
+        {
+            rule: "Profit target",
+            limit: formatPercent(r.profitTarget),
+            threshold: r.profitTarget > 0 ? formatAmount(target) : "—",
+            now: formatAmount(acc.equity),
+            headroom:
+                r.profitTarget <= 0
+                    ? "No target"
+                    : acc.equity >= target
+                      ? "Reached"
+                      : `${formatAmount(target - acc.equity)} to go`,
+        },
+        {
+            rule: "Max drawdown",
+            limit: formatPercent(r.maxDrawdown),
+            threshold: formatAmount(floor),
+            now: formatAmount(acc.equity),
+            headroom: above(acc.equity, floor),
+        },
+        {
+            rule: "Daily drawdown",
+            limit: formatPercent(r.dailyDrawdown),
+            threshold: formatAmount(dailyFloor),
+            now: formatAmount(acc.equity),
+            headroom: above(acc.equity, dailyFloor),
+        },
+        {
+            rule: "Min trading days",
+            limit: String(r.minTradingDays),
+            threshold: "—",
+            now: String(acc.tradingDays.length),
+            headroom:
+                acc.tradingDays.length >= r.minTradingDays
+                    ? "Met"
+                    : `${r.minTradingDays - acc.tradingDays.length} to go`,
+        },
+        ...(r.maxWarnings !== undefined
+            ? [
+                  {
+                      rule: "Max warnings",
+                      limit: String(r.maxWarnings),
+                      threshold: "—",
+                      now: String(warnings),
+                      headroom:
+                          warnings < r.maxWarnings
+                              ? `${r.maxWarnings - warnings} left`
+                              : "Reached",
+                  },
+              ]
+            : []),
     ];
-    if (acc.ruleset.maxWarnings !== undefined) {
-        rules.push(["Max warnings", acc.ruleset.maxWarnings]);
-    }
 
     return (
-        <div className="space-y-4">
-            <div className="flex items-center justify-end gap-2">
-                <Button
-                    variant="outline"
-                    data-testid="account-resync"
-                    disabled={act.isPending}
-                    onClick={() => act.mutate("resync")}
-                >
-                    <RefreshCw />
-                    Resync ruleset
-                </Button>
-                <Button
-                    variant="outline"
-                    data-testid="account-pass"
-                    disabled={!active || act.isPending}
-                    onClick={() => act.mutate("pass")}
-                >
-                    <CircleCheck />
-                    Pass
-                </Button>
-                <Button
-                    variant="destructive"
-                    data-testid="account-fail"
-                    disabled={!active || act.isPending}
-                    onClick={() => act.mutate("fail")}
-                >
-                    <CircleX />
-                    Fail
-                </Button>
-            </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
+        <div className="space-y-6">
+            <header className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-lg font-semibold">
+                            {product?.name ?? acc.productId}
+                        </h2>
+                        <StatusBadge
+                            data-testid="account-detail-status"
+                            status={acc.status}
+                        />
+                        {phase ? (
+                            <Badge variant="outline">
+                                Phase {acc.phaseIndex + 1} of{" "}
+                                {product?.phases.length} ·{" "}
+                                {formatEnum(phase.kind)}
+                            </Badge>
+                        ) : null}
+                    </div>
+                    <p className="truncate font-mono text-xs text-muted-foreground">
                         {acc.id}
-                        <Badge data-testid="account-detail-status">
-                            {acc.status}
-                        </Badge>
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <dl className="grid grid-cols-[max-content_1fr] gap-x-6 gap-y-1 text-sm">
-                        {facts.map(([k, v]) => (
-                            <div key={k} className="contents">
-                                <dt className="text-muted-foreground">{k}</dt>
-                                <dd>{v}</dd>
-                            </div>
-                        ))}
-                    </dl>
+                    </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        variant="outline"
+                        data-testid="account-resync"
+                        disabled={act.isPending}
+                        onClick={() => act.mutate("resync")}
+                    >
+                        <RefreshCw />
+                        Resync ruleset
+                    </Button>
+                    <Button
+                        variant="outline"
+                        data-testid="account-pass"
+                        disabled={!active || act.isPending}
+                        onClick={() => act.mutate("pass")}
+                    >
+                        <CircleCheck />
+                        Pass
+                    </Button>
+                    {acc.status === "failed" ? (
+                        <Button
+                            variant="outline"
+                            data-testid="account-reactivate"
+                            disabled={act.isPending}
+                            onClick={async () => {
+                                if (await confirm(reactivateConfirm)) {
+                                    act.mutate("reactivate");
+                                }
+                            }}
+                        >
+                            <RotateCcw />
+                            Reactivate
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="destructive"
+                            data-testid="account-fail"
+                            disabled={!active || act.isPending}
+                            onClick={async () => {
+                                if (await confirm(failConfirm))
+                                    act.mutate("fail");
+                            }}
+                        >
+                            <CircleX />
+                            Fail
+                        </Button>
+                    )}
+                </div>
+            </header>
+
+            <Card>
+                <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <Figure
+                        label="Equity"
+                        value={formatAmount(acc.equity)}
+                        detail={`${currency} sim`}
+                    />
+                    <Figure
+                        label="P&L since start"
+                        value={`${pnl >= 0 ? "+" : "−"}${formatAmount(Math.abs(pnl))}`}
+                        detail={`${pnl >= 0 ? "+" : "−"}${formatPercent(Math.abs(pnl) / start)} of ${formatAmount(start)}`}
+                    />
+                    <Figure
+                        label="Balance"
+                        value={formatAmount(acc.balance)}
+                        detail={`Day started at ${formatAmount(acc.dailyStartEquity)}`}
+                    />
+                    <Figure
+                        label="Trading days"
+                        value={String(acc.tradingDays.length)}
+                        detail={`of ${r.minTradingDays} required`}
+                    />
                 </CardContent>
             </Card>
-            <h3 className="font-medium">Ruleset</h3>
-            <Table>
-                <TableBody>
-                    {rules.map(([k, v]) => (
-                        <TableRow key={k}>
-                            <TableCell className="text-muted-foreground">
-                                {k}
-                            </TableCell>
-                            <TableCell>{v}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Breaches</h3>
-            {breaches.data?.length === 0 ? (
-                <p
-                    className="text-sm text-muted-foreground"
-                    data-testid="account-breaches-empty"
-                >
-                    No warnings or flags.
-                </p>
-            ) : (
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <ChartCard
+                    className="lg:col-span-2"
+                    title="Equity"
+                    description="Every snapshot from the broker, with the rule limits for this phase."
+                    legend={
+                        <ReferenceLegend
+                            references={references}
+                            formatValue={formatAmount}
+                        />
+                    }
+                    chart={
+                        equityPoints.length > 1 ? (
+                            <LineChart
+                                title="Equity over time"
+                                label="Equity"
+                                points={equityPoints}
+                                references={references}
+                                formatValue={formatAmount}
+                                formatTime={(t) =>
+                                    DateTime.fromMillis(t).toFormat(
+                                        "LLL d, HH:mm",
+                                    )
+                                }
+                            />
+                        ) : (
+                            <EmptyNote>
+                                Not enough snapshots to chart yet.
+                            </EmptyNote>
+                        )
+                    }
+                    table={{
+                        columns: ["Time", "Equity"],
+                        rows: [...equityPoints]
+                            .reverse()
+                            .slice(0, 200)
+                            .map((p) => [
+                                formatDateTime(new Date(p.t).toISOString()),
+                                formatAmount(p.value),
+                            ]),
+                    }}
+                />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DescriptionList
+                            items={[
+                                ["User", acc.userId],
+                                ["Broker", acc.brokerId],
+                                ["Broker login", acc.brokerLogin],
+                                [
+                                    "KYC",
+                                    acc.kycVerified
+                                        ? "Verified"
+                                        : "Not verified",
+                                ],
+                                ["Start balance", formatAmount(start)],
+                                ["Peak equity", formatAmount(acc.peakEquity)],
+                            ]}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <PageSection title="Rules">
                 <Table>
                     <TableHeader>
                         <TableRow>
-                            <TableHead>Severity</TableHead>
                             <TableHead>Rule</TableHead>
-                            <TableHead>Phase</TableHead>
-                            <TableHead>Subject</TableHead>
-                            <TableHead>Time</TableHead>
+                            <TableHead className="text-right">Limit</TableHead>
+                            <TableHead className="text-right">
+                                Threshold
+                            </TableHead>
+                            <TableHead className="text-right">Now</TableHead>
+                            <TableHead className="text-right">
+                                Headroom
+                            </TableHead>
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {(breaches.data ?? []).map((b) => (
-                            <TableRow
-                                key={`${b.phaseIndex}-${b.ruleId}-${b.subjectId}-${b.ts}`}
-                            >
-                                <TableCell>
-                                    <Badge
-                                        variant={
-                                            b.severity === "warn"
-                                                ? "destructive"
-                                                : "secondary"
-                                        }
-                                    >
-                                        {b.severity}
-                                    </Badge>
+                        {ruleRows.map((row) => (
+                            <TableRow key={row.rule}>
+                                <TableCell>{row.rule}</TableCell>
+                                <TableCell className="text-right">
+                                    {row.limit}
                                 </TableCell>
-                                <TableCell>{b.ruleId}</TableCell>
-                                <TableCell>{b.phaseIndex + 1}</TableCell>
-                                <TableCell>{b.subjectId}</TableCell>
-                                <TableCell>{b.ts}</TableCell>
+                                <TableCell className="text-right">
+                                    {row.threshold}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {row.now}
+                                </TableCell>
+                                <TableCell
+                                    className={
+                                        row.headroom === "Breached"
+                                            ? "text-right font-medium text-destructive"
+                                            : "text-right"
+                                    }
+                                >
+                                    {row.headroom}
+                                </TableCell>
                             </TableRow>
                         ))}
                     </TableBody>
                 </Table>
-            )}
-            <h3 className="font-medium">Fills</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>Side</TableHead>
-                        <TableHead>Qty</TableHead>
-                        <TableHead>Price</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(fills.data ?? []).map((f) => (
-                        <TableRow key={f.externalId}>
-                            <TableCell>{f.symbol}</TableCell>
-                            <TableCell>{f.side}</TableCell>
-                            <TableCell>{f.qty}</TableCell>
-                            <TableCell>{f.price}</TableCell>
-                            <TableCell>{f.ts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Snapshots</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Equity</TableHead>
-                        <TableHead>Balance</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(snapshots.data ?? []).map((s) => (
-                        <TableRow key={s.externalId}>
-                            <TableCell>{s.equity}</TableCell>
-                            <TableCell>{s.balance}</TableCell>
-                            <TableCell>{s.ts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+            </PageSection>
+            <PageSection title="Breaches">
+                {breaches.data?.length === 0 ? (
+                    <EmptyNote data-testid="account-breaches-empty">
+                        No warnings or flags.
+                    </EmptyNote>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Severity</TableHead>
+                                <TableHead>Rule</TableHead>
+                                <TableHead>Phase</TableHead>
+                                <TableHead>Subject</TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {(breaches.data ?? []).map((b) => (
+                                <TableRow
+                                    key={`${b.phaseIndex}-${b.ruleId}-${b.subjectId}-${b.ts}`}
+                                >
+                                    <TableCell>
+                                        <StatusBadge status={b.severity} />
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatEnum(b.ruleId)}
+                                    </TableCell>
+                                    <TableCell>{b.phaseIndex + 1}</TableCell>
+                                    <TableCell>{b.subjectId}</TableCell>
+                                    <TableCell>
+                                        {formatDateTime(b.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </PageSection>
+            <FillsSection fills={recentFills} />
+            <SnapshotsSection snapshots={recentSnapshots} />
         </div>
+    );
+}
+
+function FillsSection({ fills }: { fills: Fill[] }) {
+    const { visible, footer } = useShowMore(fills);
+    return (
+        <PageSection title="Fills">
+            {fills.length === 0 ? (
+                <EmptyNote>No fills yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Symbol</TableHead>
+                                <TableHead>Side</TableHead>
+                                <TableHead className="text-right">
+                                    Qty
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Price
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((f) => (
+                                <TableRow key={f.externalId}>
+                                    <TableCell>{f.symbol}</TableCell>
+                                    <TableCell>{formatEnum(f.side)}</TableCell>
+                                    <TableCell className="text-right">
+                                        {f.qty}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {f.price}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(f.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
+    );
+}
+
+function SnapshotsSection({ snapshots }: { snapshots: Snapshot[] }) {
+    const { visible, footer } = useShowMore(snapshots);
+    return (
+        <PageSection title="Snapshots">
+            {snapshots.length === 0 ? (
+                <EmptyNote>No snapshots yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-right">
+                                    Equity
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Balance
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((s) => (
+                                <TableRow key={s.externalId}>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.equity)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.balance)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(s.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
     );
 }

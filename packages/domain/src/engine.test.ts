@@ -4,10 +4,13 @@ import { tradingDayKey } from "./calendar.ts";
 import {
     applyFills,
     applySnapshot,
+    canForceFail,
+    canReactivate,
     forceFail,
     forcePass,
     onFundedPhase,
     openTradingAccount,
+    reactivate,
     resyncRuleset,
 } from "./engine.ts";
 import { applyPayout } from "./payout.ts";
@@ -566,5 +569,38 @@ describe("engine", () => {
         expect(forceFail(a).status).toBe("failed");
         expect(forcePass(a).status).toBe("passed");
         expect(forceFail(a).userId).toBe("u1");
+    });
+
+    it("only an active account can be force failed", () => {
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+        );
+        expect(canForceFail(a)).toBe(true);
+        expect(canForceFail(forcePass(a))).toBe(false);
+        expect(canForceFail(forceFail(a))).toBe(false);
+    });
+
+    it("reactivates a failed account and nothing else", () => {
+        const a = openTradingAccount(
+            "a1",
+            oneStep,
+            dailyClose,
+            t0,
+            "u1",
+            "loopback",
+        );
+        const failed = forceFail(a);
+        expect(canReactivate(failed)).toBe(true);
+        expect(canReactivate(a)).toBe(false);
+        expect(canReactivate(forcePass(a))).toBe(false);
+        const back = reactivate(failed);
+        expect(back.status).toBe("active");
+        expect(back.equity).toBe(failed.equity);
+        expect(back.phaseIndex).toBe(failed.phaseIndex);
     });
 });

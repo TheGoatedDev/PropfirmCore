@@ -1,13 +1,20 @@
-import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Card,
     CardContent,
+    CardDescription,
     CardHeader,
     CardTitle,
 } from "@propfirmcore/ui/components/card";
+import { DescriptionList } from "@propfirmcore/ui/components/description-list";
 import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
+import {
+    EmptyNote,
+    PageSection,
+} from "@propfirmcore/ui/components/page-section";
+import { useShowMore } from "@propfirmcore/ui/components/show-more";
+import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
 import {
     Table,
     TableBody,
@@ -16,6 +23,12 @@ import {
     TableHeader,
     TableRow,
 } from "@propfirmcore/ui/components/table";
+import {
+    formatAmount,
+    formatDateTime,
+    formatEnum,
+    formatPercent,
+} from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import type { FormEvent } from "react";
@@ -27,7 +40,8 @@ const payoutSchema = z.object({ amount: z.coerce.number().positive() });
 
 type Product = {
     id: string;
-    phases: { kind: string }[];
+    name: string;
+    phases: { name: string; kind: string }[];
 };
 type Fill = {
     externalId: string;
@@ -35,6 +49,7 @@ type Fill = {
     qty: number;
     price: number;
     side: string;
+    ts: string;
 };
 type Snapshot = {
     externalId: string;
@@ -143,18 +158,34 @@ function AccountDetail({ id }: { id: string }) {
         onError: (error) => setError(failMsg(error, "Payout failed")),
     });
 
-    if (account.isError) return <p>Not found</p>;
-    if (!account.data) return <p>Loading</p>;
+    // ISO timestamps sort lexically; newest first.
+    const recentFills = [...(fills.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+    const recentSnapshots = [...(snapshots.data ?? [])].sort((a, b) =>
+        b.ts.localeCompare(a.ts),
+    );
+
+    if (account.isError) {
+        return <EmptyNote>Trading account not found.</EmptyNote>;
+    }
+    if (!account.data) return <EmptyNote>Loading…</EmptyNote>;
 
     const acc = account.data;
-    const funded =
-        acc.status === "active" &&
-        products.data?.find((p) => p.id === acc.productId)?.phases[
-            acc.phaseIndex
-        ]?.kind === "funded";
+    const product = products.data?.find((p) => p.id === acc.productId);
+    const phase = product?.phases[acc.phaseIndex];
+    const funded = acc.status === "active" && phase?.kind === "funded";
 
     const warned = warnings.data ?? [];
     const max = acc.ruleset.maxWarnings;
+
+    const rules: [string, string][] = [
+        ["Profit target", formatPercent(acc.ruleset.profitTarget)],
+        ["Max drawdown", formatPercent(acc.ruleset.maxDrawdown)],
+        ["Daily drawdown", formatPercent(acc.ruleset.dailyDrawdown)],
+        ["Min trading days", String(acc.ruleset.minTradingDays)],
+    ];
+    if (max !== undefined) rules.push(["Max warnings", String(max)]);
 
     async function submitPayout(e: FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -170,134 +201,228 @@ function AccountDetail({ id }: { id: string }) {
     }
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             <Card>
                 <CardHeader>
-                    <CardTitle>{acc.id}</CardTitle>
+                    <CardTitle className="flex flex-wrap items-center gap-2">
+                        {product?.name ?? acc.productId}
+                        <StatusBadge status={acc.status} />
+                    </CardTitle>
+                    <CardDescription>
+                        {phase
+                            ? `Phase ${acc.phaseIndex + 1} of ${product?.phases.length}: ${phase.name}`
+                            : `Phase ${acc.phaseIndex + 1}`}
+                    </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-1">
-                    <p>Status: {acc.status}</p>
-                    <p>Equity: {acc.equity}</p>
-                    <p>Balance: {acc.balance}</p>
-                    <p>Broker: {acc.brokerId}</p>
-                    <p>Login: {acc.brokerLogin}</p>
-                    <p>Password: {acc.brokerPassword}</p>
+                <CardContent className="grid gap-6 md:grid-cols-2">
+                    <DescriptionList
+                        items={[
+                            ["Equity", formatAmount(acc.equity)],
+                            ["Balance", formatAmount(acc.balance)],
+                            ["Start balance", formatAmount(acc.startBalance)],
+                            [
+                                "Trading days",
+                                `${acc.tradingDays.length} of ${acc.ruleset.minTradingDays}`,
+                            ],
+                        ]}
+                    />
+                    <DescriptionList
+                        items={[
+                            ["Broker", acc.brokerId],
+                            ["Login", acc.brokerLogin],
+                            ["Password", acc.brokerPassword],
+                            ["Account ID", acc.id],
+                        ]}
+                    />
                 </CardContent>
             </Card>
-            <h3 className="font-medium">Warnings</h3>
-            <p
-                className="text-sm text-muted-foreground"
-                data-testid="account-warnings-count"
-            >
-                {max === undefined
-                    ? `${warned.length} ${warned.length === 1 ? "warning" : "warnings"}`
-                    : `${warned.length} of ${max} warnings`}
-            </p>
-            {warned.length > 0 ? (
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead>Rule</TableHead>
-                            <TableHead>Phase</TableHead>
-                            <TableHead>Time</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {warned.map((w, i) => (
-                            <TableRow
-                                key={`${w.phaseIndex}-${w.ruleId}-${w.subjectId}`}
-                                data-testid={`account-warning-${i}`}
-                            >
-                                <TableCell>
-                                    {ruleLabels[w.ruleId] ?? w.ruleId}
-                                </TableCell>
-                                <TableCell>{w.phaseIndex + 1}</TableCell>
-                                <TableCell>{w.ts}</TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            ) : null}
-            {funded ? (
-                <form
-                    className="flex items-end gap-3"
-                    onSubmit={(e) => void submitPayout(e)}
+            <PageSection title="Ruleset">
+                <DescriptionList items={rules} />
+            </PageSection>
+            <PageSection title="Warnings">
+                <p
+                    className="text-sm text-muted-foreground"
+                    data-testid="account-warnings-count"
                 >
-                    <div className="space-y-1">
-                        <Label htmlFor="amount">Payout amount</Label>
-                        <Input
-                            id="amount"
-                            name="amount"
-                            type="number"
-                            min="0"
-                            step="any"
-                            required
-                        />
-                    </div>
-                    <Button type="submit">Request</Button>
-                </form>
-            ) : null}
-            <h3 className="font-medium">Payouts</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>ID</TableHead>
-                        <TableHead>Amount</TableHead>
-                        <TableHead>Status</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(payouts.data ?? []).map((p) => (
-                        <TableRow key={p.id}>
-                            <TableCell>{p.id}</TableCell>
-                            <TableCell>{p.amount}</TableCell>
-                            <TableCell>
-                                <Badge>{p.status}</Badge>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Fills</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Symbol</TableHead>
-                        <TableHead>Side</TableHead>
-                        <TableHead>Qty</TableHead>
-                        <TableHead>Price</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(fills.data ?? []).map((f) => (
-                        <TableRow key={f.externalId}>
-                            <TableCell>{f.symbol}</TableCell>
-                            <TableCell>{f.side}</TableCell>
-                            <TableCell>{f.qty}</TableCell>
-                            <TableCell>{f.price}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
-            <h3 className="font-medium">Snapshots</h3>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead>Equity</TableHead>
-                        <TableHead>Balance</TableHead>
-                        <TableHead>Time</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                    {(snapshots.data ?? []).map((s) => (
-                        <TableRow key={s.externalId}>
-                            <TableCell>{s.equity}</TableCell>
-                            <TableCell>{s.balance}</TableCell>
-                            <TableCell>{s.ts}</TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+                    {max === undefined
+                        ? `${warned.length} ${warned.length === 1 ? "warning" : "warnings"}`
+                        : `${warned.length} of ${max} warnings`}
+                </p>
+                {warned.length > 0 ? (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Rule</TableHead>
+                                <TableHead>Phase</TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {warned.map((w, i) => (
+                                <TableRow
+                                    key={`${w.phaseIndex}-${w.ruleId}-${w.subjectId}`}
+                                    data-testid={`account-warning-${i}`}
+                                >
+                                    <TableCell>
+                                        {ruleLabels[w.ruleId] ??
+                                            formatEnum(w.ruleId)}
+                                    </TableCell>
+                                    <TableCell>{w.phaseIndex + 1}</TableCell>
+                                    <TableCell>
+                                        {formatDateTime(w.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                ) : null}
+            </PageSection>
+            <PageSection title="Payouts">
+                {funded ? (
+                    <form
+                        className="flex items-end gap-3"
+                        onSubmit={(e) => void submitPayout(e)}
+                    >
+                        <div className="space-y-1">
+                            <Label htmlFor="amount">Payout amount</Label>
+                            <Input
+                                id="amount"
+                                name="amount"
+                                type="number"
+                                min="0"
+                                step="any"
+                                required
+                            />
+                        </div>
+                        <Button
+                            type="submit"
+                            disabled={requestPayout.isPending}
+                        >
+                            Request
+                        </Button>
+                    </form>
+                ) : null}
+                {(payouts.data ?? []).length === 0 ? (
+                    <EmptyNote>No payouts yet.</EmptyNote>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>ID</TableHead>
+                                <TableHead className="text-right">
+                                    Amount
+                                </TableHead>
+                                <TableHead>Status</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {(payouts.data ?? []).map((p) => (
+                                <TableRow key={p.id}>
+                                    <TableCell>{p.id}</TableCell>
+                                    <TableCell className="text-right">
+                                        {formatAmount(p.amount)}
+                                    </TableCell>
+                                    <TableCell>
+                                        <StatusBadge status={p.status} />
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                )}
+            </PageSection>
+            <FillsSection fills={recentFills} />
+            <SnapshotsSection snapshots={recentSnapshots} />
         </div>
+    );
+}
+
+function FillsSection({ fills }: { fills: Fill[] }) {
+    const { visible, footer } = useShowMore(fills);
+    return (
+        <PageSection title="Fills">
+            {fills.length === 0 ? (
+                <EmptyNote>No fills yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Symbol</TableHead>
+                                <TableHead>Side</TableHead>
+                                <TableHead className="text-right">
+                                    Qty
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Price
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((f) => (
+                                <TableRow key={f.externalId}>
+                                    <TableCell>{f.symbol}</TableCell>
+                                    <TableCell>{formatEnum(f.side)}</TableCell>
+                                    <TableCell className="text-right">
+                                        {f.qty}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {f.price}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(f.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
+    );
+}
+
+function SnapshotsSection({ snapshots }: { snapshots: Snapshot[] }) {
+    const { visible, footer } = useShowMore(snapshots);
+    return (
+        <PageSection title="Snapshots">
+            {snapshots.length === 0 ? (
+                <EmptyNote>No snapshots yet.</EmptyNote>
+            ) : (
+                <div>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-right">
+                                    Equity
+                                </TableHead>
+                                <TableHead className="text-right">
+                                    Balance
+                                </TableHead>
+                                <TableHead>Time</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {visible.map((s) => (
+                                <TableRow key={s.externalId}>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.equity)}
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        {formatAmount(s.balance)}
+                                    </TableCell>
+                                    <TableCell>
+                                        {formatDateTime(s.ts)}
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                    {footer}
+                </div>
+            )}
+        </PageSection>
     );
 }

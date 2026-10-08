@@ -183,6 +183,9 @@ export type DataTableRowAction = {
     testId?: string;
 };
 
+// Inline up to this many row actions; the rest go in the overflow menu.
+const INLINE_ROW_ACTIONS = 5;
+
 function RowActionsMenu({
     items,
     testId,
@@ -191,39 +194,72 @@ function RowActionsMenu({
     testId: string;
 }) {
     if (!items.length) return null;
+    const inline = items.slice(0, INLINE_ROW_ACTIONS);
+    const overflow = items.slice(INLINE_ROW_ACTIONS);
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger
-                render={
-                    <Button
-                        variant="ghost"
-                        size="icon-sm"
-                        aria-label="Actions"
-                        data-testid={testId}
-                        onClick={(event) => event.stopPropagation()}
-                    />
-                }
-            >
-                <Ellipsis />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-                align="start"
-                onClick={(event) => event.stopPropagation()}
-            >
-                {items.map((item) => (
-                    <DropdownMenuItem
-                        key={item.label}
-                        variant={item.variant ?? "default"}
-                        disabled={item.disabled}
-                        data-testid={item.testId}
-                        onClick={() => item.onSelect()}
+        <div className="flex items-center gap-0.5">
+            {inline.map((item) => (
+                <Tooltip key={item.label}>
+                    <TooltipTrigger
+                        render={
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                aria-label={item.label}
+                                disabled={item.disabled}
+                                data-testid={item.testId}
+                                className={
+                                    item.variant === "destructive"
+                                        ? "text-destructive hover:bg-destructive-subtle hover:text-destructive"
+                                        : undefined
+                                }
+                                onClick={(event) => {
+                                    event.stopPropagation();
+                                    item.onSelect();
+                                }}
+                            />
+                        }
                     >
-                        {item.icon}
-                        {item.label}
-                    </DropdownMenuItem>
-                ))}
-            </DropdownMenuContent>
-        </DropdownMenu>
+                        {item.icon ?? <span>{item.label.charAt(0)}</span>}
+                    </TooltipTrigger>
+                    <TooltipContent>{item.label}</TooltipContent>
+                </Tooltip>
+            ))}
+            {overflow.length ? (
+                <DropdownMenu>
+                    <DropdownMenuTrigger
+                        render={
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                aria-label="More actions"
+                                data-testid={testId}
+                                onClick={(event) => event.stopPropagation()}
+                            />
+                        }
+                    >
+                        <Ellipsis />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent
+                        align="start"
+                        onClick={(event) => event.stopPropagation()}
+                    >
+                        {overflow.map((item) => (
+                            <DropdownMenuItem
+                                key={item.label}
+                                variant={item.variant ?? "default"}
+                                disabled={item.disabled}
+                                data-testid={item.testId}
+                                onClick={() => item.onSelect()}
+                            >
+                                {item.icon}
+                                {item.label}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            ) : null}
+        </div>
     );
 }
 
@@ -243,6 +279,7 @@ export function DataTable<TData extends RowData>({
     loading = false,
     empty = "No results.",
     rowActions,
+    actions,
 }: {
     columns: ColumnDef<DataTableFeatures, TData>[];
     data: TData[];
@@ -267,13 +304,15 @@ export function DataTable<TData extends RowData>({
     loading?: boolean;
     empty?: string;
     rowActions?: (row: TData) => DataTableRowAction[];
+    /** Table-level actions (create, export). Sits opposite the search. */
+    actions?: ReactNode;
 }) {
     const tableColumns = rowActions
         ? [
               {
                   id: "_actions",
                   enableSorting: false,
-                  header: () => <span className="sr-only">Actions</span>,
+                  header: "Actions",
                   cell: ({ row }) => (
                       <RowActionsMenu
                           items={rowActions(row.original)}
@@ -314,21 +353,31 @@ export function DataTable<TData extends RowData>({
     return (
         <TooltipProvider delay={0}>
             <div aria-busy={loading || undefined}>
-                {onFilterChange ? (
-                    <div className="flex items-center py-4">
-                        <div className="relative w-full max-w-sm">
-                            <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                            <Input
-                                placeholder={placeholder}
-                                aria-label={placeholder}
-                                value={filter ?? ""}
-                                onChange={(event) =>
-                                    onFilterChange(event.target.value)
-                                }
-                                className="pl-8"
-                                data-testid="table-filter"
-                            />
-                        </div>
+                {onFilterChange || actions ? (
+                    <div className="flex flex-wrap items-center justify-between gap-3 py-4">
+                        {onFilterChange ? (
+                            <div className="relative w-full max-w-sm">
+                                <Search className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                                <Input
+                                    placeholder={placeholder}
+                                    aria-label={placeholder}
+                                    value={filter ?? ""}
+                                    onChange={(event) =>
+                                        onFilterChange(event.target.value)
+                                    }
+                                    className="pl-8"
+                                    data-testid="table-filter"
+                                />
+                            </div>
+                        ) : null}
+                        {actions ? (
+                            <div
+                                className="ml-auto flex items-center gap-2"
+                                data-testid="table-actions"
+                            >
+                                {actions}
+                            </div>
+                        ) : null}
                     </div>
                 ) : null}
                 <div className="rounded-md border">

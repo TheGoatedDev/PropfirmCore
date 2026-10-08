@@ -9,6 +9,7 @@ import { Input } from "@propfirmcore/ui/components/input";
 import { Label } from "@propfirmcore/ui/components/label";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { Plus } from "lucide-react";
 import { type FormEvent, useState } from "react";
 import { z } from "zod";
 import { api, failMsg, keys } from "../../api.ts";
@@ -68,18 +69,7 @@ function Users() {
     }
 
     return (
-        <section className="space-y-3">
-            <div
-                className="flex items-center justify-end"
-                data-testid="users-heading"
-            >
-                <Button
-                    data-testid="user-create"
-                    onClick={() => setCreating((v) => !v)}
-                >
-                    Create
-                </Button>
-            </div>
+        <section className="space-y-3" data-testid="users-heading">
             {creating ? (
                 <Card>
                     <CardHeader>
@@ -128,8 +118,8 @@ function Users() {
                                     data-testid="user-create-role"
                                     defaultValue="trader"
                                 >
-                                    <option value="trader">trader</option>
-                                    <option value="admin">admin</option>
+                                    <option value="trader">Trader</option>
+                                    <option value="admin">Admin</option>
                                 </select>
                             </div>
                             <div className="sm:col-span-2">
@@ -144,7 +134,19 @@ function Users() {
                     </CardContent>
                 </Card>
             ) : null}
-            <UsersTable meId={me.id} />
+            <UsersTable
+                meId={me.id}
+                actions={
+                    <Button
+                        data-testid="user-create"
+                        aria-expanded={creating}
+                        onClick={() => setCreating((v) => !v)}
+                    >
+                        <Plus />
+                        Add user
+                    </Button>
+                }
+            />
         </section>
     );
 }

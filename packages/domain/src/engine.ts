@@ -226,6 +226,21 @@ export function forcePass(account: TradingAccount): TradingAccount {
     return { ...account, status: "passed" };
 }
 
+/** A passed account is done; only an active one can be failed. */
+export function canForceFail(account: TradingAccount): boolean {
+    return account.status === "active";
+}
+
+/** Admin override: a failed account may trade again. */
+export function canReactivate(account: TradingAccount): boolean {
+    return account.status === "failed";
+}
+
+/** Back to active on the same phase, book and ruleset. Rules apply again on the next settle. */
+export function reactivate(account: TradingAccount): TradingAccount {
+    return { ...account, status: "active" };
+}
+
 export function applySnapshot(
     account: TradingAccount,
     snapshot: Snapshot,
