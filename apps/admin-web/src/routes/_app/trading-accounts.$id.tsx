@@ -36,9 +36,13 @@ import {
 } from "@propfirmcore/ui/lib/format";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { CircleCheck, CircleX, RefreshCw } from "lucide-react";
+import { CircleCheck, CircleX, RefreshCw, RotateCcw } from "lucide-react";
 import { DateTime } from "luxon";
 import { api, failMsg, keys } from "../../api.ts";
+import {
+    failConfirm,
+    reactivateConfirm,
+} from "../../components/trading-accounts-table.tsx";
 import { fetchFirm } from "../../firm-api.ts";
 import { useUi } from "../../stores/ui.ts";
 
@@ -132,13 +136,17 @@ function TradingAccount() {
     const firm = useQuery({ queryKey: keys.firm, queryFn: fetchFirm });
 
     const act = useMutation({
-        mutationFn: async (action: "pass" | "fail" | "resync") => {
+        mutationFn: async (
+            action: "pass" | "fail" | "resync" | "reactivate",
+        ) => {
             const path =
                 action === "pass"
                     ? "/trading-accounts/{id}/pass"
                     : action === "fail"
                       ? "/trading-accounts/{id}/fail"
-                      : "/trading-accounts/{id}/resync-ruleset";
+                      : action === "reactivate"
+                        ? "/trading-accounts/{id}/reactivate"
+                        : "/trading-accounts/{id}/resync-ruleset";
             const { error } = await api.POST(path, {
                 params: { path: { id } },
             });
@@ -312,24 +320,34 @@ function TradingAccount() {
                         <CircleCheck />
                         Pass
                     </Button>
-                    <Button
-                        variant="destructive"
-                        data-testid="account-fail"
-                        disabled={!active || act.isPending}
-                        onClick={async () => {
-                            const ok = await confirm({
-                                title: "Fail this trading account?",
-                                description:
-                                    "A failed account is closed for good and cannot be reused.",
-                                confirmLabel: "Fail account",
-                                variant: "destructive",
-                            });
-                            if (ok) act.mutate("fail");
-                        }}
-                    >
-                        <CircleX />
-                        Fail
-                    </Button>
+                    {acc.status === "failed" ? (
+                        <Button
+                            variant="outline"
+                            data-testid="account-reactivate"
+                            disabled={act.isPending}
+                            onClick={async () => {
+                                if (await confirm(reactivateConfirm)) {
+                                    act.mutate("reactivate");
+                                }
+                            }}
+                        >
+                            <RotateCcw />
+                            Reactivate
+                        </Button>
+                    ) : (
+                        <Button
+                            variant="destructive"
+                            data-testid="account-fail"
+                            disabled={!active || act.isPending}
+                            onClick={async () => {
+                                if (await confirm(failConfirm))
+                                    act.mutate("fail");
+                            }}
+                        >
+                            <CircleX />
+                            Fail
+                        </Button>
+                    )}
                 </div>
             </header>
 
