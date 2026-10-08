@@ -1,22 +1,21 @@
-import type { BrokerWrite } from "@propfirmcore/config";
-import { Button } from "@propfirmcore/ui/components/button";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { type BrokerWrite, brokerWriteSchema } from "@propfirmcore/config";
+import {
+    type Choice,
+    ChoiceGroup,
+} from "@propfirmcore/ui/components/choice-group";
 import {
     Form,
+    FormDescription,
     FormField,
     FormItem,
     FormLabel,
     FormMessage,
 } from "@propfirmcore/ui/components/form";
 import { Input } from "@propfirmcore/ui/components/input";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@propfirmcore/ui/components/select";
-import { formatEnum } from "@propfirmcore/ui/lib/format";
+import { SaveBar, SettingsSection } from "@propfirmcore/ui/components/settings";
 import { useForm } from "react-hook-form";
+import type { z } from "zod";
 
 export function emptyBroker(): BrokerWrite {
     return {
@@ -24,6 +23,21 @@ export function emptyBroker(): BrokerWrite {
         bridge: { provider: "loopback" },
     };
 }
+
+const bridgeChoices: Choice[] = [
+    {
+        value: "loopback",
+        label: "Loopback",
+        description:
+            "Runs inside this server. Provisions sim books with no outside broker.",
+    },
+    {
+        value: "webhook",
+        label: "Webhook",
+        description:
+            "Calls your bridge over HTTP to provision books, move sim, and freeze.",
+    },
+];
 
 export function BrokerForm({
     broker,
@@ -34,115 +48,136 @@ export function BrokerForm({
     onSave: (next: BrokerWrite) => void;
     saving: boolean;
 }) {
-    const form = useForm<BrokerWrite>({
+    const form = useForm<
+        z.input<typeof brokerWriteSchema>,
+        unknown,
+        BrokerWrite
+    >({
+        resolver: zodResolver(brokerWriteSchema),
         defaultValues: broker,
         values: broker,
+        mode: "onTouched",
     });
     const locked = Boolean(broker.id);
+    const webhook = form.watch("bridge.provider") === "webhook";
 
     return (
         <Form {...form}>
-            <form
-                className="grid max-w-xl gap-3 sm:grid-cols-2"
-                onSubmit={form.handleSubmit((v) => onSave(v))}
-            >
-                {locked ? (
+            <form noValidate onSubmit={form.handleSubmit((v) => onSave(v))}>
+                <SettingsSection
+                    title="Identity"
+                    description="How this broker appears to admins and to traders choosing where to trade."
+                >
+                    {locked ? (
+                        <FormItem>
+                            <FormLabel htmlFor="broker-id">Broker ID</FormLabel>
+                            <Input
+                                id="broker-id"
+                                data-testid="broker-id"
+                                value={broker.id ?? ""}
+                                readOnly
+                                aria-describedby="broker-id-desc"
+                                className="bg-muted/50 text-muted-foreground"
+                            />
+                            <FormDescription id="broker-id-desc">
+                                Generated on create. It cannot change.
+                            </FormDescription>
+                        </FormItem>
+                    ) : null}
                     <FormField
                         control={form.control}
-                        name="id"
+                        name="name"
                         render={({ field, fieldState }) => (
                             <FormItem>
-                                <FormLabel htmlFor="broker-id">Id</FormLabel>
+                                <FormLabel htmlFor="broker-name">
+                                    Name
+                                </FormLabel>
                                 <Input
-                                    id="broker-id"
-                                    data-testid="broker-id"
-                                    disabled
-                                    value={field.value ?? ""}
-                                    onChange={field.onChange}
-                                    onBlur={field.onBlur}
-                                    name={field.name}
-                                    ref={field.ref}
+                                    id="broker-name"
+                                    data-testid="broker-name"
+                                    placeholder="e.g. Acme MT5"
+                                    aria-invalid={
+                                        fieldState.invalid || undefined
+                                    }
+                                    {...field}
                                 />
                                 <FormMessage>
-                                    {fieldState.error?.message}
+                                    {fieldState.error
+                                        ? "Name is required"
+                                        : null}
                                 </FormMessage>
                             </FormItem>
                         )}
                     />
-                ) : null}
-                <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field, fieldState }) => (
-                        <FormItem>
-                            <FormLabel htmlFor="broker-name">Name</FormLabel>
-                            <Input
-                                id="broker-name"
-                                data-testid="broker-name"
-                                {...field}
-                            />
-                            <FormMessage>
-                                {fieldState.error?.message}
-                            </FormMessage>
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="bridge.provider"
-                    render={({ field, fieldState }) => (
-                        <FormItem>
-                            <FormLabel>Bridge</FormLabel>
-                            <Select
-                                value={field.value}
-                                onValueChange={field.onChange}
-                            >
-                                <SelectTrigger>
-                                    <SelectValue>{formatEnum}</SelectValue>
-                                </SelectTrigger>
-                                <SelectContent>
-                                    <SelectItem value="loopback">
-                                        Loopback
-                                    </SelectItem>
-                                    <SelectItem value="webhook">
-                                        Webhook
-                                    </SelectItem>
-                                </SelectContent>
-                            </Select>
-                            <FormMessage>
-                                {fieldState.error?.message}
-                            </FormMessage>
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="bridge.url"
-                    render={({ field, fieldState }) => (
-                        <FormItem>
-                            <FormLabel>Bridge url</FormLabel>
-                            <Input
-                                value={field.value ?? ""}
-                                onChange={(e) =>
-                                    field.onChange(e.target.value || undefined)
-                                }
-                            />
-                            <FormMessage>
-                                {fieldState.error?.message}
-                            </FormMessage>
-                        </FormItem>
-                    )}
-                />
-                <FormMessage className="sm:col-span-2">
-                    {form.formState.errors.root?.message}
-                </FormMessage>
-                <Button
-                    type="submit"
-                    disabled={saving}
-                    data-testid="broker-save"
+                </SettingsSection>
+
+                <SettingsSection
+                    title="Bridge"
+                    description="How the platform reaches the broker to open books and move sim. The trader picks a broker at purchase and keeps it."
                 >
-                    Save
-                </Button>
+                    <FormField
+                        control={form.control}
+                        name="bridge.provider"
+                        render={({ field }) => (
+                            <FormItem className="sm:col-span-2">
+                                <FormLabel id="bridge-label">
+                                    Connection
+                                </FormLabel>
+                                <ChoiceGroup
+                                    aria-labelledby="bridge-label"
+                                    data-testid="broker-bridge"
+                                    choices={bridgeChoices}
+                                    value={field.value ?? "loopback"}
+                                    onValueChange={field.onChange}
+                                />
+                            </FormItem>
+                        )}
+                    />
+                    {webhook ? (
+                        <FormField
+                            control={form.control}
+                            name="bridge.url"
+                            render={({ field, fieldState }) => (
+                                <FormItem className="sm:col-span-2">
+                                    <FormLabel htmlFor="bridge-url">
+                                        Bridge URL
+                                    </FormLabel>
+                                    <Input
+                                        id="bridge-url"
+                                        type="url"
+                                        inputMode="url"
+                                        placeholder="https://bridge.example.com"
+                                        data-testid="broker-bridge-url"
+                                        aria-invalid={
+                                            fieldState.invalid || undefined
+                                        }
+                                        value={field.value ?? ""}
+                                        onBlur={field.onBlur}
+                                        onChange={(e) =>
+                                            field.onChange(
+                                                e.target.value || undefined,
+                                            )
+                                        }
+                                    />
+                                    <FormMessage>
+                                        {fieldState.error
+                                            ? "Enter the bridge's full https:// URL."
+                                            : null}
+                                    </FormMessage>
+                                </FormItem>
+                            )}
+                        />
+                    ) : null}
+                </SettingsSection>
+
+                <SaveBar
+                    dirty={form.formState.isDirty}
+                    saving={saving}
+                    onDiscard={() => form.reset(broker)}
+                    error={form.formState.errors.root?.message}
+                    saveLabel={locked ? "Save changes" : "Create broker"}
+                    testId="broker-save"
+                />
             </form>
         </Form>
     );
