@@ -182,3 +182,21 @@ it("/auth/me lists the caller's Permissions", async () => {
     ).json()) as { permissions: Record<string, string[]> };
     expect(traderMe.permissions).toEqual({});
 });
+
+it("racing creates with one email give one 200 and 409s", async () => {
+    const admin = cookie(await signIn("admin@example.com", "changeme"));
+    const email = `race${Date.now()}@example.com`;
+    const body = {
+        email,
+        name: "Race",
+        password: "password12",
+        role: "trader",
+    };
+    const statuses = await Promise.all(
+        Array.from({ length: 5 }, () =>
+            post("/users", body, { cookie: admin }).then((r) => r.status),
+        ),
+    );
+    expect(statuses.sort()).toEqual([200, 409, 409, 409, 409]);
+    expect((await signIn(email, "password12")).ok).toBe(true);
+});

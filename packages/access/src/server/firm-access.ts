@@ -74,7 +74,7 @@ type HasContext = {
     $context: Promise<{
         internalAdapter: Pick<
             AuthContext["internalAdapter"],
-            "findUserByEmail" | "createUser" | "linkAccount"
+            "findUserByEmail" | "createUser" | "linkAccount" | "deleteUser"
         >;
         password: Pick<AuthContext["password"], "hash">;
     }>;
@@ -92,16 +92,30 @@ export async function createStaffUser(
     const ctx = await auth.$context;
     const email = input.email.toLowerCase();
     if (await ctx.internalAdapter.findUserByEmail(email)) return null;
-    const user = await ctx.internalAdapter.createUser(
-        { email, name: input.name, role: input.role },
-        { method: "admin" },
-    );
-    await ctx.internalAdapter.linkAccount({
-        providerId: "credential",
-        issuer: createLocalAccountIssuer("credential"),
-        accountId: user.id,
-        userId: user.id,
-        password: await ctx.password.hash(input.password),
-    });
+    const password = await ctx.password.hash(input.password);
+    let user: { id: string };
+    try {
+        user = await ctx.internalAdapter.createUser(
+            { email, name: input.name, role: input.role },
+            { method: "admin" },
+        );
+    } catch (err) {
+        // Lost a race to a concurrent create: the unique email index fired.
+        if (await ctx.internalAdapter.findUserByEmail(email)) return null;
+        throw err;
+    }
+    try {
+        await ctx.internalAdapter.linkAccount({
+            providerId: "credential",
+            issuer: createLocalAccountIssuer("credential"),
+            accountId: user.id,
+            userId: user.id,
+            password,
+        });
+    } catch (err) {
+        // No login without the credential row; don't leave the email stuck.
+        await ctx.internalAdapter.deleteUser(user.id);
+        throw err;
+    }
     return { id: user.id };
 }
