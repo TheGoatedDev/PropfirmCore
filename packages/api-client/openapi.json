@@ -335,7 +335,8 @@
                                         },
                                         "name": {
                                             "type": "string",
-                                            "minLength": 1
+                                            "minLength": 1,
+                                            "maxLength": 80
                                         },
                                         "dailyClose": {
                                             "type": "object",
@@ -401,12 +402,13 @@
                                             "properties": {
                                                 "provider": {
                                                     "type": "string",
-                                                    "minLength": 1,
+                                                    "enum": [
+                                                        "manual"
+                                                    ],
                                                     "default": "manual"
                                                 },
                                                 "currency": {
                                                     "type": "string",
-                                                    "minLength": 1,
                                                     "default": "usd"
                                                 }
                                             },
@@ -751,7 +753,8 @@
                                     },
                                     "name": {
                                         "type": "string",
-                                        "minLength": 1
+                                        "minLength": 1,
+                                        "maxLength": 80
                                     },
                                     "dailyClose": {
                                         "type": "object",
@@ -817,12 +820,13 @@
                                         "properties": {
                                             "provider": {
                                                 "type": "string",
-                                                "minLength": 1,
+                                                "enum": [
+                                                    "manual"
+                                                ],
                                                 "default": "manual"
                                             },
                                             "currency": {
                                                 "type": "string",
-                                                "minLength": 1,
                                                 "default": "usd"
                                             }
                                         },
@@ -1121,7 +1125,8 @@
                                         },
                                         "name": {
                                             "type": "string",
-                                            "minLength": 1
+                                            "minLength": 1,
+                                            "maxLength": 80
                                         },
                                         "dailyClose": {
                                             "type": "object",
@@ -1187,12 +1192,13 @@
                                             "properties": {
                                                 "provider": {
                                                     "type": "string",
-                                                    "minLength": 1,
+                                                    "enum": [
+                                                        "manual"
+                                                    ],
                                                     "default": "manual"
                                                 },
                                                 "currency": {
                                                     "type": "string",
-                                                    "minLength": 1,
                                                     "default": "usd"
                                                 }
                                             },
@@ -6108,6 +6114,301 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/stats/overview": {
+            "get": {
+                "tags": [
+                    "Stats"
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Admin home figures. Daily series cover the last 14 trading-clock days in the firm timezone, oldest first.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "accounts": {
+                                            "type": "object",
+                                            "properties": {
+                                                "active": {
+                                                    "type": "number"
+                                                },
+                                                "passed": {
+                                                    "type": "number"
+                                                },
+                                                "failed": {
+                                                    "type": "number"
+                                                },
+                                                "byProduct": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "object",
+                                                        "properties": {
+                                                            "active": {
+                                                                "type": "number"
+                                                            },
+                                                            "passed": {
+                                                                "type": "number"
+                                                            },
+                                                            "failed": {
+                                                                "type": "number"
+                                                            },
+                                                            "productId": {
+                                                                "type": "string"
+                                                            }
+                                                        },
+                                                        "required": [
+                                                            "active",
+                                                            "passed",
+                                                            "failed",
+                                                            "productId"
+                                                        ]
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "active",
+                                                "passed",
+                                                "failed",
+                                                "byProduct"
+                                            ]
+                                        },
+                                        "payments": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pending": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "paid": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "failed": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "canceled": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pending",
+                                                "paid",
+                                                "failed",
+                                                "canceled"
+                                            ]
+                                        },
+                                        "payouts": {
+                                            "type": "object",
+                                            "properties": {
+                                                "pending": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "approved": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "rejected": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                },
+                                                "paid": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "count": {
+                                                            "type": "number"
+                                                        },
+                                                        "amount": {
+                                                            "type": "number"
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "count",
+                                                        "amount"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "pending",
+                                                "approved",
+                                                "rejected",
+                                                "paid"
+                                            ]
+                                        },
+                                        "days": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "fills": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "signups": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "number"
+                                            }
+                                        },
+                                        "breaches": {
+                                            "type": "object",
+                                            "properties": {
+                                                "warn": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "flag": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "type": "number"
+                                                    }
+                                                }
+                                            },
+                                            "required": [
+                                                "warn",
+                                                "flag"
+                                            ]
+                                        }
+                                    },
+                                    "required": [
+                                        "accounts",
+                                        "payments",
+                                        "payouts",
+                                        "days",
+                                        "fills",
+                                        "signups",
+                                        "breaches"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -14506,6 +14807,10 @@
         {
             "name": "Users",
             "description": "Users: list, create, ban, and set Role."
+        },
+        {
+            "name": "Stats",
+            "description": "Admin home figures: counts, money totals, daily activity."
         },
         {
             "name": "Ingest",

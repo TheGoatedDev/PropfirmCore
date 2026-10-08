@@ -128,8 +128,11 @@ export interface paths {
                              *     }
                              */
                             checkout: {
-                                /** @default manual */
-                                provider: string;
+                                /**
+                                 * @default manual
+                                 * @enum {string}
+                                 */
+                                provider: "manual";
                                 /** @default usd */
                                 currency: string;
                             };
@@ -292,8 +295,11 @@ export interface paths {
                          *     }
                          */
                         checkout?: {
-                            /** @default manual */
-                            provider?: string;
+                            /**
+                             * @default manual
+                             * @enum {string}
+                             */
+                            provider?: "manual";
                             /** @default usd */
                             currency?: string;
                         };
@@ -428,8 +434,11 @@ export interface paths {
                              *     }
                              */
                             checkout: {
-                                /** @default manual */
-                                provider: string;
+                                /**
+                                 * @default manual
+                                 * @enum {string}
+                                 */
+                                provider: "manual";
                                 /** @default usd */
                                 currency: string;
                             };
@@ -3026,6 +3035,120 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/stats/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Admin home figures. Daily series cover the last 14 trading-clock days in the firm timezone, oldest first. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            accounts: {
+                                active: number;
+                                passed: number;
+                                failed: number;
+                                byProduct: {
+                                    active: number;
+                                    passed: number;
+                                    failed: number;
+                                    productId: string;
+                                }[];
+                            };
+                            payments: {
+                                pending: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                paid: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                failed: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                canceled: {
+                                    count: number;
+                                    amount: number;
+                                };
+                            };
+                            payouts: {
+                                pending: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                approved: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                rejected: {
+                                    count: number;
+                                    amount: number;
+                                };
+                                paid: {
+                                    count: number;
+                                    amount: number;
+                                };
+                            };
+                            days: string[];
+                            fills: number[];
+                            signups: number[];
+                            breaches: {
+                                warn: number[];
+                                flag: number[];
+                            };
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
