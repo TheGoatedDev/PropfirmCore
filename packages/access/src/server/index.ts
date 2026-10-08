@@ -17,8 +17,15 @@ export function setRoles(roles: ReadonlyMap<string, Permissions>): void {
     customRoles = roles;
 }
 
+let loadsStarted = 0;
+let loadApplied = 0;
+
+/** Reloads can overlap; one that started earlier never overwrites a later one. */
 export async function loadRoles(db: AccessDb): Promise<void> {
+    const seq = ++loadsStarted;
     const rows = await db.select().from(firmRoles);
+    if (seq < loadApplied) return;
+    loadApplied = seq;
     setRoles(
         new Map(rows.map((r) => [r.name, cleanPermissions(r.permissions)])),
     );
