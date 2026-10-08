@@ -19,6 +19,7 @@ test("a custom Role limits what Staff see", async ({ browser }) => {
     await admin.getByTestId("role-name").fill(role);
     await admin.getByTestId("perm-payout-list").click();
     await admin.getByTestId("perm-payout-approve").click();
+    await admin.getByTestId("perm-tradingAccount-read").click();
     await admin.getByTestId("role-save").click();
     await expect(admin.getByText(`Support ${suffix}`)).toBeVisible();
 
@@ -47,6 +48,12 @@ test("a custom Role limits what Staff see", async ({ browser }) => {
     ).toBeVisible();
 
     await staff.goto(`${adminUrl}/firm`);
+    await expect(staff.getByTestId("home-heading")).toBeVisible();
+
+    // read without list: the account page opens, the list does not.
+    await staff.goto(`${adminUrl}/trading-accounts/missing`);
+    await expect(staff).toHaveURL(`${adminUrl}/trading-accounts/missing`);
+    await staff.goto(`${adminUrl}/trading-accounts`);
     await expect(staff.getByTestId("home-heading")).toBeVisible();
 
     await staff.getByTestId("nav-roles").click();
