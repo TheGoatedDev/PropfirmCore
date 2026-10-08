@@ -14,19 +14,25 @@ test("an on switch uses the brand colour in dark mode", async ({ page }) => {
 
     await page.getByTestId("nav-firm").click();
     const kyc = page.getByTestId("modules-kyc-enabled");
-    if ((await kyc.getAttribute("aria-checked")) !== "true") await kyc.click();
+    // Always click it on, so the test covers the colour fade like a fresh stack.
+    if ((await kyc.getAttribute("aria-checked")) === "true") await kyc.click();
+    await expect(kyc).toHaveAttribute("aria-checked", "false");
+    await kyc.click();
     await expect(kyc).toHaveAttribute("aria-checked", "true");
 
-    const [switchBg, brandBg] = await kyc.evaluate((el) => {
-        const probe = document.createElement("span");
-        probe.style.background = "var(--brand)";
-        el.parentElement?.append(probe);
-        const out = [
-            getComputedStyle(el).backgroundColor,
-            getComputedStyle(probe).backgroundColor,
-        ];
-        probe.remove();
-        return out;
-    });
-    expect(switchBg).toBe(brandBg);
+    // The switch fades its colour over 150ms after a click; wait for it to settle.
+    await expect
+        .poll(() =>
+            kyc.evaluate((el) => {
+                const probe = document.createElement("span");
+                probe.style.background = "var(--brand)";
+                el.parentElement?.append(probe);
+                const same =
+                    getComputedStyle(el).backgroundColor ===
+                    getComputedStyle(probe).backgroundColor;
+                probe.remove();
+                return same;
+            }),
+        )
+        .toBe(true);
 });
