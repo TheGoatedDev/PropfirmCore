@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
     builtinRoles,
+    cleanPermissions,
     hasPermission,
     isBuiltinRole,
     isStaff,
@@ -96,5 +97,23 @@ describe("role names", () => {
         expect(roleNameSchema.safeParse("Support").success).toBe(false);
         expect(roleNameSchema.safeParse("a").success).toBe(false);
         expect(roleNameSchema.safeParse("-x").success).toBe(false);
+    });
+});
+
+describe("cleanPermissions", () => {
+    it("drops unknown resources and actions, dedupes, orders", () => {
+        expect(
+            cleanPermissions({
+                payout: ["approve", "steal", "read", "approve"],
+                session: ["list"],
+                firm: [],
+                kyc: "write",
+            }),
+        ).toEqual({ payout: ["read", "approve"] });
+    });
+
+    it("non-objects clean to nothing", () => {
+        expect(cleanPermissions(null)).toEqual({});
+        expect(cleanPermissions("admin")).toEqual({});
     });
 });

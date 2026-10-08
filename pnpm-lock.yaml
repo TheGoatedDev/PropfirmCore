@@ -326,6 +326,9 @@ importers:
       better-auth:
         specifier: 1.7.2
         version: 1.7.2(drizzle-kit@0.31.10)(drizzle-orm@0.45.2(kysely@0.29.5)(postgres@3.4.9))(react-dom@19.2.8(react@19.2.8))(react@19.2.8)(vitest@4.1.11)
+      drizzle-orm:
+        specifier: 0.45.2
+        version: 0.45.2(kysely@0.29.5)(postgres@3.4.9)
       typescript:
         specifier: 7.0.2
         version: 7.0.2

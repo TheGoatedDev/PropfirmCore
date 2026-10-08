@@ -1,4 +1,5 @@
 import { serve } from "@hono/node-server";
+import { loadRoles } from "@propfirmcore/access/server";
 import { createAuth } from "./auth/auth.ts";
 import { bootstrapAdmin } from "./auth/bootstrap-admin.ts";
 import { brokerSecrets, loadBrokerSecrets } from "./brokers/credentials.ts";
@@ -27,6 +28,15 @@ if (env.BOOTSTRAP_ADMIN_EMAIL && env.BOOTSTRAP_ADMIN_PASSWORD) {
         password: env.BOOTSTRAP_ADMIN_PASSWORD,
     });
 }
+
+await loadRoles(db);
+await sql.listen("firm_roles", async () => {
+    try {
+        await loadRoles(db);
+    } catch (err) {
+        log.error({ err }, "roles reload");
+    }
+});
 
 await sql.listen("firm_config", async () => {
     try {

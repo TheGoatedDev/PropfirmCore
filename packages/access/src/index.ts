@@ -31,6 +31,22 @@ export const permissionsSchema = z.strictObject(
     ) as unknown as PermissionsShape,
 );
 
+/**
+ * Keep only catalog Permissions, deduped, in catalog order. Stored Roles may
+ * name actions a later release removed.
+ */
+export function cleanPermissions(raw: unknown): Permissions {
+    const out: Record<string, string[]> = {};
+    if (!raw || typeof raw !== "object") return out;
+    for (const r of resources) {
+        const actions = (raw as Record<string, unknown>)[r];
+        if (!Array.isArray(actions)) continue;
+        const kept = catalog[r].filter((a) => actions.includes(a));
+        if (kept.length) out[r] = kept;
+    }
+    return out as Permissions;
+}
+
 export const builtinRoles = {
     trader: {},
     admin: catalog,
