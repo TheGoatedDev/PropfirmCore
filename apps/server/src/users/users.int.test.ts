@@ -303,3 +303,81 @@ it("refuses to leave no unbanned Admin", async () => {
         await put(`/users/${u.id}/ban`, { banned: false }, admin);
     }
 });
+
+it("concurrent bans cannot remove the last two Admins", async () => {
+    const admin = await signIn("admin@example.com");
+    const adminId = (
+        (await (
+            await fetch(`${base}/auth/me`, {
+                headers: { origin: base, cookie: admin },
+            })
+        ).json()) as { id: string }
+    ).id;
+    const stamp = Date.now();
+    const all = {
+        user: ["list", "create", "ban", "set-role"],
+        role: ["write"],
+        payment: ["complete", "read", "list"],
+        tradingAccount: [
+            "read",
+            "list",
+            "fail",
+            "pass",
+            "resync",
+            "reactivate",
+        ],
+        payout: ["read", "list", "approve", "reject", "pay"],
+        firm: ["read", "write"],
+        broker: ["credentials"],
+        kyc: ["write"],
+    };
+    const roleName = `all-${stamp}`;
+    expect(
+        (await put("/roles", { name: roleName, permissions: all }, admin)).ok,
+    ).toBe(true);
+
+    async function create(prefix: string, role: string) {
+        const email = `${prefix}${stamp}@example.com`;
+        const res = await put(
+            "/users",
+            { email, name: prefix, password: "password12", role },
+            admin,
+        );
+        expect(res.ok).toBe(true);
+        const { id } = (await res.json()) as { id: string };
+        const session = cookie(
+            await post("/auth/sign-in/email", {
+                email,
+                password: "password12",
+            }),
+        );
+        return { id, session };
+    }
+    const second = await create("second", "admin");
+    const rootA = await create("rootA", roleName);
+    const rootB = await create("rootB", roleName);
+
+    // Leave exactly two unbanned Admins: the bootstrap one and `second`.
+    const others = (
+        (await (
+            await fetch(`${base}/users?role=admin&banned=false&pageSize=100`, {
+                headers: { origin: base, cookie: admin },
+            })
+        ).json()) as Listed
+    ).items.filter((u) => u.id !== adminId && u.id !== second.id);
+    for (const u of others) {
+        expect(
+            (await put(`/users/${u.id}/ban`, { banned: true }, admin)).ok,
+        ).toBe(true);
+    }
+
+    const statuses = await Promise.all([
+        put(`/users/${adminId}/ban`, { banned: true }, rootA.session),
+        put(`/users/${second.id}/ban`, { banned: true }, rootB.session),
+    ]).then((rs) => rs.map((r) => r.status).sort());
+    expect(statuses).toEqual([200, 409]);
+
+    for (const id of [adminId, second.id, ...others.map((u) => u.id)]) {
+        await put(`/users/${id}/ban`, { banned: false }, rootA.session);
+    }
+});
