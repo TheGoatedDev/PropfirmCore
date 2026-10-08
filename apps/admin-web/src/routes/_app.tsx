@@ -16,6 +16,7 @@ import {
     House,
     Landmark,
     Package,
+    ShieldCheck,
     Users,
     Wallet,
 } from "lucide-react";
@@ -161,6 +162,13 @@ function App() {
                             <SidebarItem icon={<Users />}>Users</SidebarItem>
                         </Link>
                     )}
+                    <Link
+                        to="/roles"
+                        className="block rounded-lg px-2 py-1.5 text-sm hover:bg-muted"
+                        data-testid="nav-roles"
+                    >
+                        <SidebarItem icon={<ShieldCheck />}>Roles</SidebarItem>
+                    </Link>
                 </nav>
             }
             crumbs={matches

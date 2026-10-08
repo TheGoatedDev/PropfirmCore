@@ -1,3 +1,4 @@
+import { within } from "@propfirmcore/access";
 import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import {
     type ColumnFiltersState,
@@ -8,6 +9,7 @@ import {
     type SortingState,
 } from "@propfirmcore/ui/components/data-table";
 import { StatusBadge } from "@propfirmcore/ui/components/status-badge";
+import { formatEnum } from "@propfirmcore/ui/lib/format";
 import {
     keepPreviousData,
     useMutation,
@@ -23,8 +25,8 @@ import {
     useQueryStates,
 } from "nuqs";
 import { type ReactNode, useEffect, useState } from "react";
-import { useCan } from "../access.ts";
-import { api, failMsg, keys } from "../api.ts";
+import { useCan, useMe } from "../access.ts";
+import { api, failMsg, fetchRoles, keys } from "../api.ts";
 import { useUi } from "../stores/ui.ts";
 import { nextUserSort } from "./users-sort.ts";
 
@@ -45,7 +47,7 @@ const userSearch = {
     pageSize: parseAsInteger.withDefault(10),
     sort: parseAsStringLiteral(sortIds).withDefault("createdAt"),
     order: parseAsStringLiteral(["asc", "desc"]).withDefault("desc"),
-    role: parseAsStringLiteral(["trader", "admin"]),
+    role: parseAsString,
     banned: parseAsStringLiteral(["true", "false"]),
 };
 const selectClass =
@@ -61,6 +63,12 @@ export function UsersTable({
     const setError = useUi((s) => s.setError);
     const confirm = useConfirm();
     const can = useCan();
+    const me = useMe();
+    const roles = useQuery({ queryKey: keys.roles, queryFn: fetchRoles });
+    // Roles this user may hand out: within their own.
+    const assignable = (roles.data ?? [])
+        .filter((r) => within(r.permissions, me.permissions))
+        .map((r) => r.name);
     const qc = useQueryClient();
     const [{ q, page, pageSize, sort, order, role, banned }, setSearch] =
         useQueryStates(userSearch);
@@ -154,39 +162,45 @@ export function UsersTable({
                     meta: {
                         filter: {
                             variant: "select",
-                            options: [
-                                { label: "Trader", value: "trader" },
-                                { label: "Admin", value: "admin" },
-                            ],
+                            options: (roles.data ?? []).map((r) => ({
+                                label: formatEnum(r.name),
+                                value: r.name,
+                            })),
                         },
                     },
                     cell: ({ row }) => {
                         const self = row.original.id === meId;
                         const roleValue = row.original.role;
+                        const reachable = assignable.includes(roleValue);
                         return (
                             <select
                                 className={selectClass}
                                 data-testid={`user-role-${row.original.id}`}
                                 value={roleValue}
-                                disabled={self || !can("user", "set-role")}
+                                disabled={
+                                    self ||
+                                    !reachable ||
+                                    !can("user", "set-role")
+                                }
                                 onClick={(ev) => ev.stopPropagation()}
                                 onChange={(ev) => {
-                                    const next = ev.target.value;
                                     setError(null);
                                     setRole.mutate({
                                         id: row.original.id,
-                                        role: next,
+                                        role: ev.target.value,
                                     });
                                 }}
                             >
-                                <option value="trader">Trader</option>
-                                <option value="admin">Admin</option>
-                                {roleValue !== "trader" &&
-                                    roleValue !== "admin" && (
-                                        <option value={roleValue}>
-                                            {roleValue}
-                                        </option>
-                                    )}
+                                {reachable ? null : (
+                                    <option value={roleValue}>
+                                        {formatEnum(roleValue)}
+                                    </option>
+                                )}
+                                {assignable.map((name) => (
+                                    <option key={name} value={name}>
+                                        {formatEnum(name)}
+                                    </option>
+                                ))}
                             </select>
                         );
                     },
@@ -257,9 +271,7 @@ export function UsersTable({
                 const bannedVal = next.find((f) => f.id === "banned")?.value;
                 void setSearch({
                     role:
-                        roleVal === "trader" || roleVal === "admin"
-                            ? roleVal
-                            : null,
+                        typeof roleVal === "string" && roleVal ? roleVal : null,
                     banned:
                         bannedVal === "true" || bannedVal === "false"
                             ? bannedVal

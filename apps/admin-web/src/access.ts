@@ -4,6 +4,10 @@ import { Route as AppRoute } from "./routes/_app.tsx";
 
 type Me = { permissions: Permissions };
 
+export function useMe() {
+    return AppRoute.useRouteContext().me;
+}
+
 /** The server checks again; this only hides what would be refused. */
 export function useCan() {
     const { me } = AppRoute.useRouteContext();

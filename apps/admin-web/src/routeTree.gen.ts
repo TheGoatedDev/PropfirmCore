@@ -17,6 +17,7 @@ import { Route as AppFirmRouteImport } from './routes/_app/firm'
 import { Route as AppPaymentsRouteImport } from './routes/_app/payments'
 import { Route as AppPayoutsRouteImport } from './routes/_app/payouts'
 import { Route as AppProductsRouteImport } from './routes/_app/products'
+import { Route as AppRolesRouteImport } from './routes/_app/roles'
 import { Route as AppTradingAccountsRouteImport } from './routes/_app/trading-accounts'
 import { Route as AppUsersRouteImport } from './routes/_app/users'
 import { Route as GuestSigninRouteImport } from './routes/_guest/signin'
@@ -65,6 +66,11 @@ const AppPayoutsRoute = AppPayoutsRouteImport.update({
 const AppProductsRoute = AppProductsRouteImport.update({
   id: '/products',
   path: '/products',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppRolesRoute = AppRolesRouteImport.update({
+  id: '/roles',
+  path: '/roles',
   getParentRoute: () => AppRoute,
 } as any)
 const AppTradingAccountsRoute = AppTradingAccountsRouteImport.update({
@@ -130,6 +136,7 @@ export interface FileRoutesByFullPath {
   '/payments': typeof AppPaymentsRoute
   '/payouts': typeof AppPayoutsRoute
   '/products': typeof AppProductsRouteWithChildren
+  '/roles': typeof AppRolesRoute
   '/trading-accounts': typeof AppTradingAccountsRouteWithChildren
   '/users': typeof AppUsersRoute
   '/signin': typeof GuestSigninRoute
@@ -147,6 +154,7 @@ export interface FileRoutesByTo {
   '/firm': typeof AppFirmRoute
   '/payments': typeof AppPaymentsRoute
   '/payouts': typeof AppPayoutsRoute
+  '/roles': typeof AppRolesRoute
   '/users': typeof AppUsersRoute
   '/signin': typeof GuestSigninRoute
   '/brokers/$id': typeof AppBrokersIdRoute
@@ -167,6 +175,7 @@ export interface FileRoutesById {
   '/_app/payments': typeof AppPaymentsRoute
   '/_app/payouts': typeof AppPayoutsRoute
   '/_app/products': typeof AppProductsRouteWithChildren
+  '/_app/roles': typeof AppRolesRoute
   '/_app/trading-accounts': typeof AppTradingAccountsRouteWithChildren
   '/_app/users': typeof AppUsersRoute
   '/_guest/signin': typeof GuestSigninRoute
@@ -189,6 +198,7 @@ export interface FileRouteTypes {
     | '/payments'
     | '/payouts'
     | '/products'
+    | '/roles'
     | '/trading-accounts'
     | '/users'
     | '/signin'
@@ -206,6 +216,7 @@ export interface FileRouteTypes {
     | '/firm'
     | '/payments'
     | '/payouts'
+    | '/roles'
     | '/users'
     | '/signin'
     | '/brokers/$id'
@@ -225,6 +236,7 @@ export interface FileRouteTypes {
     | '/_app/payments'
     | '/_app/payouts'
     | '/_app/products'
+    | '/_app/roles'
     | '/_app/trading-accounts'
     | '/_app/users'
     | '/_guest/signin'
@@ -300,6 +312,13 @@ declare module '@tanstack/react-router' {
       path: '/products'
       fullPath: '/products'
       preLoaderRoute: typeof AppProductsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/roles': {
+      id: '/_app/roles'
+      path: '/roles'
+      fullPath: '/roles'
+      preLoaderRoute: typeof AppRolesRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/trading-accounts': {
@@ -433,6 +452,7 @@ interface AppRouteChildren {
   AppPaymentsRoute: typeof AppPaymentsRoute
   AppPayoutsRoute: typeof AppPayoutsRoute
   AppProductsRoute: typeof AppProductsRouteWithChildren
+  AppRolesRoute: typeof AppRolesRoute
   AppTradingAccountsRoute: typeof AppTradingAccountsRouteWithChildren
   AppUsersRoute: typeof AppUsersRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -444,6 +464,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppPaymentsRoute: AppPaymentsRoute,
   AppPayoutsRoute: AppPayoutsRoute,
   AppProductsRoute: AppProductsRouteWithChildren,
+  AppRolesRoute: AppRolesRoute,
   AppTradingAccountsRoute: AppTradingAccountsRouteWithChildren,
   AppUsersRoute: AppUsersRoute,
   AppIndexRoute: AppIndexRoute,
