@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import {
     firmSeedSchema,
+    firmSettingsSchema,
     loadFirmConfig,
     parseFirmConfig,
     parseFirmConfigWrite,
@@ -189,6 +190,66 @@ describe("parseFirmConfig", () => {
                 dailyClose: { tz: "UTC", time: "25:00" },
             }),
         ).toThrow();
+    });
+
+    it("rejects an unknown timezone", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                dailyClose: { tz: "Mars/Olympus", time: "17:00" },
+            }),
+        ).toThrow();
+    });
+
+    it("accepts UTC and IANA zones", () => {
+        for (const tz of ["UTC", "Europe/London", "Asia/Tokyo"]) {
+            expect(
+                parseFirmConfig({ ...valid, dailyClose: { tz, time: "17:00" } })
+                    .dailyClose.tz,
+            ).toBe(tz);
+        }
+    });
+
+    it("rejects a currency that is not ISO 4217", () => {
+        for (const currency of ["dollars", "us", "xyz"]) {
+            expect(() =>
+                parseFirmConfig({
+                    ...valid,
+                    checkout: { provider: "manual", currency },
+                }),
+            ).toThrow();
+        }
+    });
+
+    it("rejects an unknown checkout provider", () => {
+        expect(() =>
+            parseFirmConfig({
+                ...valid,
+                checkout: { provider: "paypal", currency: "usd" },
+            }),
+        ).toThrow();
+    });
+
+    it("rejects a blank or overlong firm name", () => {
+        expect(() => parseFirmConfig({ ...valid, name: "   " })).toThrow();
+        expect(() =>
+            parseFirmConfig({ ...valid, name: "x".repeat(81) }),
+        ).toThrow();
+    });
+
+    it("validates firm settings without brokers or products", () => {
+        const {
+            brokers: _,
+            products: __,
+            ...settings
+        } = parseFirmConfig(valid);
+        expect(firmSettingsSchema.parse(settings).name).toBe("Acme");
+        expect(
+            firmSettingsSchema.safeParse({
+                ...settings,
+                checkout: { provider: "manual", currency: "dollars" },
+            }).success,
+        ).toBe(false);
     });
 
     it("loads json", () => {

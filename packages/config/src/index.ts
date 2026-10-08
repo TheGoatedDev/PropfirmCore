@@ -127,14 +127,35 @@ export const modulesSchema = z.object({
     multiBrand: z.boolean().default(false),
 });
 
+export function isTimeZone(tz: string): boolean {
+    try {
+        new Intl.DateTimeFormat("en-US", { timeZone: tz });
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+const isoCurrencies = new Set(Intl.supportedValuesOf("currency"));
+
+export function isCurrency(code: string): boolean {
+    return /^[a-z]{3}$/i.test(code) && isoCurrencies.has(code.toUpperCase());
+}
+
 export const dailyCloseSchema = z.object({
-    tz: z.string().min(1),
+    tz: z.string().min(1).refine(isTimeZone, "Unknown timezone"),
     time: hhmm,
 });
 
+/** Checkout adapters the server ships. Add here when an adapter lands. */
+export const checkoutProviders = ["manual"] as const;
+
 export const checkoutSchema = z.object({
-    provider: z.string().min(1).default("manual"),
-    currency: z.string().min(1).default("usd"),
+    provider: z.enum(checkoutProviders).default("manual"),
+    currency: z
+        .string()
+        .refine(isCurrency, "Use a 3-letter ISO 4217 code")
+        .default("usd"),
 });
 
 export const brokerSchema = z.object({
@@ -193,7 +214,7 @@ function refineBrokerRefs(
 
 const firmFields = {
     id: firmIdSchema,
-    name: z.string().min(1),
+    name: z.string().trim().min(1, "Name is required").max(80),
     dailyClose: dailyCloseSchema,
     modules: modulesSchema.default({
         affiliates: false,
@@ -206,6 +227,26 @@ const firmFields = {
     }),
     payout: firmPayoutSchema.default({ onUncoverable: "failApprove" }),
 };
+
+/**
+ * Firm settings without brokers and products, every field required. The
+ * admin settings form validates against this before it saves.
+ */
+export const firmSettingsSchema = z.object({
+    id: firmIdSchema,
+    name: firmFields.name,
+    dailyClose: dailyCloseSchema,
+    modules: z.object({
+        affiliates: z.boolean(),
+        kyc: z.object({ enabled: z.boolean(), gate: z.enum(kycGates) }),
+        multiBrand: z.boolean(),
+    }),
+    checkout: z.object({
+        provider: z.enum(checkoutProviders),
+        currency: z.string().refine(isCurrency, "Use a 3-letter ISO 4217 code"),
+    }),
+    payout: z.object({ onUncoverable: onUncoverableSchema }),
+});
 
 export const firmConfigSchema = z
     .object({
@@ -266,6 +307,7 @@ export type FirmSeed = z.infer<typeof firmSeedSchema>;
 export type PayoutMode = (typeof payoutModes)[number];
 export type OnUncoverable = (typeof onUncoverablePolicies)[number];
 export type FirmConfig = z.infer<typeof firmConfigSchema>;
+export type FirmSettings = z.infer<typeof firmSettingsSchema>;
 export type FirmConfigWrite = z.infer<typeof firmConfigWriteSchema>;
 
 export function brokerOf(firm: FirmConfig, id: string): Broker | undefined {
