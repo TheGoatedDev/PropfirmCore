@@ -32,6 +32,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@propfirmcore/ui/components/select";
+import { SaveBar, SettingsSection } from "@propfirmcore/ui/components/settings";
 import { Switch } from "@propfirmcore/ui/components/switch";
 import { formatEnum } from "@propfirmcore/ui/lib/format";
 import type { ReactNode } from "react";
@@ -86,30 +87,6 @@ const kycGateChoices: Choice[] = kycGates.map((g) => ({
             ? "Unverified traders cannot be sent cash."
             : "Unverified traders also cannot enter a funded phase.",
 }));
-
-function Section({
-    title,
-    description,
-    children,
-}: {
-    title: string;
-    description: ReactNode;
-    children: ReactNode;
-}) {
-    return (
-        <section className="grid gap-x-10 gap-y-4 border-t py-6 first:border-t-0 first:pt-0 md:grid-cols-[minmax(0,15rem)_minmax(0,1fr)]">
-            <div>
-                <h2 className="text-base font-medium">{title}</h2>
-                <p className="mt-1 text-sm text-muted-foreground">
-                    {description}
-                </p>
-            </div>
-            <div className="grid max-w-2xl content-start gap-4 sm:grid-cols-2">
-                {children}
-            </div>
-        </section>
-    );
-}
 
 function ModuleRow({
     id,
@@ -175,7 +152,7 @@ export function FirmSettingsForm({
                 onSubmit={form.handleSubmit((v) => onSave(v))}
                 className="pb-4"
             >
-                <Section
+                <SettingsSection
                     title="Identity"
                     description="The firm traders see on every page."
                 >
@@ -214,9 +191,9 @@ export function FirmSettingsForm({
                             </FormItem>
                         )}
                     />
-                </Section>
+                </SettingsSection>
 
-                <Section
+                <SettingsSection
                     title="Trading day"
                     description="The daily close ends each trading day. Daily drawdown resets and trading days count from it."
                 >
@@ -280,9 +257,9 @@ export function FirmSettingsForm({
                             {tz.replaceAll("_", " ")} ({utcOffsetSafe(tz)}).
                         </p>
                     ) : null}
-                </Section>
+                </SettingsSection>
 
-                <Section
+                <SettingsSection
                     title="Checkout"
                     description="How traders pay fees, and the currency payments are taken in."
                 >
@@ -345,9 +322,9 @@ export function FirmSettingsForm({
                             </FormItem>
                         )}
                     />
-                </Section>
+                </SettingsSection>
 
-                <Section
+                <SettingsSection
                     title="Payouts"
                     description="What approving does when the account can no longer cover the requested amount. A product can override this."
                 >
@@ -369,9 +346,9 @@ export function FirmSettingsForm({
                             </FormItem>
                         )}
                     />
-                </Section>
+                </SettingsSection>
 
-                <Section
+                <SettingsSection
                     title="Modules"
                     description="Optional parts of the platform. Off by default."
                 >
@@ -435,36 +412,15 @@ export function FirmSettingsForm({
                             />
                         )}
                     />
-                </Section>
+                </SettingsSection>
 
-                <div className="sticky bottom-0 -mx-6 mt-2 flex items-center justify-end gap-3 border-t bg-background/85 px-6 py-3 backdrop-blur-md">
-                    <FormMessage className="mr-auto">
-                        {form.formState.errors.root?.message}
-                    </FormMessage>
-                    <span
-                        className="text-sm text-muted-foreground"
-                        aria-live="polite"
-                    >
-                        {dirty ? "Unsaved changes" : "All changes saved"}
-                    </span>
-                    {dirty ? (
-                        <Button
-                            type="button"
-                            variant="ghost"
-                            onClick={() => form.reset(settings)}
-                            disabled={saving}
-                        >
-                            Discard
-                        </Button>
-                    ) : null}
-                    <Button
-                        type="submit"
-                        disabled={saving || !dirty}
-                        data-testid="firm-save"
-                    >
-                        {saving ? "Saving…" : "Save changes"}
-                    </Button>
-                </div>
+                <SaveBar
+                    dirty={dirty}
+                    saving={saving}
+                    onDiscard={() => form.reset(settings)}
+                    error={form.formState.errors.root?.message}
+                    testId="firm-save"
+                />
             </form>
         </Form>
     );
