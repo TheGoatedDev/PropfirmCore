@@ -26,13 +26,26 @@ function FormLabel({ className, ...props }: ComponentProps<"label">) {
     return <Label className={className} {...props} />;
 }
 
+function FormDescription({ className, ...props }: ComponentProps<"p">) {
+    return (
+        <p
+            className={cn("text-sm text-muted-foreground", className)}
+            {...props}
+        />
+    );
+}
+
 function FormMessage({ className, children, ...props }: ComponentProps<"p">) {
     if (!children) return null;
     return (
-        <p className={cn("text-sm text-destructive", className)} {...props}>
+        <p
+            role="alert"
+            className={cn("text-sm text-destructive", className)}
+            {...props}
+        >
             {children}
         </p>
     );
 }
 
-export { Form, FormField, FormItem, FormLabel, FormMessage };
+export { Form, FormDescription, FormField, FormItem, FormLabel, FormMessage };

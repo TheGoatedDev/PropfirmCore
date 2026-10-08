@@ -9,6 +9,7 @@
         "typecheck": "tsc --noEmit -p tsconfig.json"
     },
     "dependencies": {
+        "@hookform/resolvers": "5.9.1",
         "@propfirmcore/api-client": "workspace:*",
         "@propfirmcore/config": "workspace:*",
         "@propfirmcore/ui": "workspace:*",

@@ -53,6 +53,9 @@ importers:
 
   apps/admin-web:
     dependencies:
+      '@hookform/resolvers':
+        specifier: 5.9.1
+        version: 5.9.1(@standard-schema/spec@1.1.0)(ajv@8.20.0)(react-hook-form@7.87.0(react@19.2.8))(zod@4.5.4)
       '@propfirmcore/api-client':
         specifier: workspace:*
         version: link:../../packages/api-client

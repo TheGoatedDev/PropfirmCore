@@ -280,6 +280,12 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Copy:** the title is the question with its subject ("Delete Mock?"). The description says what happens next, in one or two sentences. The confirm button names the action ("Delete broker"), never "OK" or "Yes".
 - **Look:** 448px popover surface, 14px corners, a ring rather than a border, and a dimmed backdrop. Destructive confirms show a Signal Red warning tile and a tinted destructive button. Focus opens on Cancel; Escape and the backdrop cancel.
 
+### Settings Forms
+- **Layout:** one form, split into sections by a hairline. Each section has a 15rem left column (h2 title + one-sentence muted description) and a fields grid (two columns from `sm`, capped at 42rem). No cards. Mobile stacks the title above its fields.
+- **Pick, don't type:** use `Select` for short fixed lists, `Combobox` for long ones (timezone, currency) with the code or UTC offset as a muted hint, `ChoiceGroup` radio cards when each option needs a sentence, `Switch` rows for on/off modules, and `type="time"` for clock times.
+- **Validation:** the form resolves against the config package's schema (`firmSettingsSchema`), so the client rules are the server rules. Errors show under the field once it is touched.
+- **Save bar:** sticky at the bottom, translucent with blur. It says "Unsaved changes" or "All changes saved". Discard appears only when dirty, and Save stays disabled until something changes.
+
 ### Description List
 - **Use:** label and value facts (account details, rulesets). Muted label column at max-content width, value column fills. 6px row gap, tabular numerals.
 - **Empty:** a missing value renders a muted em dash, never a blank.

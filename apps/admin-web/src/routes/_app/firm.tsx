@@ -35,7 +35,7 @@ function Firm() {
     }
 
     return (
-        <div className="space-y-4" data-testid="firm-heading">
+        <div data-testid="firm-heading">
             <FirmSettingsForm
                 firm={firm.data}
                 saving={save.isPending}
