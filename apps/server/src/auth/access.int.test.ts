@@ -124,6 +124,43 @@ it("bootstrap restores an Admin when none is unbanned", async () => {
     }
 });
 
+it("bootstrap never promotes a non-Admin who owns the email", async () => {
+    const auth = createAuth(db, {
+        secret: "change-me-to-a-long-random-string",
+        baseURL: base,
+    });
+    const squatter = `squat${Date.now()}@example.com`;
+    expect(
+        (
+            await post("/auth/sign-up/email", {
+                name: "Squatter",
+                email: squatter,
+                password: "password12",
+            })
+        ).ok,
+    ).toBe(true);
+    const before = await db
+        .select({ id: user.id })
+        .from(user)
+        .where(and(eq(user.role, "admin"), eq(user.banned, false)));
+    await db.update(user).set({ banned: true }).where(eq(user.role, "admin"));
+
+    try {
+        await expect(
+            bootstrapAdmin(db, auth, { email: squatter, password: "x" }),
+        ).rejects.toThrow();
+        const [row] = await db
+            .select({ role: user.role })
+            .from(user)
+            .where(eq(user.email, squatter));
+        expect(row?.role).toBe("trader");
+    } finally {
+        for (const { id } of before) {
+            await db.update(user).set({ banned: false }).where(eq(user.id, id));
+        }
+    }
+});
+
 it("/auth/me lists the caller's Permissions", async () => {
     const admin = cookie(await signIn("admin@example.com", "changeme"));
     const adminMe = (await (

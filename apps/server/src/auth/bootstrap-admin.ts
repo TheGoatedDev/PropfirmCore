@@ -17,12 +17,24 @@ export async function bootstrapAdmin(
         .limit(1);
     if (live[0]) return;
     const email = creds.email.toLowerCase();
-    const found = await db
-        .update(user)
-        .set({ role: "admin", banned: false })
+    const [found] = await db
+        .select({ id: user.id, role: user.role })
+        .from(user)
         .where(eq(user.email, email))
-        .returning({ id: user.id });
-    if (found[0]) return;
+        .limit(1);
+    if (found) {
+        // Anyone can sign up first with this email; only restore a real Admin.
+        if (found.role !== "admin") {
+            throw new Error(
+                `bootstrap admin: ${email} exists and is not an Admin`,
+            );
+        }
+        await db
+            .update(user)
+            .set({ banned: false })
+            .where(eq(user.id, found.id));
+        return;
+    }
     const created = await createStaffUser(auth, {
         email,
         password: creds.password,
