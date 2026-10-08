@@ -18,11 +18,9 @@ export const user = pgTable("user", {
         .defaultNow()
         .$onUpdate(() => new Date())
         .notNull(),
-    role: text("role").default("trader"),
+    role: text("role").default("trader").notNull(),
     kycVerified: boolean("kyc_verified").default(false).notNull(),
-    banned: boolean("banned").default(false),
-    banReason: text("ban_reason"),
-    banExpires: timestamp("ban_expires"),
+    banned: boolean("banned").default(false).notNull(),
 });
 
 export const session = pgTable(
@@ -41,7 +39,6 @@ export const session = pgTable(
         userId: text("user_id")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
-        impersonatedBy: text("impersonated_by"),
     },
     (table) => [index("session_userId_idx").on(table.userId)],
 );

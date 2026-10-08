@@ -144,7 +144,6 @@ export function mountUsers(app: OpenAPIHono, deps: Deps) {
             const result = await createListedUser(
                 deps.db,
                 deps.auth,
-                c.req.raw.headers,
                 actorOf(session.user),
                 body,
             );

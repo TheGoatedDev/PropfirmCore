@@ -22,3 +22,5 @@ export function roleHasPermission(
 ): boolean {
     return hasPermission(permissionsFor(role), resource, action);
 }
+
+export { BANNED_USER, createStaffUser, firmAccess } from "./firm-access.ts";

@@ -1,9 +1,9 @@
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { firmAccess } from "@propfirmcore/access/server";
 import { betterAuth } from "better-auth";
-import { admin, bearer, openAPI } from "better-auth/plugins";
+import { bearer, openAPI } from "better-auth/plugins";
 import type { Db } from "../db/db.ts";
 import * as authSchema from "./auth-schema.ts";
-import { ac, admin as adminRole, trader } from "./permissions.ts";
 
 export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
     return betterAuth({
@@ -33,12 +33,7 @@ export function createAuth(db: Db, opts: { secret: string; baseURL: string }) {
             "http://localhost:8081",
         ],
         plugins: [
-            admin({
-                ac,
-                defaultRole: "trader",
-                adminRoles: ["admin"],
-                roles: { trader, admin: adminRole },
-            }),
+            firmAccess(),
             bearer(),
             openAPI({ disableDefaultReference: true }),
         ],

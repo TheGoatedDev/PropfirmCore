@@ -1,4 +1,5 @@
-import { and, asc, count, desc, eq, ilike, isNull, or } from "drizzle-orm";
+import { createStaffUser } from "@propfirmcore/access/server";
+import { and, asc, count, desc, eq, ilike, or } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { session, user } from "../auth/auth-schema.ts";
 import type { Db } from "../db/db.ts";
@@ -50,7 +51,7 @@ export async function listUsers(
     if (input.role) parts.push(eq(user.role, input.role));
     if (input.banned === true) parts.push(eq(user.banned, true));
     if (input.banned === false) {
-        parts.push(or(eq(user.banned, false), isNull(user.banned)));
+        parts.push(eq(user.banned, false));
     }
     const where = parts.length ? and(...parts) : undefined;
     const col = sortColumns[input.sort ?? "createdAt"];
@@ -79,7 +80,6 @@ async function byId(db: Db, id: string) {
 export async function createListedUser(
     db: Db,
     auth: Auth,
-    headers: Headers,
     who: Actor,
     input: {
         email: string;
@@ -95,29 +95,16 @@ export async function createListedUser(
 > {
     const plan = createPlan(who, input);
     if (!plan.ok) return { status: plan.error };
-    const dup = await db
-        .select({ id: user.id })
-        .from(user)
-        .where(eq(user.email, input.email))
-        .limit(1);
-    if (dup[0]) return { status: "exists" };
-    try {
-        const created = await auth.api.createUser({
-            body: {
-                email: input.email,
-                password: input.password,
-                name: input.name,
-                role: plan.role,
-            },
-            headers,
-        });
-        const id = created.user.id;
-        const row = await byId(db, id);
-        if (!row) return { status: "badRequest" };
-        return { status: "ok", user: userOut(row) };
-    } catch {
-        return { status: "exists" };
-    }
+    const created = await createStaffUser(auth, {
+        email: input.email,
+        password: input.password,
+        name: input.name,
+        role: plan.role,
+    });
+    if (!created) return { status: "exists" };
+    const row = await byId(db, created.id);
+    if (!row) return { status: "badRequest" };
+    return { status: "ok", user: userOut(row) };
 }
 
 export async function setUserBanned(
@@ -133,10 +120,7 @@ export async function setUserBanned(
     const target = await byId(db, id);
     const plan = banPlan(who, target);
     if (!plan.ok) return { status: plan.error };
-    await db
-        .update(user)
-        .set({ banned, banReason: null, banExpires: null })
-        .where(eq(user.id, id));
+    await db.update(user).set({ banned }).where(eq(user.id, id));
     if (banned) {
         await db.delete(session).where(eq(session.userId, id));
     }
