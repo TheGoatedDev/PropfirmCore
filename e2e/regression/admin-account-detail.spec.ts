@@ -32,11 +32,12 @@ test("admin inspects, resyncs, and fails a trading account", async ({
     const admin = await browser.newPage();
     await signInAdmin(admin);
     await admin.getByTestId("nav-payments").click();
-    await admin.getByTestId("payment-complete-id").fill(paymentId ?? "");
+    await admin.getByTestId("table-filter").fill(paymentId ?? "");
     const completed = admin.waitForResponse(
         (r) => r.url().includes("/complete") && r.ok(),
     );
-    await admin.getByTestId("payment-complete-submit").click();
+    await admin.getByTestId(`payment-complete-${paymentId}`).click();
+    await admin.getByTestId("confirm-dialog-confirm").click();
     await completed;
 
     await trader.reload();
