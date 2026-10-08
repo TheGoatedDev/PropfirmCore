@@ -33,14 +33,14 @@ function ChoiceGroup({
             {choices.map((c) => (
                 <label
                     key={c.value}
-                    className="flex cursor-pointer gap-3 rounded-lg border border-input p-3 text-sm transition-colors has-data-checked:border-ring has-data-checked:bg-muted/60 has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
+                    className="flex cursor-pointer gap-3 rounded-lg border border-input p-3 text-sm transition-colors has-data-checked:border-brand has-data-checked:bg-brand/8 has-focus-visible:ring-3 has-focus-visible:ring-ring/50"
                 >
                     <Radio.Root
                         value={c.value}
                         data-testid={`choice-${c.value}`}
-                        className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-input outline-none data-checked:border-primary data-checked:bg-primary"
+                        className="mt-0.5 flex size-4 shrink-0 items-center justify-center rounded-full border border-input outline-none data-checked:border-brand data-checked:bg-brand"
                     >
-                        <Radio.Indicator className="size-1.5 rounded-full bg-primary-foreground" />
+                        <Radio.Indicator className="size-1.5 rounded-full bg-brand-foreground" />
                     </Radio.Root>
                     <span className="space-y-0.5">
                         <span className="block font-medium">{c.label}</span>

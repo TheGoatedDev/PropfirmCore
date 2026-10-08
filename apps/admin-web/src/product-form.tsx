@@ -245,7 +245,7 @@ export function ProductForm({
                                                 key={b.id}
                                                 htmlFor={`pb-${b.id}`}
                                                 data-testid={`product-broker-${b.id}`}
-                                                className="flex cursor-pointer items-center gap-3 rounded-lg border border-input p-3 text-sm transition-colors has-data-checked:border-ring has-data-checked:bg-muted/60"
+                                                className="flex cursor-pointer items-center gap-3 rounded-lg border border-input p-3 text-sm transition-colors has-data-checked:border-brand has-data-checked:bg-brand/8"
                                             >
                                                 <Checkbox
                                                     id={`pb-${b.id}`}

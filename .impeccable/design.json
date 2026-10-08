@@ -525,9 +525,9 @@
                 "body": "Every hue enters through globals.css. App code never uses Tailwind palette utilities. A new status gets a tone in StatusBadge map, not a new color."
             },
             {
-                "name": "The Brand Stays Out of State Rule",
+                "name": "The Brand Stays Out of Status Rule",
                 "section": "colors",
-                "body": "--brand marks identity, never status or action. Primary buttons stay Graphite."
+                "body": "--brand marks identity and a control's own selected state, never status or actions. Primary buttons stay Graphite."
             },
             {
                 "name": "The Red Is Destructive Rule",
@@ -565,8 +565,8 @@
             "Do check every new surface in both light and dark themes."
         ],
         "donts": [
-            "Don't add ad-hoc Tailwind palette colors (green-600, amber-100, …) in app code.",
-            "Don't use --brand on buttons, focus rings or status.",
+            "Don't add ad-hoc Tailwind palette colors (green-600, amber-100, \u2026) in app code.",
+            "Don't use --brand on buttons, focus rings or status. Selected controls are the one exception.",
             "Don't render a heading that repeats the breadcrumb page title.",
             "Don't nest a Card (or any card-like surface) inside another Card.",
             "Don't use Signal Red for anything other than destructive, failed or invalid.",

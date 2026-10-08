@@ -179,7 +179,7 @@ The palette is achromatic oklch grays, plus five status tones and one swappable 
 - **Dark Surface** (`ink-dark-surface`): secondary and muted fills in dark mode.
 
 ### Secondary: Firm Brand
-- **Firm Teal** (`firm-teal`, dark `firm-teal-dark`; CSS `--brand` / `--brand-foreground`): the white-label slot, and the only color a firm overrides. It appears on the 32px logo tile, the active sidebar item's icon, and text selection at 25%. It never fills primary buttons or focus rings, so a firm whose brand is red or green can't collide with status meaning.
+- **Firm Teal** (`firm-teal`, dark `firm-teal-dark`; CSS `--brand` / `--brand-foreground`): the white-label slot, and the only color a firm overrides. It appears on the 32px logo tile, the active sidebar item's icon, text selection at 25%, and the selected state of controls: checked checkboxes, on switches, and the selected radio or checkbox card (brand border, 8% brand tint). It never fills buttons or focus rings, and never marks status, so a firm whose brand is red or green can't collide with status meaning. A firm overriding `--brand` must keep it at 3:1 or better against both backgrounds, and `--brand-foreground` at 4.5:1 on it.
 
 ### Tertiary: Status
 Each tone has a strong color (`--{tone}`) for text and icons and a subtle tint (`--{tone}-subtle`) for fills. In dark mode, each tone is set separately for that theme rather than inverted from light.
@@ -193,7 +193,7 @@ Each tone has a strong color (`--{tone}`) for text and icons and a subtle tint (
 ### Named Rules
 **The Tokens Only Rule.** Every hue enters through `globals.css`. App code never uses Tailwind palette utilities (`text-green-600`, `bg-amber-100`). A new status gets a tone in `StatusBadge`'s map, not a new color.
 
-**The Brand Stays Out of State Rule.** `--brand` marks identity, never status or action. Primary buttons stay Graphite.
+**The Brand Stays Out of Status Rule.** `--brand` marks identity and a control's own selected state, never status or actions. Primary buttons stay Graphite.
 
 **The Red Is Destructive Rule.** Signal Red means "this deletes, fails, or is invalid". Negative P&L is not a failure state and does not get red by default.
 
