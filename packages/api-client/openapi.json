@@ -3630,6 +3630,344 @@
                                 }
                             }
                         }
+                    },
+                    "409": {
+                        "description": "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/trading-accounts/{id}/reactivate": {
+            "post": {
+                "tags": [
+                    "Trading Accounts"
+                ],
+                "description": "Admin override: a failed trading account goes back to active on the same phase and book. Rules apply again on the next settle.",
+                "parameters": [
+                    {
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        },
+                        "required": true,
+                        "name": "id",
+                        "in": "path"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "The trading account is active again.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "userId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "productId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "phaseIndex": {
+                                            "type": "integer"
+                                        },
+                                        "status": {
+                                            "type": "string",
+                                            "enum": [
+                                                "active",
+                                                "passed",
+                                                "failed"
+                                            ]
+                                        },
+                                        "startBalance": {
+                                            "type": "number"
+                                        },
+                                        "equity": {
+                                            "type": "number"
+                                        },
+                                        "balance": {
+                                            "type": "number"
+                                        },
+                                        "peakEquity": {
+                                            "type": "number"
+                                        },
+                                        "dailyStartEquity": {
+                                            "type": "number"
+                                        },
+                                        "tradingDayKey": {
+                                            "type": "string"
+                                        },
+                                        "tradingDays": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        },
+                                        "dailyPnls": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "object",
+                                                "properties": {
+                                                    "day": {
+                                                        "type": "string",
+                                                        "minLength": 1
+                                                    },
+                                                    "pnl": {
+                                                        "type": "number"
+                                                    }
+                                                },
+                                                "required": [
+                                                    "day",
+                                                    "pnl"
+                                                ]
+                                            }
+                                        },
+                                        "ruleset": {
+                                            "type": "object",
+                                            "properties": {
+                                                "profitTarget": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "maxDrawdown": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "dailyDrawdown": {
+                                                    "type": "number",
+                                                    "minimum": 0,
+                                                    "maximum": 1
+                                                },
+                                                "minTradingDays": {
+                                                    "type": "integer",
+                                                    "minimum": 0
+                                                },
+                                                "maxWarnings": {
+                                                    "type": "integer",
+                                                    "minimum": 0,
+                                                    "exclusiveMinimum": true
+                                                },
+                                                "consistency": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "mode": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "bestDay",
+                                                                "bestTrade"
+                                                            ]
+                                                        },
+                                                        "threshold": {
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "maximum": 1
+                                                        },
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "mode",
+                                                        "threshold",
+                                                        "onBreach"
+                                                    ]
+                                                },
+                                                "weekend": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "onBreach"
+                                                    ]
+                                                },
+                                                "maxLot": {
+                                                    "type": "object",
+                                                    "properties": {
+                                                        "qty": {
+                                                            "type": "number",
+                                                            "minimum": 0,
+                                                            "exclusiveMinimum": true
+                                                        },
+                                                        "onBreach": {
+                                                            "type": "string",
+                                                            "enum": [
+                                                                "fail",
+                                                                "warn",
+                                                                "flag"
+                                                            ]
+                                                        },
+                                                        "closeTrade": {
+                                                            "type": "boolean",
+                                                            "default": false
+                                                        }
+                                                    },
+                                                    "required": [
+                                                        "qty",
+                                                        "onBreach"
+                                                    ]
+                                                }
+                                            },
+                                            "required": [
+                                                "profitTarget",
+                                                "maxDrawdown",
+                                                "dailyDrawdown",
+                                                "minTradingDays"
+                                            ]
+                                        },
+                                        "brokerId": {
+                                            "type": "string",
+                                            "minLength": 1
+                                        },
+                                        "brokerLogin": {
+                                            "type": "string"
+                                        },
+                                        "brokerPassword": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "id",
+                                        "userId",
+                                        "productId",
+                                        "phaseIndex",
+                                        "status",
+                                        "startBalance",
+                                        "equity",
+                                        "balance",
+                                        "peakEquity",
+                                        "dailyStartEquity",
+                                        "tradingDayKey",
+                                        "tradingDays",
+                                        "dailyPnls",
+                                        "ruleset",
+                                        "brokerId",
+                                        "brokerLogin",
+                                        "brokerPassword"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "You are not signed in, or the API key is missing or wrong.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "You do not have permission to do this.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }

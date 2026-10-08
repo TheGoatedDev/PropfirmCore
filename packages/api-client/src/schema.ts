@@ -1680,6 +1680,154 @@ export interface paths {
                         };
                     };
                 };
+                /** @description The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trading-accounts/{id}/reactivate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Admin override: a failed trading account goes back to active on the same phase and book. Rules apply again on the next settle. */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The trading account is active again. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            userId: string;
+                            productId: string;
+                            phaseIndex: number;
+                            /** @enum {string} */
+                            status: "active" | "passed" | "failed";
+                            startBalance: number;
+                            equity: number;
+                            balance: number;
+                            peakEquity: number;
+                            dailyStartEquity: number;
+                            tradingDayKey: string;
+                            tradingDays: string[];
+                            dailyPnls: {
+                                day: string;
+                                pnl: number;
+                            }[];
+                            ruleset: {
+                                profitTarget: number;
+                                maxDrawdown: number;
+                                dailyDrawdown: number;
+                                minTradingDays: number;
+                                maxWarnings?: number;
+                                consistency?: {
+                                    /** @enum {string} */
+                                    mode: "bestDay" | "bestTrade";
+                                    threshold: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                weekend?: {
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                                maxLot?: {
+                                    qty: number;
+                                    /** @enum {string} */
+                                    onBreach: "fail" | "warn" | "flag";
+                                    /** @default false */
+                                    closeTrade: boolean;
+                                };
+                            };
+                            brokerId: string;
+                            brokerLogin: string;
+                            brokerPassword: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;

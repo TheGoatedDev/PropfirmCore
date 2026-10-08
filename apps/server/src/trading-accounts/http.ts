@@ -18,6 +18,7 @@ import {
     getById,
     listAccounts,
     listBreaches,
+    reactivateAccount,
     resyncAccountRuleset,
 } from "./service.ts";
 
@@ -315,6 +316,10 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
                     description: httpDesc.notFound,
                     content: { "application/json": { schema: errorSchema } },
                 },
+                409: {
+                    description: httpDesc.statusConflict,
+                    content: { "application/json": { schema: errorSchema } },
+                },
             },
         }),
         async (c) => {
@@ -331,12 +336,86 @@ export function mountTradingAccounts(app: OpenAPIHono, deps: Deps) {
             ) {
                 return c.json({ error: "forbidden" }, 403);
             }
-            const account = await forceFailAccount(
+            const result = await forceFailAccount(
                 deps.db,
                 c.req.valid("param").id,
             );
-            if (!account) return c.json({ error: "not found" }, 404);
-            return c.json(account, 200);
+            if (!result.ok) {
+                return result.error === "not found"
+                    ? c.json({ error: "not found" }, 404)
+                    : c.json(
+                          {
+                              error: "Only an active trading account can be failed.",
+                          },
+                          409,
+                      );
+            }
+            return c.json(result.account, 200);
+        },
+    );
+
+    app.openapi(
+        createRoute({
+            method: "post",
+            path: "/trading-accounts/{id}/reactivate",
+            tags: [tags.tradingAccounts],
+            description:
+                "Admin override: a failed trading account goes back to active on the same phase and book. Rules apply again on the next settle.",
+            request: { params: idParam },
+            responses: {
+                200: {
+                    description: "The trading account is active again.",
+                    content: {
+                        "application/json": { schema: tradingAccountSchema },
+                    },
+                },
+                401: {
+                    description: httpDesc.unauthorized,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                403: {
+                    description: httpDesc.forbidden,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                404: {
+                    description: httpDesc.notFound,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+                409: {
+                    description: httpDesc.statusConflict,
+                    content: { "application/json": { schema: errorSchema } },
+                },
+            },
+        }),
+        async (c) => {
+            const session = await deps.auth.api.getSession({
+                headers: c.req.raw.headers,
+            });
+            if (!session) return c.json({ error: "unauthorized" }, 401);
+            if (
+                !roleHasPermission(
+                    actorOf(session.user).role,
+                    "tradingAccount",
+                    "reactivate",
+                )
+            ) {
+                return c.json({ error: "forbidden" }, 403);
+            }
+            const result = await reactivateAccount(
+                deps.db,
+                c.req.valid("param").id,
+            );
+            if (!result.ok) {
+                return result.error === "not found"
+                    ? c.json({ error: "not found" }, 404)
+                    : c.json(
+                          {
+                              error: "Only a failed trading account can be reactivated.",
+                          },
+                          409,
+                      );
+            }
+            return c.json(result.account, 200);
         },
     );
 

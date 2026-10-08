@@ -1,7 +1,10 @@
 import type { Product } from "@propfirmcore/config";
 import {
+    canForceFail,
+    canReactivate,
     forceFail,
     forcePass,
+    reactivate,
     resyncRuleset,
     type TradingAccount,
     type TradingAccountStatus,
@@ -85,19 +88,40 @@ export async function getById(
     return rows[0] ? tradingAccountFromRow(rows[0]) : null;
 }
 
-export async function forceFailAccount(
-    db: Db,
-    id: string,
-): Promise<TradingAccount | null> {
-    const account = await getById(db, id);
-    if (!account) return null;
-    const next = forceFail(account);
+export type StatusChange =
+    | { ok: true; account: TradingAccount }
+    | { ok: false; error: "not found" | "not active" | "not failed" };
+
+async function saveStatus(db: Db, id: string, next: TradingAccount) {
     await db
         .update(tradingAccounts)
         .set(tradingAccountToRow(next))
         .where(eq(tradingAccounts.id, id));
     log.info({ accountId: id, status: next.status });
-    return next;
+}
+
+export async function forceFailAccount(
+    db: Db,
+    id: string,
+): Promise<StatusChange> {
+    const account = await getById(db, id);
+    if (!account) return { ok: false, error: "not found" };
+    if (!canForceFail(account)) return { ok: false, error: "not active" };
+    const next = forceFail(account);
+    await saveStatus(db, id, next);
+    return { ok: true, account: next };
+}
+
+export async function reactivateAccount(
+    db: Db,
+    id: string,
+): Promise<StatusChange> {
+    const account = await getById(db, id);
+    if (!account) return { ok: false, error: "not found" };
+    if (!canReactivate(account)) return { ok: false, error: "not failed" };
+    const next = reactivate(account);
+    await saveStatus(db, id, next);
+    return { ok: true, account: next };
 }
 
 export async function forcePassAccount(
