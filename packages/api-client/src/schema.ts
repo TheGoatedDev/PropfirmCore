@@ -2853,7 +2853,7 @@ export interface paths {
                     q?: string;
                     sort?: "email" | "createdAt";
                     order?: "asc" | "desc";
-                    role?: "trader" | "admin";
+                    role?: string;
                     banned?: "true" | "false";
                 };
                 header?: never;
@@ -2873,8 +2873,7 @@ export interface paths {
                                 id: string;
                                 email: string;
                                 name: string;
-                                /** @enum {string|null} */
-                                role: "trader" | "admin" | null;
+                                role: string;
                                 banned: boolean;
                                 createdAt: string;
                             }[];
@@ -2923,8 +2922,7 @@ export interface paths {
                         email: string;
                         name: string;
                         password: string;
-                        /** @enum {string} */
-                        role: "trader" | "admin";
+                        role: string;
                     };
                 };
             };
@@ -2939,8 +2937,7 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string|null} */
-                            role: "trader" | "admin" | null;
+                            role: string;
                             banned: boolean;
                             createdAt: string;
                         };
@@ -3038,8 +3035,7 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string|null} */
-                            role: "trader" | "admin" | null;
+                            role: string;
                             banned: boolean;
                             createdAt: string;
                         };
@@ -3081,6 +3077,18 @@ export interface paths {
                         };
                     };
                 };
+                /** @description This would leave no unbanned Admin. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
             };
         };
         delete?: never;
@@ -3110,8 +3118,7 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        /** @enum {string} */
-                        role: "trader" | "admin";
+                        role: string;
                     };
                 };
             };
@@ -3126,8 +3133,7 @@ export interface paths {
                             id: string;
                             email: string;
                             name: string;
-                            /** @enum {string|null} */
-                            role: "trader" | "admin" | null;
+                            role: string;
                             banned: boolean;
                             createdAt: string;
                         };
@@ -3171,6 +3177,18 @@ export interface paths {
                 };
                 /** @description Nothing exists at this id. */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description This would leave no unbanned Admin. */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };

@@ -31,7 +31,7 @@ type User = {
     id: string;
     email: string;
     name: string;
-    role: "trader" | "admin" | null;
+    role: string;
     banned: boolean;
     createdAt: string;
 };
@@ -120,7 +120,7 @@ export function UsersTable({
     });
 
     const setRole = useMutation({
-        mutationFn: async (input: { id: string; role: "trader" | "admin" }) => {
+        mutationFn: async (input: { id: string; role: string }) => {
             const { error } = await api.POST("/users/{id}/role", {
                 params: { path: { id: input.id } },
                 body: { role: input.role },
@@ -161,7 +161,6 @@ export function UsersTable({
                     cell: ({ row }) => {
                         const self = row.original.id === meId;
                         const roleValue = row.original.role;
-                        if (!roleValue) return "—";
                         return (
                             <select
                                 className={selectClass}
@@ -171,9 +170,6 @@ export function UsersTable({
                                 onClick={(ev) => ev.stopPropagation()}
                                 onChange={(ev) => {
                                     const next = ev.target.value;
-                                    if (next !== "trader" && next !== "admin") {
-                                        return;
-                                    }
                                     setError(null);
                                     setRole.mutate({
                                         id: row.original.id,
@@ -183,6 +179,12 @@ export function UsersTable({
                             >
                                 <option value="trader">Trader</option>
                                 <option value="admin">Admin</option>
+                                {roleValue !== "trader" &&
+                                    roleValue !== "admin" && (
+                                        <option value={roleValue}>
+                                            {roleValue}
+                                        </option>
+                                    )}
                             </select>
                         );
                     },

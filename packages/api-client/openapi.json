@@ -5872,10 +5872,7 @@
                     {
                         "schema": {
                             "type": "string",
-                            "enum": [
-                                "trader",
-                                "admin"
-                            ]
+                            "minLength": 1
                         },
                         "required": false,
                         "name": "role",
@@ -5917,13 +5914,7 @@
                                                         "type": "string"
                                                     },
                                                     "role": {
-                                                        "type": "string",
-                                                        "nullable": true,
-                                                        "enum": [
-                                                            "trader",
-                                                            "admin",
-                                                            null
-                                                        ]
+                                                        "type": "string"
                                                     },
                                                     "banned": {
                                                         "type": "boolean"
@@ -6019,10 +6010,7 @@
                                     },
                                     "role": {
                                         "type": "string",
-                                        "enum": [
-                                            "trader",
-                                            "admin"
-                                        ]
+                                        "minLength": 1
                                     }
                                 },
                                 "required": [
@@ -6053,13 +6041,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6211,13 +6193,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6294,6 +6270,25 @@
                                 }
                             }
                         }
+                    },
+                    "409": {
+                        "description": "This would leave no unbanned Admin.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -6323,10 +6318,7 @@
                                 "properties": {
                                     "role": {
                                         "type": "string",
-                                        "enum": [
-                                            "trader",
-                                            "admin"
-                                        ]
+                                        "minLength": 1
                                     }
                                 },
                                 "required": [
@@ -6354,13 +6346,7 @@
                                             "type": "string"
                                         },
                                         "role": {
-                                            "type": "string",
-                                            "nullable": true,
-                                            "enum": [
-                                                "trader",
-                                                "admin",
-                                                null
-                                            ]
+                                            "type": "string"
                                         },
                                         "banned": {
                                             "type": "boolean"
@@ -6440,6 +6426,25 @@
                     },
                     "404": {
                         "description": "Nothing exists at this id.",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "error": {
+                                            "type": "string",
+                                            "description": "What went wrong, in plain language."
+                                        }
+                                    },
+                                    "required": [
+                                        "error"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "409": {
+                        "description": "This would leave no unbanned Admin.",
                         "content": {
                             "application/json": {
                                 "schema": {

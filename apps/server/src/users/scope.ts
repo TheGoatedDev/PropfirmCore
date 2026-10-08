@@ -1,8 +1,9 @@
-import { roleHasPermission } from "@propfirmcore/access/server";
-
-export const firmRoles = ["trader", "admin"] as const;
-
-export type FirmRole = (typeof firmRoles)[number];
+import { isBuiltinRole, within } from "@propfirmcore/access";
+import {
+    customRoleNames,
+    permissionsFor,
+    roleHasPermission,
+} from "@propfirmcore/access/server";
 
 export type Actor = { id: string; role: string };
 
@@ -10,24 +11,20 @@ export type UserRow = {
     id: string;
     email: string;
     name: string;
-    role: string | null;
-    banned: boolean | null;
+    role: string;
+    banned: boolean;
     createdAt: Date;
 };
 
 export type ListScope = "all" | "none";
-
-export function roleOut(role: string | null | undefined): FirmRole | null {
-    return role === "trader" || role === "admin" ? role : null;
-}
 
 export function userOut(row: UserRow) {
     return {
         id: row.id,
         email: row.email,
         name: row.name,
-        role: roleOut(row.role),
-        banned: row.banned ?? false,
+        role: row.role,
+        banned: row.banned,
         createdAt: row.createdAt.toISOString(),
     };
 }
@@ -36,23 +33,25 @@ export function listScope(who: Actor): ListScope {
     return roleHasPermission(who.role, "user", "list") ? "all" : "none";
 }
 
-export function canTouch(who: Actor, _target: { id: string }): boolean {
-    return listScope(who) !== "none";
+function knownRole(role: string): boolean {
+    return isBuiltinRole(role) || customRoleNames().includes(role);
+}
+
+/** The Role's Permissions are all held by the actor. Peers pass. */
+function reaches(who: Actor, role: string): boolean {
+    return within(permissionsFor(role), permissionsFor(who.role));
 }
 
 export function createPlan(
     who: Actor,
-    input: { role?: FirmRole },
-):
-    | { ok: true; role: FirmRole }
-    | { ok: false; error: "forbidden" | "badRequest" } {
+    input: { role: string },
+): { ok: true } | { ok: false; error: "forbidden" | "badRequest" } {
     if (!roleHasPermission(who.role, "user", "create")) {
         return { ok: false, error: "forbidden" };
     }
-    if (input.role !== "trader" && input.role !== "admin") {
-        return { ok: false, error: "badRequest" };
-    }
-    return { ok: true, role: input.role };
+    if (!knownRole(input.role)) return { ok: false, error: "badRequest" };
+    if (!reaches(who, input.role)) return { ok: false, error: "forbidden" };
+    return { ok: true };
 }
 
 export function banPlan(
@@ -64,14 +63,14 @@ export function banPlan(
     }
     if (!target) return { ok: false, error: "notFound" };
     if (who.id === target.id) return { ok: false, error: "forbidden" };
-    if (!canTouch(who, target)) return { ok: false, error: "notFound" };
+    if (!reaches(who, target.role)) return { ok: false, error: "forbidden" };
     return { ok: true };
 }
 
 export function setRolePlan(
     who: Actor,
     target: UserRow | undefined,
-    role: FirmRole,
+    role: string,
 ):
     | { ok: true }
     | { ok: false; error: "forbidden" | "notFound" | "badRequest" } {
@@ -80,9 +79,9 @@ export function setRolePlan(
     }
     if (!target) return { ok: false, error: "notFound" };
     if (who.id === target.id) return { ok: false, error: "forbidden" };
-    if (!canTouch(who, target)) return { ok: false, error: "notFound" };
-    if (role !== "trader" && role !== "admin") {
-        return { ok: false, error: "badRequest" };
+    if (!knownRole(role)) return { ok: false, error: "badRequest" };
+    if (!reaches(who, target.role) || !reaches(who, role)) {
+        return { ok: false, error: "forbidden" };
     }
     return { ok: true };
 }
