@@ -3189,6 +3189,357 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/roles": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Builtin and custom Roles. Any Staff. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            name: string;
+                            builtin: boolean;
+                            permissions: {
+                                user?: ("list" | "create" | "ban" | "set-role")[];
+                                role?: "write"[];
+                                payment?: ("complete" | "read" | "list")[];
+                                tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                                payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                                firm?: ("read" | "write")[];
+                                broker?: "credentials"[];
+                                kyc?: "write"[];
+                            };
+                            userCount: number;
+                        }[];
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission to do this. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        name: string;
+                        permissions: {
+                            user?: ("list" | "create" | "ban" | "set-role")[];
+                            role?: "write"[];
+                            payment?: ("complete" | "read" | "list")[];
+                            tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                            payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                            firm?: ("read" | "write")[];
+                            broker?: "credentials"[];
+                            kyc?: "write"[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description The created Role. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            name: string;
+                            builtin: boolean;
+                            permissions: {
+                                user?: ("list" | "create" | "ban" | "set-role")[];
+                                role?: "write"[];
+                                payment?: ("complete" | "read" | "list")[];
+                                tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                                payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                                firm?: ("read" | "write")[];
+                                broker?: "credentials"[];
+                                kyc?: "write"[];
+                            };
+                            userCount: number;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission, or the Role is builtin, your own, or holds Permissions you do not. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description A resource with this id already exists. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/roles/{name}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    name: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        permissions: {
+                            user?: ("list" | "create" | "ban" | "set-role")[];
+                            role?: "write"[];
+                            payment?: ("complete" | "read" | "list")[];
+                            tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                            payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                            firm?: ("read" | "write")[];
+                            broker?: "credentials"[];
+                            kyc?: "write"[];
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description The edited Role. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            name: string;
+                            builtin: boolean;
+                            permissions: {
+                                user?: ("list" | "create" | "ban" | "set-role")[];
+                                role?: "write"[];
+                                payment?: ("complete" | "read" | "list")[];
+                                tradingAccount?: ("read" | "list" | "fail" | "pass" | "resync" | "reactivate")[];
+                                payout?: ("read" | "list" | "approve" | "reject" | "pay")[];
+                                firm?: ("read" | "write")[];
+                                broker?: "credentials"[];
+                                kyc?: "write"[];
+                            };
+                            userCount: number;
+                        };
+                    };
+                };
+                /** @description The request was invalid. Check the body and parameters. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission, or the Role is builtin, your own, or holds Permissions you do not. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    name: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Deleted. */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description You are not signed in, or the API key is missing or wrong. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description You do not have permission, or the Role is builtin, your own, or holds Permissions you do not. */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Nothing exists at this id. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+                /** @description Users still hold this Role. Move them to another Role first. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description What went wrong, in plain language. */
+                            error: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/stats/overview": {
         parameters: {
             query?: never;

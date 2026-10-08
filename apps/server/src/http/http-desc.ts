@@ -14,6 +14,9 @@ export const httpDesc = {
     unavailable: "The ingest bus is down. Try again.",
     conflict:
         "Trading is frozen until the pending payout is approved or rejected.",
+    roleForbidden:
+        "You do not have permission, or the Role is builtin, your own, or holds Permissions you do not.",
+    roleInUse: "Users still hold this Role. Move them to another Role first.",
     statusConflict:
         "The trading account's status does not allow this. Only active accounts can be failed; only failed accounts can be reactivated.",
 } as const;

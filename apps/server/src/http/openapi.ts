@@ -37,6 +37,7 @@ export const tags = {
     ingest: "Ingest",
     kyc: "KYC",
     users: "Users",
+    roles: "Roles",
     stats: "Stats",
 } as const;
 
@@ -54,6 +55,8 @@ const tagMeta: Record<string, string> = {
         "Push fills and equity from a broker or bridge. POST enqueues; GET the account for settled state. Use X-Api-Key.",
     [tags.kyc]: "KYC: admin sets verified on a User.",
     [tags.users]: "Users: list, create, ban, and set Role.",
+    [tags.roles]:
+        "Roles: builtin and custom Permission sets. Staff grant only what they hold.",
     [tags.stats]: "Admin home figures: counts, money totals, daily activity.",
 };
 

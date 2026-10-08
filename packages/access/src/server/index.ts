@@ -41,4 +41,12 @@ export function roleHasPermission(
 }
 
 export { BANNED_USER, createStaffUser, firmAccess } from "./firm-access.ts";
+export {
+    type Actor,
+    createRole,
+    deleteRole,
+    listRoles,
+    type RoleOut,
+    updateRole,
+} from "./roles.ts";
 export { firmRoles } from "./schema.ts";
