@@ -286,6 +286,12 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Validation:** the form resolves against the config package's schema (`firmSettingsSchema`), so the client rules are the server rules. Errors show under the field once it is touched.
 - **Save bar:** sticky at the bottom, translucent with blur. It says "Unsaved changes" or "All changes saved". Discard appears only when dirty, and Save stays disabled until something changes.
 
+### Charts
+- **Kit:** `ColumnChart`, `StackedBars`, `ChartLegend` and `ChartCard` in `@propfirmcore/ui/components/chart`, all hand-built SVG with no chart library. Pick the form first: a single number is a KPI, not a chart.
+- **Colour:** single series use neutral `--chart-ink`, with the latest column in the foreground as emphasis. Series that mean a state use the `--chart-*` status fills (passed, active, failed, warn, flag). Never a categorical rainbow. Dark mode has its own validated fill steps. Account status stacks in the order Passed, Active, Failed, so red and green never touch (deuteranopia).
+- **Marks:** columns at most 24px wide, with a 4px rounded data end and a square baseline. A 2px surface gap separates stacked segments. Grid is a solid hairline. Ticks are round (1, 2 or 5 multiples). Text uses text tokens, never the series colour.
+- **Reading:** a legend for two or more series, with each status icon in the legend. Every column and segment is focusable with a full aria-label and shows a tooltip on hover and focus. Every `ChartCard` has a Table toggle. All-zero data shows a sentence, not an empty grid.
+
 ### Description List
 - **Use:** label and value facts (account details, rulesets). Muted label column at max-content width, value column fills. 6px row gap, tabular numerals.
 - **Empty:** a missing value renders a muted em dash, never a blank.

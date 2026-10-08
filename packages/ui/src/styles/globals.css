@@ -33,6 +33,13 @@
     --info: oklch(0.5 0.14 255);
     --info-subtle: oklch(0.962 0.015 255);
     /* Firm brand. Override these two to white-label; identity spots only. */
+    /* Chart fills. Validated with the dataviz checks (band, chroma, CVD). */
+    --chart-ink: oklch(0.62 0 0);
+    --chart-passed: var(--success);
+    --chart-active: var(--info);
+    --chart-failed: var(--destructive);
+    --chart-warn: var(--warning);
+    --chart-flag: var(--flag);
     --brand: oklch(0.48 0.08 195);
     --brand-foreground: oklch(0.985 0 0);
     --border: oklch(0.922 0 0);
@@ -67,6 +74,12 @@
     --flag-subtle: oklch(0.3 0.07 300);
     --info: oklch(0.8 0.1 250);
     --info-subtle: oklch(0.3 0.06 255);
+    --chart-ink: oklch(0.55 0 0);
+    --chart-passed: oklch(0.62 0.14 155);
+    --chart-active: oklch(0.62 0.13 255);
+    --chart-failed: oklch(0.62 0.19 25);
+    --chart-warn: oklch(0.66 0.13 70);
+    --chart-flag: oklch(0.62 0.15 300);
     --brand: oklch(0.74 0.1 195);
     --brand-foreground: oklch(0.145 0 0);
     --border: oklch(1 0 0 / 10%);
