@@ -1,4 +1,4 @@
-import { barX, barY, defineChart, text } from "@tanstack/charts";
+import { barX, barY, defineChart, lineY, ruleY, text } from "@tanstack/charts";
 import { Chart } from "@tanstack/charts/react";
 import { scaleBand } from "@tanstack/charts/scales/band";
 import { scaleLinear } from "@tanstack/charts/scales/linear";
@@ -244,6 +244,140 @@ export function StackedBars({
             ariaDescription="Use the table view for exact values."
             className={chartClass}
         />
+    );
+}
+
+export type ChartReference = {
+    key: string;
+    label: string;
+    value: number;
+    color: string;
+};
+
+/**
+ * A value over real time (x is epoch ms), with dashed reference lines for
+ * limits. Reference values belong in the legend: rules get no tooltip.
+ */
+export function LineChart({
+    points,
+    references = [],
+    label,
+    title,
+    formatValue,
+    formatTime,
+    height = 220,
+}: {
+    points: { t: number; value: number }[];
+    references?: ChartReference[];
+    /** Series name for the tooltip, e.g. "Equity". */
+    label: string;
+    title: string;
+    formatValue: (v: number) => string;
+    formatTime: (t: number) => string;
+    height?: number;
+}) {
+    const definition = useMemo(
+        () =>
+            defineChart({
+                marks: [
+                    ...references.map((r) =>
+                        ruleY([r.value], {
+                            id: `ref-${r.key}`,
+                            stroke: r.color,
+                            strokeOpacity: 0.9,
+                            strokeWidth: 1.5,
+                            strokeDasharray: "4 3",
+                        }),
+                    ),
+                    lineY(points, {
+                        x: "t",
+                        y: "value",
+                        stroke: "var(--foreground)",
+                        strokeWidth: 2,
+                    }),
+                ],
+                scales: {
+                    x: {
+                        scale: scaleLinear,
+                        axis: {
+                            line: false,
+                            ticks: { count: 4, format: formatTime },
+                        },
+                    },
+                    y: {
+                        scale: scaleLinear,
+                        nice: true,
+                        grid: { strokeOpacity: 0.15 },
+                        axis: {
+                            line: false,
+                            ticks: {
+                                count: 4,
+                                format: (v: number) => compact.format(v),
+                            },
+                        },
+                    },
+                },
+                focus: "nearest-x",
+                tooltip: {
+                    use: tooltip,
+                    items: [
+                        {
+                            channel: "x",
+                            label: "Time",
+                            text: (pt) => formatTime(pt.xValue),
+                        },
+                        {
+                            channel: "y",
+                            label,
+                            text: (pt) => formatValue(pt.yValue),
+                        },
+                    ],
+                },
+            }),
+        [points, references, label, formatValue, formatTime],
+    );
+    return (
+        <Chart
+            definition={definition}
+            height={height}
+            ariaLabel={title}
+            ariaDescription="Use the table view for exact values."
+            className={chartClass}
+        />
+    );
+}
+
+/** Legend for dashed reference lines, with each value. */
+export function ReferenceLegend({
+    references,
+    formatValue,
+}: {
+    references: ChartReference[];
+    formatValue: (v: number) => string;
+}) {
+    return (
+        <ul className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            <li className="flex items-center gap-1.5">
+                <span
+                    aria-hidden
+                    className="h-0.5 w-4 rounded-full bg-foreground"
+                />
+                Equity
+            </li>
+            {references.map((r) => (
+                <li key={r.key} className="flex items-center gap-1.5">
+                    <span
+                        aria-hidden
+                        className="w-4 border-t-[1.5px] border-dashed"
+                        style={{ borderColor: r.color }}
+                    />
+                    {r.label}
+                    <span className="font-medium text-foreground tabular-nums">
+                        {formatValue(r.value)}
+                    </span>
+                </li>
+            ))}
+        </ul>
     );
 }
 

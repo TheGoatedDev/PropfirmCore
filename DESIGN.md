@@ -284,7 +284,12 @@ These are the workhorse of both apps (TanStack Table through `DataTable`).
 - **Layout:** one form, split into sections by a hairline. Each section has a 15rem left column (h2 title + one-sentence muted description) and a fields grid (two columns from `sm`, capped at 42rem). No cards. Mobile stacks the title above its fields.
 - **Pick, don't type:** use `Select` for short fixed lists, `Combobox` for long ones (timezone, currency) with the code or UTC offset as a muted hint, `ChoiceGroup` radio cards when each option needs a sentence, `Switch` rows for on/off modules, and `type="time"` for clock times.
 - **Validation:** the form resolves against the config package's schema (`firmSettingsSchema`), so the client rules are the server rules. Errors show under the field once it is touched.
-- **Save bar:** sticky at the bottom, translucent with blur. It says "Unsaved changes" or "All changes saved". Discard appears only when dirty, and Save stays disabled until something changes.
+- **Save bar:** `SaveBar` from `@propfirmcore/ui/components/settings`, sticky at the bottom, translucent with blur. It says "Unsaved changes" or "All changes saved". Discard appears only when dirty, and Save stays disabled until something changes. Create pages label it "Create broker" or "Create product".
+- **Shared pieces:** `SettingsSection` + `SaveBar` drive the firm, broker and product forms. Read-only IDs are muted inputs with a "cannot change" hint. Rule fractions are edited as percentages with a % suffix, and stored 0–1.
+
+### Record Pages (trading account)
+- **Header:** the record's name as an h2 (never the breadcrumb title), its `StatusBadge` and a context badge, the ID in small mono, and actions top-right.
+- **Then:** a figures card (four KPIs), the main chart (`LineChart` with dashed `ruleY` limits and a `ReferenceLegend`) beside a Details card, a Rules table (limit, threshold, now, headroom; "Breached" in Signal Red), then the history tables.
 
 ### Charts
 - **Kit:** `ColumnChart`, `StackedBars`, `ChartLegend` and `ChartCard` in `@propfirmcore/ui/components/chart`. The plots render with **TanStack Charts** (`@tanstack/charts`): `barY`/`barX` marks, the built-in tooltip (themed via the `--ts-chart-tooltip-*` variables on the popover tokens) and its keyboard focus. Pick the form first: a single number is a KPI, not a chart.

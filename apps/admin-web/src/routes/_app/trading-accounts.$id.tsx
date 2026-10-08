@@ -1,3 +1,4 @@
+import { Badge } from "@propfirmcore/ui/components/badge";
 import { Button } from "@propfirmcore/ui/components/button";
 import {
     Card,
@@ -5,6 +6,12 @@ import {
     CardHeader,
     CardTitle,
 } from "@propfirmcore/ui/components/card";
+import {
+    ChartCard,
+    type ChartReference,
+    LineChart,
+    ReferenceLegend,
+} from "@propfirmcore/ui/components/chart";
 import { useConfirm } from "@propfirmcore/ui/components/confirm-dialog";
 import { DescriptionList } from "@propfirmcore/ui/components/description-list";
 import {
@@ -30,6 +37,7 @@ import {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { CircleCheck, CircleX, RefreshCw } from "lucide-react";
+import { DateTime } from "luxon";
 import { api, failMsg, keys } from "../../api.ts";
 import { fetchFirm } from "../../firm-api.ts";
 import { useUi } from "../../stores/ui.ts";
@@ -48,6 +56,24 @@ type Snapshot = {
     balance: number;
     ts: string;
 };
+
+function Figure({
+    label,
+    value,
+    detail,
+}: {
+    label: string;
+    value: string;
+    detail: string;
+}) {
+    return (
+        <div className="space-y-1">
+            <div className="text-sm text-muted-foreground">{label}</div>
+            <div className="text-2xl font-semibold tracking-tight">{value}</div>
+            <div className="text-sm text-muted-foreground">{detail}</div>
+        </div>
+    );
+}
 
 export const Route = createFileRoute("/_app/trading-accounts/$id")({
     component: TradingAccount,
@@ -142,90 +168,303 @@ function TradingAccount() {
     const product = firm.data?.products.find((p) => p.id === acc.productId);
     const phase = product?.phases[acc.phaseIndex];
     const active = acc.status === "active";
-    const facts: [string, string | number][] = [
-        ["User", acc.userId],
-        ["Product", product?.name ?? acc.productId],
-        [
-            "Phase",
-            phase
-                ? `${acc.phaseIndex + 1}. ${phase.name} (${formatEnum(phase.kind)})`
-                : acc.phaseIndex + 1,
-        ],
-        ["Broker", acc.brokerId],
-        ["Broker login", acc.brokerLogin],
-        ["KYC", acc.kycVerified ? "Verified" : "Not verified"],
-        ["Start balance", formatAmount(acc.startBalance)],
-        ["Equity", formatAmount(acc.equity)],
-        ["Balance", formatAmount(acc.balance)],
-        ["Daily start equity", formatAmount(acc.dailyStartEquity)],
-        ["Trading days", acc.tradingDays.length],
+    const r = acc.ruleset;
+    const start = acc.startBalance;
+    const pnl = acc.equity - start;
+    const target = start * (1 + r.profitTarget);
+    const floor = start * (1 - r.maxDrawdown);
+    const dailyFloor = acc.dailyStartEquity - start * r.dailyDrawdown;
+    const warnings = (breaches.data ?? []).filter(
+        (b) => b.severity === "warn",
+    ).length;
+    const currency = (firm.data?.checkout.currency ?? "").toUpperCase();
+
+    const references: ChartReference[] = [
+        ...(r.profitTarget > 0
+            ? [
+                  {
+                      key: "target",
+                      label: "Profit target",
+                      value: target,
+                      color: "var(--chart-passed)",
+                  },
+              ]
+            : []),
+        {
+            key: "daily",
+            label: "Daily floor",
+            value: dailyFloor,
+            color: "var(--chart-warn)",
+        },
+        {
+            key: "floor",
+            label: "Max drawdown floor",
+            value: floor,
+            color: "var(--chart-failed)",
+        },
     ];
-    const rules: [string, string | number][] = [
-        ["Profit target", formatPercent(acc.ruleset.profitTarget)],
-        ["Max drawdown", formatPercent(acc.ruleset.maxDrawdown)],
-        ["Daily drawdown", formatPercent(acc.ruleset.dailyDrawdown)],
-        ["Min trading days", acc.ruleset.minTradingDays],
+    const equityPoints = [...(snapshots.data ?? [])]
+        .map((s) => ({ t: Date.parse(s.ts), value: s.equity }))
+        .filter((p) => Number.isFinite(p.t))
+        .sort((x, y) => x.t - y.t);
+
+    const above = (v: number, limit: number) =>
+        v >= limit ? `${formatAmount(v - limit)} above` : "Breached";
+    const ruleRows: {
+        rule: string;
+        limit: string;
+        threshold: string;
+        now: string;
+        headroom: string;
+    }[] = [
+        {
+            rule: "Profit target",
+            limit: formatPercent(r.profitTarget),
+            threshold: r.profitTarget > 0 ? formatAmount(target) : "—",
+            now: formatAmount(acc.equity),
+            headroom:
+                r.profitTarget <= 0
+                    ? "No target"
+                    : acc.equity >= target
+                      ? "Reached"
+                      : `${formatAmount(target - acc.equity)} to go`,
+        },
+        {
+            rule: "Max drawdown",
+            limit: formatPercent(r.maxDrawdown),
+            threshold: formatAmount(floor),
+            now: formatAmount(acc.equity),
+            headroom: above(acc.equity, floor),
+        },
+        {
+            rule: "Daily drawdown",
+            limit: formatPercent(r.dailyDrawdown),
+            threshold: formatAmount(dailyFloor),
+            now: formatAmount(acc.equity),
+            headroom: above(acc.equity, dailyFloor),
+        },
+        {
+            rule: "Min trading days",
+            limit: String(r.minTradingDays),
+            threshold: "—",
+            now: String(acc.tradingDays.length),
+            headroom:
+                acc.tradingDays.length >= r.minTradingDays
+                    ? "Met"
+                    : `${r.minTradingDays - acc.tradingDays.length} to go`,
+        },
+        ...(r.maxWarnings !== undefined
+            ? [
+                  {
+                      rule: "Max warnings",
+                      limit: String(r.maxWarnings),
+                      threshold: "—",
+                      now: String(warnings),
+                      headroom:
+                          warnings < r.maxWarnings
+                              ? `${r.maxWarnings - warnings} left`
+                              : "Reached",
+                  },
+              ]
+            : []),
     ];
-    if (acc.ruleset.maxWarnings !== undefined) {
-        rules.push(["Max warnings", acc.ruleset.maxWarnings]);
-    }
 
     return (
         <div className="space-y-6">
-            <div className="flex flex-wrap items-center justify-end gap-2">
-                <Button
-                    variant="outline"
-                    data-testid="account-resync"
-                    disabled={act.isPending}
-                    onClick={() => act.mutate("resync")}
-                >
-                    <RefreshCw />
-                    Resync ruleset
-                </Button>
-                <Button
-                    variant="outline"
-                    data-testid="account-pass"
-                    disabled={!active || act.isPending}
-                    onClick={() => act.mutate("pass")}
-                >
-                    <CircleCheck />
-                    Pass
-                </Button>
-                <Button
-                    variant="destructive"
-                    data-testid="account-fail"
-                    disabled={!active || act.isPending}
-                    onClick={async () => {
-                        const ok = await confirm({
-                            title: "Fail this trading account?",
-                            description:
-                                "A failed account is closed for good and cannot be reused.",
-                            confirmLabel: "Fail account",
-                            variant: "destructive",
-                        });
-                        if (ok) act.mutate("fail");
-                    }}
-                >
-                    <CircleX />
-                    Fail
-                </Button>
-            </div>
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex flex-wrap items-center gap-2 break-all">
-                        {acc.id}
+            <header className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 space-y-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                        <h2 className="text-lg font-semibold">
+                            {product?.name ?? acc.productId}
+                        </h2>
                         <StatusBadge
                             data-testid="account-detail-status"
                             status={acc.status}
                         />
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <DescriptionList items={facts} />
+                        {phase ? (
+                            <Badge variant="outline">
+                                Phase {acc.phaseIndex + 1} of{" "}
+                                {product?.phases.length} ·{" "}
+                                {formatEnum(phase.kind)}
+                            </Badge>
+                        ) : null}
+                    </div>
+                    <p className="truncate font-mono text-xs text-muted-foreground">
+                        {acc.id}
+                    </p>
+                </div>
+                <div className="flex flex-wrap items-center gap-2">
+                    <Button
+                        variant="outline"
+                        data-testid="account-resync"
+                        disabled={act.isPending}
+                        onClick={() => act.mutate("resync")}
+                    >
+                        <RefreshCw />
+                        Resync ruleset
+                    </Button>
+                    <Button
+                        variant="outline"
+                        data-testid="account-pass"
+                        disabled={!active || act.isPending}
+                        onClick={() => act.mutate("pass")}
+                    >
+                        <CircleCheck />
+                        Pass
+                    </Button>
+                    <Button
+                        variant="destructive"
+                        data-testid="account-fail"
+                        disabled={!active || act.isPending}
+                        onClick={async () => {
+                            const ok = await confirm({
+                                title: "Fail this trading account?",
+                                description:
+                                    "A failed account is closed for good and cannot be reused.",
+                                confirmLabel: "Fail account",
+                                variant: "destructive",
+                            });
+                            if (ok) act.mutate("fail");
+                        }}
+                    >
+                        <CircleX />
+                        Fail
+                    </Button>
+                </div>
+            </header>
+
+            <Card>
+                <CardContent className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+                    <Figure
+                        label="Equity"
+                        value={formatAmount(acc.equity)}
+                        detail={`${currency} sim`}
+                    />
+                    <Figure
+                        label="P&L since start"
+                        value={`${pnl >= 0 ? "+" : "−"}${formatAmount(Math.abs(pnl))}`}
+                        detail={`${pnl >= 0 ? "+" : "−"}${formatPercent(Math.abs(pnl) / start)} of ${formatAmount(start)}`}
+                    />
+                    <Figure
+                        label="Balance"
+                        value={formatAmount(acc.balance)}
+                        detail={`Day started at ${formatAmount(acc.dailyStartEquity)}`}
+                    />
+                    <Figure
+                        label="Trading days"
+                        value={String(acc.tradingDays.length)}
+                        detail={`of ${r.minTradingDays} required`}
+                    />
                 </CardContent>
             </Card>
-            <PageSection title="Ruleset">
-                <DescriptionList items={rules} />
+
+            <div className="grid gap-4 lg:grid-cols-3">
+                <ChartCard
+                    className="lg:col-span-2"
+                    title="Equity"
+                    description="Every snapshot from the broker, with the rule limits for this phase."
+                    legend={
+                        <ReferenceLegend
+                            references={references}
+                            formatValue={formatAmount}
+                        />
+                    }
+                    chart={
+                        equityPoints.length > 1 ? (
+                            <LineChart
+                                title="Equity over time"
+                                label="Equity"
+                                points={equityPoints}
+                                references={references}
+                                formatValue={formatAmount}
+                                formatTime={(t) =>
+                                    DateTime.fromMillis(t).toFormat(
+                                        "LLL d, HH:mm",
+                                    )
+                                }
+                            />
+                        ) : (
+                            <EmptyNote>
+                                Not enough snapshots to chart yet.
+                            </EmptyNote>
+                        )
+                    }
+                    table={{
+                        columns: ["Time", "Equity"],
+                        rows: [...equityPoints]
+                            .reverse()
+                            .slice(0, 200)
+                            .map((p) => [
+                                formatDateTime(new Date(p.t).toISOString()),
+                                formatAmount(p.value),
+                            ]),
+                    }}
+                />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Details</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <DescriptionList
+                            items={[
+                                ["User", acc.userId],
+                                ["Broker", acc.brokerId],
+                                ["Broker login", acc.brokerLogin],
+                                [
+                                    "KYC",
+                                    acc.kycVerified
+                                        ? "Verified"
+                                        : "Not verified",
+                                ],
+                                ["Start balance", formatAmount(start)],
+                                ["Peak equity", formatAmount(acc.peakEquity)],
+                            ]}
+                        />
+                    </CardContent>
+                </Card>
+            </div>
+
+            <PageSection title="Rules">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Rule</TableHead>
+                            <TableHead className="text-right">Limit</TableHead>
+                            <TableHead className="text-right">
+                                Threshold
+                            </TableHead>
+                            <TableHead className="text-right">Now</TableHead>
+                            <TableHead className="text-right">
+                                Headroom
+                            </TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {ruleRows.map((row) => (
+                            <TableRow key={row.rule}>
+                                <TableCell>{row.rule}</TableCell>
+                                <TableCell className="text-right">
+                                    {row.limit}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {row.threshold}
+                                </TableCell>
+                                <TableCell className="text-right">
+                                    {row.now}
+                                </TableCell>
+                                <TableCell
+                                    className={
+                                        row.headroom === "Breached"
+                                            ? "text-right font-medium text-destructive"
+                                            : "text-right"
+                                    }
+                                >
+                                    {row.headroom}
+                                </TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
             </PageSection>
             <PageSection title="Breaches">
                 {breaches.data?.length === 0 ? (
