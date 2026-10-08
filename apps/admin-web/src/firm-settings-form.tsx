@@ -7,7 +7,6 @@ import {
     kycGates,
     onUncoverablePolicies,
 } from "@propfirmcore/config";
-import { Button } from "@propfirmcore/ui/components/button";
 import {
     type Choice,
     ChoiceGroup,
@@ -35,7 +34,6 @@ import {
 import { SaveBar, SettingsSection } from "@propfirmcore/ui/components/settings";
 import { Switch } from "@propfirmcore/ui/components/switch";
 import { formatEnum } from "@propfirmcore/ui/lib/format";
-import type { ReactNode } from "react";
 import { useForm } from "react-hook-form";
 
 function utcOffset(tz: string): string {
