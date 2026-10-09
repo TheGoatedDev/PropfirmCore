@@ -1,10 +1,9 @@
-import { createStaffUser } from "@propfirmcore/access/server";
+import { type Actor, createStaffUser } from "@propfirmcore/access/server";
 import { and, asc, count, desc, eq, ilike, ne, or, sql } from "drizzle-orm";
 import type { Auth } from "../auth/auth.ts";
 import { session, user } from "../auth/auth-schema.ts";
 import type { Db } from "../db/db.ts";
 import {
-    type Actor,
     banPlan,
     createPlan,
     listScope,

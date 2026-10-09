@@ -5,6 +5,10 @@ on:
     push:
         branches: [main]
 
+env:
+    # Testcontainers pulls via Google's Docker Hub mirror: no anonymous rate limit.
+    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: mirror.gcr.io/
+
 jobs:
     check:
         runs-on: ubuntu-latest

@@ -1,11 +1,10 @@
 import { isBuiltinRole, within } from "@propfirmcore/access";
 import {
+    type Actor,
     customRoleNames,
     permissionsFor,
     roleHasPermission,
 } from "@propfirmcore/access/server";
-
-export type Actor = { id: string; role: string };
 
 export type UserRow = {
     id: string;
