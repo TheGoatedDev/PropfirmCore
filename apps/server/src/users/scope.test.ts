@@ -1,7 +1,6 @@
-import { setRoles } from "@propfirmcore/access/server";
+import { type Actor, setRoles } from "@propfirmcore/access/server";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
-    type Actor,
     banPlan,
     createPlan,
     listScope,
